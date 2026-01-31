@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Good old Solitaire Debug",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+        },
+        {
+            "name": "Good old Solitaire Release",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+        },
+    ],
+}
