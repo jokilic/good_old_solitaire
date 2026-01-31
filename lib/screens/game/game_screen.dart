@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:playing_cards/playing_cards.dart' as pc;
 
 import 'game_controller.dart';
 
@@ -42,23 +43,56 @@ class _GameScreenState extends State<GameScreen> {
           ),
           body: LayoutBuilder(
             builder: (context, constraints) {
-              final horizontalPadding = 12.0;
-              final availableWidth = constraints.maxWidth - horizontalPadding * 2;
+              final padding = 12.0;
+              final isLandscape = constraints.maxWidth > constraints.maxHeight;
+              final availableWidth = constraints.maxWidth - padding * 2;
               final cardWidth = (availableWidth - 6 * 8) / 7;
               final clampedCardWidth = cardWidth.clamp(48.0, 92.0);
               final cardHeight = clampedCardWidth * 1.4;
+              final bottomCardWidth =
+                  (clampedCardWidth * 0.82).clamp(40.0, clampedCardWidth);
+              final bottomCardHeight = bottomCardWidth * 1.4;
 
               return Padding(
-                padding: EdgeInsets.all(horizontalPadding),
-                child: Column(
-                  children: [
-                    _buildTopRow(clampedCardWidth, cardHeight),
-                    const SizedBox(height: 12),
-                    Expanded(
-                      child: _buildTableauRow(clampedCardWidth, cardHeight),
-                    ),
-                  ],
-                ),
+                padding: EdgeInsets.all(padding),
+                child: isLandscape
+                    ? Column(
+                        children: [
+                          Expanded(
+                            child: _buildTableauRow(
+                              clampedCardWidth,
+                              cardHeight,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              _buildFoundationRow(
+                                bottomCardWidth,
+                                bottomCardHeight,
+                              ),
+                              const Spacer(),
+                              _buildStockWasteRow(
+                                bottomCardWidth,
+                                bottomCardHeight,
+                                isLandscape: true,
+                              ),
+                            ],
+                          ),
+                        ],
+                      )
+                    : Column(
+                        children: [
+                          _buildTopRow(clampedCardWidth, cardHeight),
+                          const SizedBox(height: 12),
+                          Expanded(
+                            child: _buildTableauRow(
+                              clampedCardWidth,
+                              cardHeight,
+                            ),
+                          ),
+                        ],
+                      ),
               );
             },
           ),
@@ -70,20 +104,38 @@ class _GameScreenState extends State<GameScreen> {
   Widget _buildTopRow(double cardWidth, double cardHeight) {
     return Row(
       children: [
-        _buildStockPile(cardWidth, cardHeight),
-        const SizedBox(width: 8),
-        _buildWastePile(cardWidth, cardHeight),
+        _buildStockWasteRow(cardWidth, cardHeight),
         const Spacer(),
-        Row(
-          children: List.generate(
-            controller.foundations.length,
-            (index) => Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: _buildFoundationPile(index, cardWidth, cardHeight),
-            ),
-          ),
-        ),
+        _buildFoundationRow(cardWidth, cardHeight),
       ],
+    );
+  }
+
+  Widget _buildStockWasteRow(
+    double cardWidth,
+    double cardHeight, {
+    bool isLandscape = false,
+  }) {
+    final stock = _buildStockPile(cardWidth, cardHeight);
+    final waste = _buildWastePile(cardWidth, cardHeight);
+    return Row(
+      children: [
+        if (isLandscape) waste else stock,
+        const SizedBox(width: 8),
+        if (isLandscape) stock else waste,
+      ],
+    );
+  }
+
+  Widget _buildFoundationRow(double cardWidth, double cardHeight) {
+    return Row(
+      children: List.generate(
+        controller.foundations.length,
+        (index) => Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: _buildFoundationPile(index, cardWidth, cardHeight),
+        ),
+      ),
     );
   }
 
@@ -113,7 +165,7 @@ class _GameScreenState extends State<GameScreen> {
         cardHeight,
         heightMultiplier: 1,
         child: hasCards
-            ? LongPressDraggable<DragPayload>(
+            ? Draggable<DragPayload>(
                 data: dragPayload,
                 feedback: _dragFeedback(
                   controller.waste.last,
@@ -157,7 +209,15 @@ class _GameScreenState extends State<GameScreen> {
             cardHeight,
             heightMultiplier: 1,
             child: hasCards
-                ? _buildCard(pile.last, cardWidth, cardHeight)
+                ? Draggable<DragPayload>(
+                    data: DragPayload(source: PileType.foundation, pileIndex: index),
+                    feedback: _dragFeedback(pile.last, cardWidth, cardHeight),
+                    childWhenDragging: Opacity(
+                      opacity: 0.35,
+                      child: _buildCard(pile.last, cardWidth, cardHeight),
+                    ),
+                    child: _buildCard(pile.last, cardWidth, cardHeight),
+                  )
                 : _emptySlot(cardWidth, cardHeight, label: 'A'),
           ),
         );
@@ -222,8 +282,9 @@ class _GameScreenState extends State<GameScreen> {
                     top: i * 22.0,
                     child: _buildTableauCard(
                       pile[i],
-                      i == pile.length - 1,
                       column,
+                      i,
+                      pile.sublist(i),
                       cardWidth,
                       cardHeight,
                       isSelected: isSelected && i == pile.length - 1,
@@ -276,21 +337,14 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   Widget _buildCardBack(double width, double height) {
-    return Container(
+    final backCard = pc.PlayingCard(pc.Suit.spades, pc.CardValue.ace);
+    return SizedBox(
       width: width,
       height: height,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white70, width: 1.2),
-        color: const Color(0xFF1C3F9A),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1C3F9A), Color(0xFF0D2E6D)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: const Center(
-        child: Icon(Icons.star, color: Colors.white70),
+      child: pc.PlayingCardView(
+        card: backCard,
+        showBack: true,
+        elevation: 2,
       ),
     );
   }
@@ -301,55 +355,92 @@ class _GameScreenState extends State<GameScreen> {
     double height, {
     bool isSelected = false,
   }) {
-    if (!card.faceUp) {
-      return _buildCardBack(width, height);
-    }
-
-    final isRed = card.isRed;
-    return Container(
+    final playingCard = _toPlayingCard(card);
+    final cardView = SizedBox(
       width: width,
       height: height,
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        color: Colors.white,
-        border: Border.all(
-          color: isSelected ? Colors.amber : Colors.black26,
-          width: isSelected ? 2 : 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.18),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: DefaultTextStyle(
-        style: TextStyle(
-          color: isRed ? Colors.redAccent : Colors.black87,
-          fontWeight: FontWeight.w700,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(card.rankLabel),
-            Text(card.suitLabel),
-            const Spacer(),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Text(card.rankLabel),
-            ),
-          ],
-        ),
+      child: pc.PlayingCardView(
+        card: playingCard,
+        showBack: !card.faceUp,
+        elevation: 2,
       ),
     );
+
+    if (!isSelected) {
+      return cardView;
+    }
+
+    return Stack(
+      children: [
+        cardView,
+        Positioned.fill(
+          child: IgnorePointer(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.amber, width: 2),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  pc.PlayingCard _toPlayingCard(CardModel card) {
+    return pc.PlayingCard(_toPlayingSuit(card.suit), _toPlayingValue(card.rank));
+  }
+
+  pc.Suit _toPlayingSuit(Suit suit) {
+    switch (suit) {
+      case Suit.clubs:
+        return pc.Suit.clubs;
+      case Suit.diamonds:
+        return pc.Suit.diamonds;
+      case Suit.hearts:
+        return pc.Suit.hearts;
+      case Suit.spades:
+        return pc.Suit.spades;
+    }
+  }
+
+  pc.CardValue _toPlayingValue(int rank) {
+    switch (rank) {
+      case 1:
+        return pc.CardValue.ace;
+      case 2:
+        return pc.CardValue.two;
+      case 3:
+        return pc.CardValue.three;
+      case 4:
+        return pc.CardValue.four;
+      case 5:
+        return pc.CardValue.five;
+      case 6:
+        return pc.CardValue.six;
+      case 7:
+        return pc.CardValue.seven;
+      case 8:
+        return pc.CardValue.eight;
+      case 9:
+        return pc.CardValue.nine;
+      case 10:
+        return pc.CardValue.ten;
+      case 11:
+        return pc.CardValue.jack;
+      case 12:
+        return pc.CardValue.queen;
+      case 13:
+        return pc.CardValue.king;
+    }
+    return pc.CardValue.ace;
   }
 
   Widget _buildTableauCard(
     CardModel card,
-    bool isTop,
     int column,
+    int cardIndex,
+    List<CardModel> stack,
     double width,
     double height, {
     bool isSelected = false,
@@ -361,14 +452,18 @@ class _GameScreenState extends State<GameScreen> {
       isSelected: isSelected,
     );
 
-    if (!isTop || !card.faceUp) {
+    if (!card.faceUp) {
       return body;
     }
 
-    final payload = DragPayload(source: PileType.tableau, pileIndex: column);
-    return LongPressDraggable<DragPayload>(
+    final payload = DragPayload(
+      source: PileType.tableau,
+      pileIndex: column,
+      cardIndex: cardIndex,
+    );
+    return Draggable<DragPayload>(
       data: payload,
-      feedback: _dragFeedback(card, width, height),
+      feedback: _dragStackFeedback(stack, width, height),
       childWhenDragging: Opacity(
         opacity: 0.35,
         child: body,
@@ -383,6 +478,29 @@ class _GameScreenState extends State<GameScreen> {
       child: Opacity(
         opacity: 0.9,
         child: _buildCard(card, width, height),
+      ),
+    );
+  }
+
+  Widget _dragStackFeedback(List<CardModel> cards, double width, double height) {
+    if (cards.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final stackHeight = height + (cards.length - 1) * 18.0;
+    return Material(
+      color: Colors.transparent,
+      child: SizedBox(
+        width: width,
+        height: stackHeight,
+        child: Stack(
+          children: [
+            for (var i = 0; i < cards.length; i += 1)
+              Positioned(
+                top: i * 18.0,
+                child: _buildCard(cards[i], width, height),
+              ),
+          ],
+        ),
       ),
     );
   }
