@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:playing_cards/playing_cards.dart' as pc;
 
+import '../../util/dependencies.dart';
 import 'game_controller.dart';
 
 class GameScreen extends StatefulWidget {
+  const GameScreen({
+    required super.key,
+  });
+
   @override
   State<GameScreen> createState() => _GameScreenState();
 }
@@ -14,90 +19,94 @@ class _GameScreenState extends State<GameScreen> {
   @override
   void initState() {
     super.initState();
-    controller = GameController();
+
+    registerIfNotInitialized<GameController>(
+      GameController.new,
+      instanceName: widget.key.toString(),
+    );
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    unRegisterIfNotDisposed<GameController>(
+      instanceName: widget.key.toString(),
+    );
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, _) {
-        return Scaffold(
-          backgroundColor: const Color(0xFF0A6E3A),
-          appBar: AppBar(
-            title: const Text('Good Old Solitaire'),
-            backgroundColor: const Color(0xFF0B5F33),
-            actions: [
-              IconButton(
-                onPressed: controller.newGame,
-                icon: const Icon(Icons.refresh),
-                tooltip: 'New Game',
-              ),
-            ],
-          ),
-          body: LayoutBuilder(
-            builder: (context, constraints) {
-              final padding = 12.0;
-              final isLandscape = constraints.maxWidth > constraints.maxHeight;
-              final availableWidth = constraints.maxWidth - padding * 2;
-              final cardWidth = (availableWidth - 6 * 8) / 7;
-              final clampedCardWidth = cardWidth.clamp(48.0, 92.0);
-              final cardHeight = clampedCardWidth * 1.4;
-              final bottomCardWidth =
-                  (clampedCardWidth * 0.82).clamp(40.0, clampedCardWidth);
-              final bottomCardHeight = bottomCardWidth * 1.4;
+    final controller = getIt.get<GameController>(
+      instanceName: widget.key.toString(),
+    );
 
-              return Padding(
-                padding: EdgeInsets.all(padding),
-                child: isLandscape
-                    ? Column(
-                        children: [
-                          Expanded(
-                            child: _buildTableauRow(
-                              clampedCardWidth,
-                              cardHeight,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              _buildFoundationRow(
-                                bottomCardWidth,
-                                bottomCardHeight,
-                              ),
-                              const Spacer(),
-                              _buildStockWasteRow(
-                                bottomCardWidth,
-                                bottomCardHeight,
-                                isLandscape: true,
-                              ),
-                            ],
-                          ),
-                        ],
-                      )
-                    : Column(
-                        children: [
-                          _buildTopRow(clampedCardWidth, cardHeight),
-                          const SizedBox(height: 12),
-                          Expanded(
-                            child: _buildTableauRow(
-                              clampedCardWidth,
-                              cardHeight,
-                            ),
-                          ),
-                        ],
-                      ),
-              );
-            },
+    // final state = watchIt<GameController>(
+    //   instanceName: widget.key.toString(),
+    // ).value;
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF0A6E3A),
+      appBar: AppBar(
+        title: const Text('Good Old Solitaire'),
+        backgroundColor: const Color(0xFF0B5F33),
+        actions: [
+          IconButton(
+            onPressed: controller.newGame,
+            icon: const Icon(Icons.refresh),
+            tooltip: 'New Game',
           ),
-        );
-      },
+        ],
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final padding = 12.0;
+          final isLandscape = constraints.maxWidth > constraints.maxHeight;
+          final availableWidth = constraints.maxWidth - padding * 2;
+          final cardWidth = (availableWidth - 6 * 8) / 7;
+          final clampedCardWidth = cardWidth.clamp(48.0, 92.0);
+          final cardHeight = clampedCardWidth * 1.4;
+          final availableHeight = constraints.maxHeight - padding * 2;
+          final sideCardHeight = ((availableHeight - 3 * 8) / 4).clamp(36.0, cardHeight);
+          final sideCardWidth = (sideCardHeight / 1.4).clamp(28.0, clampedCardWidth);
+
+          return Padding(
+            padding: EdgeInsets.all(padding),
+            child: isLandscape
+                ? Row(
+                    children: [
+                      _buildFoundationColumn(
+                        sideCardWidth,
+                        sideCardHeight,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildTableauRow(
+                          clampedCardWidth,
+                          cardHeight,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      _buildStockWasteColumn(
+                        sideCardWidth,
+                        sideCardHeight,
+                      ),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      _buildTopRow(clampedCardWidth, cardHeight),
+                      const SizedBox(height: 12),
+                      Expanded(
+                        child: _buildTableauRow(
+                          clampedCardWidth,
+                          cardHeight,
+                        ),
+                      ),
+                    ],
+                  ),
+          );
+        },
+      ),
     );
   }
 
@@ -139,6 +148,32 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  Widget _buildFoundationColumn(double cardWidth, double cardHeight) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: List.generate(
+        controller.foundations.length,
+        (index) => Padding(
+          padding: EdgeInsets.only(top: index == 0 ? 0 : 8),
+          child: _buildFoundationPile(index, cardWidth, cardHeight),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStockWasteColumn(double cardWidth, double cardHeight) {
+    final stock = _buildStockPile(cardWidth, cardHeight);
+    final waste = _buildWastePile(cardWidth, cardHeight);
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        waste,
+        const SizedBox(height: 8),
+        stock,
+      ],
+    );
+  }
+
   Widget _buildStockPile(double cardWidth, double cardHeight) {
     final hasCards = controller.stock.isNotEmpty;
     return GestureDetector(
@@ -147,9 +182,7 @@ class _GameScreenState extends State<GameScreen> {
         cardWidth,
         cardHeight,
         heightMultiplier: 1,
-        child: hasCards
-            ? _buildCardBack(cardWidth, cardHeight)
-            : _emptySlot(cardWidth, cardHeight, label: 'Stock'),
+        child: hasCards ? _buildCardBack(cardWidth, cardHeight) : _emptySlot(cardWidth, cardHeight, label: 'Stock'),
       ),
     );
   }
@@ -197,10 +230,8 @@ class _GameScreenState extends State<GameScreen> {
     final pile = controller.foundations[index];
     final hasCards = pile.isNotEmpty;
     return DragTarget<DragPayload>(
-      onWillAcceptWithDetails: (details) =>
-          controller.canDropOnFoundation(details.data, index),
-      onAcceptWithDetails: (details) =>
-          controller.moveDragToFoundation(details.data, index),
+      onWillAcceptWithDetails: (details) => controller.canDropOnFoundation(details.data, index),
+      onAcceptWithDetails: (details) => controller.moveDragToFoundation(details.data, index),
       builder: (context, _, __) {
         return GestureDetector(
           onTap: () => controller.tryMoveSelectedToFoundation(index),
@@ -241,20 +272,15 @@ class _GameScreenState extends State<GameScreen> {
 
   Widget _buildTableauColumn(int column, double cardWidth, double cardHeight) {
     final pile = controller.tableau[column];
-    final isSelected = controller.selected?.source == PileType.tableau &&
-        controller.selected?.pileIndex == column;
+    final isSelected = controller.selected?.source == PileType.tableau && controller.selected?.pileIndex == column;
 
     return DragTarget<DragPayload>(
-      onWillAcceptWithDetails: (details) =>
-          controller.canDropOnTableau(details.data, column),
-      onAcceptWithDetails: (details) =>
-          controller.moveDragToTableau(details.data, column),
+      onWillAcceptWithDetails: (details) => controller.canDropOnTableau(details.data, column),
+      onAcceptWithDetails: (details) => controller.moveDragToTableau(details.data, column),
       builder: (context, _, __) {
         return GestureDetector(
           onTap: () {
-            if (controller.selected != null &&
-                !(controller.selected!.source == PileType.tableau &&
-                    controller.selected!.pileIndex == column)) {
+            if (controller.selected != null && !(controller.selected!.source == PileType.tableau && controller.selected!.pileIndex == column)) {
               controller.tryMoveSelectedToTableau(column);
               return;
             }
@@ -275,8 +301,7 @@ class _GameScreenState extends State<GameScreen> {
             heightMultiplier: 5.2,
             child: Stack(
               children: [
-                if (pile.isEmpty)
-                  _emptySlot(cardWidth, cardHeight, label: 'K'),
+                if (pile.isEmpty) _emptySlot(cardWidth, cardHeight, label: 'K'),
                 for (var i = 0; i < pile.length; i += 1)
                   Positioned(
                     top: i * 22.0,
