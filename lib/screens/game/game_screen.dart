@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/constants.dart';
@@ -388,8 +389,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             builder: (context, constraints) {
               final isLandscape = constraints.maxWidth > constraints.maxHeight;
 
-              const cardAspectRatio = 1.4;
-
               final shortestAvailableSide = MediaQuery.sizeOf(context).shortestSide - padding * 2;
 
               final cardWidth = getCardWidth(
@@ -409,57 +408,78 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               return IgnorePointer(
                 ignoring: isAnimatingMove,
                 child: isLandscape
-                    ? Row(
-                        children: [
-                          ///
-                          /// LEFT COLUMN
-                          ///
-                          FinishedCardsColumn(
-                            cardHeight: cardHeight,
-                            cardWidth: cardWidth,
-                            pileKeys: controller.finishedPileKeys,
-                            isAnimatingMove: isAnimatingMove,
-                            onTapMoveSelected: (index) => animateSelectedToFinished(
-                              index,
-                              cardHeight: cardHeight,
-                              cardWidth: cardWidth,
-                            ),
-                          ),
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: padding * 2,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ///
+                            /// LEFT COLUMN (spacing)
+                            ///
+                            SizedBox(width: cardWidth + padding),
 
-                          const SizedBox(width: padding),
+                            ///
+                            /// CENTER COLUMN (main & finished cards)
+                            ///
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  ///
+                                  /// MAIN CARDS
+                                  ///
+                                  Expanded(
+                                    child: MainCardsRow(
+                                      isLandscape: isLandscape,
+                                      cardHeight: cardHeight,
+                                      cardWidth: cardWidth,
+                                      stackHeightMultiplier: stackHeightMultiplier,
+                                      columnKeys: controller.mainColumnKeys,
+                                      isAnimatingMove: isAnimatingMove,
+                                      hiddenTopCardColumn: hiddenTopCardColumn,
+                                      onTapMoveSelected: (column) => animateSelectedToMain(
+                                        column,
+                                        cardHeight: cardHeight,
+                                        cardWidth: cardWidth,
+                                      ),
+                                    ),
+                                  ),
 
-                          ///
-                          /// MIDDLE COLUMN
-                          ///
-                          Expanded(
-                            child: MainCardsRow(
-                              isLandscape: isLandscape,
-                              cardHeight: cardHeight,
-                              cardWidth: cardWidth,
-                              stackHeightMultiplier: stackHeightMultiplier,
-                              columnKeys: controller.mainColumnKeys,
-                              isAnimatingMove: isAnimatingMove,
-                              hiddenTopCardColumn: hiddenTopCardColumn,
-                              onTapMoveSelected: (column) => animateSelectedToMain(
-                                column,
-                                cardHeight: cardHeight,
-                                cardWidth: cardWidth,
+                                  const SizedBox(height: padding),
+
+                                  ///
+                                  /// FINISHED CARDS
+                                  ///
+                                  FinishedCardsRow(
+                                    cardHeight: cardHeight,
+                                    cardWidth: cardWidth,
+                                    pileKeys: controller.finishedPileKeys,
+                                    isAnimatingMove: isAnimatingMove,
+                                    onTapMoveSelected: (index) => animateSelectedToFinished(
+                                      index,
+                                      cardHeight: cardHeight,
+                                      cardWidth: cardWidth,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
 
-                          const SizedBox(width: padding),
+                            const SizedBox(width: padding),
 
-                          ///
-                          /// RIGHT COLUMN
-                          ///
-                          DrawingCardsColumn(
-                            cardHeight: cardHeight,
-                            cardWidth: cardWidth,
-                            drawingOpenedKey: drawingOpenedKey,
-                            hideOpenedTopCard: hideOpenedTopCard,
-                          ),
-                        ],
+                            ///
+                            /// RIGHT COLUMN (drawing cards)
+                            ///
+                            DrawingCardsColumn(
+                              cardHeight: cardHeight,
+                              cardWidth: cardWidth,
+                              drawingOpenedKey: drawingOpenedKey,
+                              hideOpenedTopCard: hideOpenedTopCard,
+                            ),
+                          ],
+                        ),
                       )
                     : Column(
                         children: [
@@ -470,25 +490,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ///
-                              /// DRAWING CARDS
-                              ///
-                              DrawingUnopenedCards(
-                                cardHeight: cardHeight,
-                                cardWidth: cardWidth,
-                              ),
-                              DrawingOpenedCards(
-                                cardHeight: cardHeight,
-                                cardWidth: cardWidth,
-                                pileKey: drawingOpenedKey,
-                                hideTopCard: hideOpenedTopCard,
-                              ),
-
-                              ///
-                              /// EMPTY SPACE
-                              ///
-                              SizedBox(width: cardWidth),
-
                               ///
                               /// FINISHED CARDS
                               ///
@@ -506,6 +507,28 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                     cardWidth: cardWidth,
                                   ),
                                 ),
+                              ),
+
+                              ///
+                              /// EMPTY SPACE
+                              ///
+                              SizedBox(
+                                height: cardHeight,
+                                width: cardWidth,
+                              ),
+
+                              ///
+                              /// DRAWING CARDS
+                              ///
+                              DrawingOpenedCards(
+                                cardHeight: cardHeight,
+                                cardWidth: cardWidth,
+                                pileKey: drawingOpenedKey,
+                                hideTopCard: hideOpenedTopCard,
+                              ),
+                              DrawingUnopenedCards(
+                                cardHeight: cardHeight,
+                                cardWidth: cardWidth,
                               ),
                             ],
                           ),

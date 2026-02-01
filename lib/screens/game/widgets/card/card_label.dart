@@ -14,7 +14,7 @@ class CardLabel extends StatelessWidget {
     label,
     style: TextStyle(
       color: color,
-      fontSize: 12,
+      fontSize: 24,
       fontWeight: FontWeight.w700,
       height: 1,
     ),

@@ -41,36 +41,40 @@ class CardFront extends StatelessWidget {
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(4),
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: CardLabel(
-                label: label,
-                color: color,
-              ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: 2,
+            left: 4,
+            child: CardLabel(
+              label: label,
+              color: color,
             ),
-            Align(
+          ),
+          Positioned(
+            top: 6,
+            right: 4,
+            child: ClipRect(
               child: PhosphorIcon(
                 icon,
                 color: color,
-                size: 28,
+                size: 16,
               ),
             ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Transform.rotate(
-                angle: pi,
-                child: CardLabel(
-                  label: label,
-                  color: color,
-                ),
+          ),
+          Positioned(
+            bottom: -8,
+            left: 0,
+            right: -24,
+            child: ClipRect(
+              child: PhosphorIcon(
+                icon,
+                color: color,
+                size: 56,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
