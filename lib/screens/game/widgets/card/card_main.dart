@@ -16,6 +16,7 @@ class CardMain extends StatelessWidget {
   final double height;
   final double width;
   final bool isSelected;
+  final VoidCallback? onTap;
 
   const CardMain({
     required this.card,
@@ -25,6 +26,7 @@ class CardMain extends StatelessWidget {
     required this.height,
     required this.width,
     this.isSelected = false,
+    this.onTap,
   });
 
   @override
@@ -38,8 +40,16 @@ class CardMain extends StatelessWidget {
       isSelected: isSelected,
     );
 
+    final tappableBody = onTap == null
+        ? body
+        : GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: body,
+          );
+
     if (!card.faceUp) {
-      return body;
+      return tappableBody;
     }
 
     final payload = DragPayload(
@@ -59,8 +69,8 @@ class CardMain extends StatelessWidget {
       onDragEnd: (_) => controller.setDraggingPayload(null),
       onDraggableCanceled: (_, __) => controller.setDraggingPayload(null),
       onDragCompleted: () => controller.setDraggingPayload(null),
-      childWhenDragging: body,
-      child: body,
+      childWhenDragging: tappableBody,
+      child: tappableBody,
     );
   }
 }

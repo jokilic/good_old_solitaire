@@ -232,9 +232,15 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         return;
       }
 
+      final startIndex = sourcePile.length - stack.length;
+
+      if (startIndex < 0 || startIndex >= sourcePile.length) {
+        return;
+      }
+
       fromRect = controller.mainCardRect(
         selected.pileIndex,
-        sourcePile.length - stack.length,
+        startIndex,
       );
     } else {
       return;
@@ -316,9 +322,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         return;
       }
 
+      if (selected.cardIndex < 0 || selected.cardIndex >= sourcePile.length) {
+        return;
+      }
+
+      if (selected.cardIndex != sourcePile.length - 1) {
+        return;
+      }
+
       fromRect = controller.mainCardRect(
         selected.pileIndex,
-        sourcePile.length - 1,
+        selected.cardIndex,
       );
     } else {
       return;

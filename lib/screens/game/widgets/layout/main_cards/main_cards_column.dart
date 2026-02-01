@@ -35,45 +35,53 @@ class MainCardsColumn extends WatchingWidget {
     final state = watchIt<GameController>().value;
 
     final mainCards = state.mainCards[column];
-    final isSelected = state.selectedCard?.source == PileType.mainCards && state.selectedCard?.pileIndex == column;
+    final selectedCard = state.selectedCard;
+    final isSelected = selectedCard?.source == PileType.mainCards && selectedCard?.pileIndex == column;
     final draggingPayload = state.draggingPayload;
     final isDraggingStack = draggingPayload?.source == PileType.mainCards && draggingPayload?.pileIndex == column;
     final selectedStartIndex = controller.getSelectedStartIndex(
       mainCards: mainCards,
-      isSelected: isSelected,
+      selectedCard: isSelected ? selectedCard : null,
     );
+
+    Future<void> handleTap({int? cardIndex}) async {
+      if (isAnimatingMove) {
+        return;
+      }
+
+      if (state.selectedCard != null && !(state.selectedCard!.source == PileType.mainCards && state.selectedCard!.pileIndex == column)) {
+        if (onTapMoveSelected != null) {
+          await onTapMoveSelected!(column);
+        } else {
+          controller.tryMoveSelectedToMain(column);
+        }
+        return;
+      }
+
+      if (mainCards.isEmpty) {
+        controller.tryMoveSelectedToMain(column);
+        return;
+      }
+
+      final top = mainCards.last;
+      if (!top.faceUp) {
+        controller.flipMainCardsTop(column);
+        return;
+      }
+
+      if (cardIndex != null) {
+        controller.selectMainCardsAt(column, cardIndex);
+        return;
+      }
+
+      controller.selectMainCardsTop(column);
+    }
 
     return DragTarget<DragPayload>(
       onWillAcceptWithDetails: (details) => controller.canDropOnMain(details.data, column),
       onAcceptWithDetails: (details) => controller.moveDragToMain(details.data, column),
       builder: (context, _, __) => GestureDetector(
-        onTap: () async {
-          if (isAnimatingMove) {
-            return;
-          }
-
-          if (state.selectedCard != null && !(state.selectedCard!.source == PileType.mainCards && state.selectedCard!.pileIndex == column)) {
-            if (onTapMoveSelected != null) {
-              await onTapMoveSelected!(column);
-            } else {
-              controller.tryMoveSelectedToMain(column);
-            }
-            return;
-          }
-
-          if (mainCards.isEmpty) {
-            controller.tryMoveSelectedToMain(column);
-            return;
-          }
-
-          final top = mainCards.last;
-          if (!top.faceUp) {
-            controller.flipMainCardsTop(column);
-            return;
-          }
-
-          controller.selectMainCardsTop(column);
-        },
+        onTap: handleTap,
         child: CardFrame(
           key: columnKey,
           height: cardHeight,
@@ -108,6 +116,7 @@ class MainCardsColumn extends WatchingWidget {
                       height: cardHeight,
                       width: cardWidth,
                       isSelected: isSelected && i >= selectedStartIndex,
+                      onTap: () => handleTap(cardIndex: i),
                     ),
                   ),
                 ),

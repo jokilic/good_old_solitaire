@@ -173,22 +173,45 @@ class GameController
       return;
     }
 
-    final top = pile.last;
+    selectMainCardsAt(column, pile.length - 1);
+  }
 
-    if (!top.faceUp) {
+  /// Toggles selection of a specific card in a main cards column
+  void selectMainCardsAt(int column, int cardIndex) {
+    if (column < 0 || column >= value.mainCards.length) {
       return;
     }
+
+    final pile = value.mainCards[column];
+
+    if (pile.isEmpty) {
+      return;
+    }
+
+    if (cardIndex < 0 || cardIndex >= pile.length) {
+      return;
+    }
+
+    final card = pile[cardIndex];
+
+    if (!card.faceUp) {
+      return;
+    }
+
+    final slice = pile.sublist(cardIndex);
+    final normalizedIndex = slice.any((pileCard) => !pileCard.faceUp) || !isValidMainStack(slice) ? pile.length - 1 : cardIndex;
 
     /// Toggle selection for the same column
     final next = SelectedCard(
       source: PileType.mainCards,
       pileIndex: column,
+      cardIndex: normalizedIndex,
     );
 
-    final selectedCard = value.selectedCard;
+    final currentSelected = value.selectedCard;
 
     updateState(
-      newSelectedCard: selectedCard?.source == next.source && selectedCard?.pileIndex == next.pileIndex ? null : next,
+      newSelectedCard: currentSelected?.source == next.source && currentSelected?.pileIndex == next.pileIndex && currentSelected?.cardIndex == next.cardIndex ? null : next,
     );
   }
 
@@ -230,6 +253,18 @@ class GameController
 
     if (selectedCard == null) {
       return;
+    }
+
+    if (selectedCard.source == PileType.mainCards) {
+      final pile = value.mainCards[selectedCard.pileIndex];
+
+      if (selectedCard.cardIndex < 0 || selectedCard.cardIndex >= pile.length) {
+        return;
+      }
+
+      if (selectedCard.cardIndex != pile.length - 1) {
+        return;
+      }
     }
 
     /// Resolve the selected card based on its source pile
@@ -482,7 +517,15 @@ class GameController
 
       case PileType.mainCards:
         final pile = mainCards[selectedCard.pileIndex];
-        return pile.isNotEmpty ? pile.last : null;
+        if (pile.isEmpty) {
+          return null;
+        }
+
+        if (selectedCard.cardIndex >= 0 && selectedCard.cardIndex < pile.length) {
+          return pile[selectedCard.cardIndex];
+        }
+
+        return pile.last;
 
       default:
         return null;
@@ -509,7 +552,7 @@ class GameController
           return const [];
         }
 
-        final start = _faceUpStackStartIndex(pile);
+        final start = selectedCard.cardIndex >= 0 ? selectedCard.cardIndex : pile.length - 1;
         if (start < 0 || start >= pile.length) {
           return const [];
         }
@@ -561,15 +604,6 @@ class GameController
       default:
         break;
     }
-  }
-
-  int _faceUpStackStartIndex(List<SolitaireCard> pile) {
-    for (var i = pile.length - 1; i >= 0; i -= 1) {
-      if (!pile[i].faceUp) {
-        return i + 1;
-      }
-    }
-    return 0;
   }
 
   /// Returns the cards represented by a drag payload, or empty if invalid
@@ -747,30 +781,25 @@ class GameController
 
   int getSelectedStartIndex({
     required List<SolitaireCard> mainCards,
-    required bool isSelected,
+    required SelectedCard? selectedCard,
   }) {
-    if (!isSelected || mainCards.isEmpty) {
+    if (selectedCard == null || mainCards.isEmpty) {
       return -1;
     }
 
-    var firstFaceUp = 0;
-    for (var i = mainCards.length - 1; i >= 0; i -= 1) {
-      if (!mainCards[i].faceUp) {
-        firstFaceUp = i + 1;
-        break;
-      }
-    }
+    final start = selectedCard.cardIndex >= 0 ? selectedCard.cardIndex : mainCards.length - 1;
 
-    if (firstFaceUp >= mainCards.length) {
+    if (start < 0 || start >= mainCards.length) {
       return mainCards.length - 1;
     }
 
-    final slice = mainCards.sublist(firstFaceUp);
+    final slice = mainCards.sublist(start);
+
     if (slice.isEmpty || slice.any((card) => !card.faceUp) || !isValidMainStack(slice)) {
       return mainCards.length - 1;
     }
 
-    return firstFaceUp;
+    return start;
   }
 
   Rect? rectFromKey(GlobalKey key) {
