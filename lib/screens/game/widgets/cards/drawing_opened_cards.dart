@@ -36,7 +36,7 @@ class DrawingOpenedCards extends WatchingWidget {
     );
 
     return GestureDetector(
-      onTap: controller.selectWasteTop,
+      onTap: controller.selectUnopenedSectionTop,
       child: CardFrame(
         height: cardHeight,
         width: cardWidth,

@@ -30,10 +30,10 @@ class FinishedCards extends WatchingWidget {
     final hasCards = finishedCards.isNotEmpty;
 
     return DragTarget<DragPayload>(
-      onWillAcceptWithDetails: (details) => controller.canDropOnFoundation(details.data, index),
-      onAcceptWithDetails: (details) => controller.moveDragToFoundation(details.data, index),
+      onWillAcceptWithDetails: (details) => controller.canDropOnFinished(details.data, index),
+      onAcceptWithDetails: (details) => controller.moveDragToFinished(details.data, index),
       builder: (context, _, __) => GestureDetector(
-        onTap: () => controller.tryMoveSelectedToFoundation(index),
+        onTap: () => controller.tryMoveSelectedToFinished(index),
         child: CardFrame(
           height: cardHeight,
           width: cardWidth,

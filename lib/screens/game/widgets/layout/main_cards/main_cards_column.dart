@@ -29,27 +29,27 @@ class MainCardsColumn extends WatchingWidget {
     final isSelected = state.selectedCard?.source == PileType.mainCards && state.selectedCard?.pileIndex == column;
 
     return DragTarget<DragPayload>(
-      onWillAcceptWithDetails: (details) => controller.canDropOnTableau(details.data, column),
-      onAcceptWithDetails: (details) => controller.moveDragToTableau(details.data, column),
+      onWillAcceptWithDetails: (details) => controller.canDropOnMain(details.data, column),
+      onAcceptWithDetails: (details) => controller.moveDragToMain(details.data, column),
       builder: (context, _, __) => GestureDetector(
         onTap: () {
           if (state.selectedCard != null && !(state.selectedCard!.source == PileType.mainCards && state.selectedCard!.pileIndex == column)) {
-            controller.tryMoveSelectedToTableau(column);
+            controller.tryMoveSelectedToMain(column);
             return;
           }
 
           if (mainCards.isEmpty) {
-            controller.tryMoveSelectedToTableau(column);
+            controller.tryMoveSelectedToMain(column);
             return;
           }
 
           final top = mainCards.last;
           if (!top.faceUp) {
-            controller.flipTableauTop(column);
+            controller.flipMainCardsTop(column);
             return;
           }
 
-          controller.selectTableauTop(column);
+          controller.selectMainCardsTop(column);
         },
         child: CardFrame(
           height: cardHeight,

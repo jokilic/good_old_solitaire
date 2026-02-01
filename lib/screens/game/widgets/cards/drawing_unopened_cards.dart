@@ -24,7 +24,7 @@ class DrawingUnopenedCards extends WatchingWidget {
     final hasCards = state.drawingUnopenedCards.isNotEmpty;
 
     return GestureDetector(
-      onTap: controller.drawFromStock,
+      onTap: controller.drawFromUnopenedSection,
       child: CardFrame(
         height: cardHeight,
         width: cardWidth,
