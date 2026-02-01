@@ -9,10 +9,11 @@ import '../../util/card_size.dart';
 import '../../util/dependencies.dart';
 import 'game_controller.dart';
 import 'widgets/card/card_widget.dart';
+import 'widgets/cards/drawing_opened_cards.dart';
+import 'widgets/cards/drawing_unopened_cards.dart';
+import 'widgets/cards/finished_cards.dart';
 import 'widgets/layout/drawing_cards/drawing_cards_column.dart';
-import 'widgets/layout/drawing_cards/drawing_cards_row.dart';
 import 'widgets/layout/finished_cards/finished_cards_column.dart';
-import 'widgets/layout/finished_cards/finished_cards_row.dart';
 import 'widgets/layout/main_cards/main_cards_row.dart';
 
 class GameScreen extends StatefulWidget {
@@ -448,31 +449,45 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           ///
                           /// TOP ROW
                           ///
-                          // TODO: I want spacing logic same as bottom row. Since there's two cards + empty space + four cards, you should add that empty space and use spacing logic like bottom row
                           Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               ///
                               /// DRAWING CARDS
                               ///
-                              DrawingCardsRow(
+                              DrawingUnopenedCards(
                                 cardHeight: cardHeight,
                                 cardWidth: cardWidth,
-                                drawingOpenedKey: drawingOpenedKey,
-                                hideOpenedTopCard: hideOpenedTopCard,
                               ),
+                              DrawingOpenedCards(
+                                cardHeight: cardHeight,
+                                cardWidth: cardWidth,
+                                pileKey: drawingOpenedKey,
+                                hideTopCard: hideOpenedTopCard,
+                              ),
+
+                              ///
+                              /// EMPTY SPACE
+                              ///
+                              SizedBox(width: cardWidth),
 
                               ///
                               /// FINISHED CARDS
                               ///
-                              FinishedCardsRow(
-                                cardHeight: cardHeight,
-                                cardWidth: cardWidth,
-                                pileKeys: controller.finishedPileKeys,
-                                isAnimatingMove: isAnimatingMove,
-                                onTapMoveSelected: (index) => animateSelectedToFinished(
-                                  index,
+                              ...List.generate(
+                                controller.finishedPileKeys.length,
+                                (index) => FinishedCards(
+                                  index: index,
                                   cardHeight: cardHeight,
                                   cardWidth: cardWidth,
+                                  pileKey: controller.finishedPileKeys[index],
+                                  isAnimatingMove: isAnimatingMove,
+                                  onTapMoveSelected: (index) => animateSelectedToFinished(
+                                    index,
+                                    cardHeight: cardHeight,
+                                    cardWidth: cardWidth,
+                                  ),
                                 ),
                               ),
                             ],
