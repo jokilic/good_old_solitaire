@@ -26,6 +26,7 @@ class FinishedCardsRow extends WatchingWidget {
     final finishedCards = state.finishedCards;
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(
         finishedCards.length,
         (index) => Padding(

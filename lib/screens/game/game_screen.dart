@@ -364,147 +364,141 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
     return Scaffold(
       backgroundColor: Colors.green,
-      appBar: AppBar(
-        backgroundColor: Colors.green,
-        elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: controller.newGame,
-            icon: const Icon(
-              Icons.refresh,
-              color: Colors.white,
-            ),
-            tooltip: 'New Game',
-          ),
-        ],
-      ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          final isLandscape = constraints.maxWidth > constraints.maxHeight;
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(padding),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isLandscape = constraints.maxWidth > constraints.maxHeight;
 
-          final availableHeight = constraints.maxHeight - padding * 2;
-          final availableWidth = constraints.maxWidth - padding * 2;
+              final availableHeight = constraints.maxHeight - padding * 2;
+              final availableWidth = constraints.maxWidth - padding * 2;
 
-          final cardWidth = (availableWidth - 6 * 8) / 7;
-          final clampedCardWidth = cardWidth.clamp(48.0, 92.0);
+              final cardWidth = (availableWidth - 6 * 8) / 7;
+              final clampedCardWidth = cardWidth.clamp(48.0, 72.0);
 
-          final cardHeight = clampedCardWidth * 1.4;
+              final cardHeight = clampedCardWidth * 1.4;
 
-          final sideCardHeight = ((availableHeight - 3 * 8) / 4).clamp(36.0, cardHeight);
-          final sideCardWidth = (sideCardHeight / 1.4).clamp(28.0, clampedCardWidth);
+              final sideCardHeight = ((availableHeight - 3 * 8) / 4).clamp(36.0, cardHeight);
+              final sideCardWidth = (sideCardHeight / 1.4).clamp(28.0, clampedCardWidth);
 
-          final hiddenTopCardColumn = tapMoveSource?.source == PileType.mainCards ? tapMoveSource!.pileIndex : null;
-          final hideOpenedTopCard = tapMoveSource?.source == PileType.drawingOpenedCards;
+              final hiddenTopCardColumn = tapMoveSource?.source == PileType.mainCards ? tapMoveSource!.pileIndex : null;
+              final hideOpenedTopCard = tapMoveSource?.source == PileType.drawingOpenedCards;
 
-          return IgnorePointer(
-            ignoring: isAnimatingMove,
-            child: Padding(
-              padding: const EdgeInsets.all(padding),
-              child: isLandscape
-                  ? Row(
-                      children: [
-                        ///
-                        /// FINISHED CARDS
-                        ///
-                        FinishedCardsColumn(
-                          cardHeight: sideCardHeight,
-                          cardWidth: sideCardWidth,
-                          pileKeys: controller.finishedPileKeys,
-                          isAnimatingMove: isAnimatingMove,
-                          onTapMoveSelected: (index) => animateSelectedToFinished(
-                            index,
+              return IgnorePointer(
+                ignoring: isAnimatingMove,
+                child: isLandscape
+                    ? Row(
+                        children: [
+                          ///
+                          /// LEFT COLUMN
+                          ///
+                          FinishedCardsColumn(
                             cardHeight: sideCardHeight,
                             cardWidth: sideCardWidth,
-                          ),
-                        ),
-                        const SizedBox(width: padding),
-
-                        ///
-                        /// MAIN CARDS
-                        ///
-                        Expanded(
-                          child: MainCardsRow(
-                            cardHeight: cardHeight,
-                            cardWidth: clampedCardWidth,
-                            columnKeys: controller.mainColumnKeys,
+                            pileKeys: controller.finishedPileKeys,
                             isAnimatingMove: isAnimatingMove,
-                            hiddenTopCardColumn: hiddenTopCardColumn,
-                            onTapMoveSelected: (column) => animateSelectedToMain(
-                              column,
+                            onTapMoveSelected: (index) => animateSelectedToFinished(
+                              index,
+                              cardHeight: sideCardHeight,
+                              cardWidth: sideCardWidth,
+                            ),
+                          ),
+
+                          const SizedBox(width: padding),
+
+                          ///
+                          /// MIDDLE COLUMN
+                          ///
+                          Expanded(
+                            child: MainCardsRow(
                               cardHeight: cardHeight,
                               cardWidth: clampedCardWidth,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: padding),
-
-                        ///
-                        /// DRAWING CARDS
-                        ///
-                        DrawingCardsColumn(
-                          cardHeight: sideCardHeight,
-                          cardWidth: sideCardWidth,
-                          drawingOpenedKey: drawingOpenedKey,
-                          hideOpenedTopCard: hideOpenedTopCard,
-                        ),
-                      ],
-                    )
-                  : Column(
-                      children: [
-                        Row(
-                          children: [
-                            ///
-                            /// DRAWING CARDS
-                            ///
-                            DrawingCardsRow(
-                              cardHeight: cardHeight,
-                              cardWidth: cardWidth,
-                              drawingOpenedKey: drawingOpenedKey,
-                              hideOpenedTopCard: hideOpenedTopCard,
-                            ),
-
-                            const Spacer(),
-
-                            ///
-                            /// FINISHED CARDS
-                            ///
-                            FinishedCardsRow(
-                              cardHeight: cardHeight,
-                              cardWidth: cardWidth,
-                              pileKeys: controller.finishedPileKeys,
+                              columnKeys: controller.mainColumnKeys,
                               isAnimatingMove: isAnimatingMove,
-                              onTapMoveSelected: (index) => animateSelectedToFinished(
-                                index,
+                              hiddenTopCardColumn: hiddenTopCardColumn,
+                              onTapMoveSelected: (column) => animateSelectedToMain(
+                                column,
                                 cardHeight: cardHeight,
-                                cardWidth: cardWidth,
+                                cardWidth: clampedCardWidth,
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: padding),
+                          ),
 
-                        ///
-                        /// MAIN CARDS
-                        ///
-                        Expanded(
-                          child: MainCardsRow(
-                            cardHeight: cardHeight,
-                            cardWidth: clampedCardWidth,
-                            columnKeys: controller.mainColumnKeys,
-                            isAnimatingMove: isAnimatingMove,
-                            hiddenTopCardColumn: hiddenTopCardColumn,
-                            onTapMoveSelected: (column) => animateSelectedToMain(
-                              column,
+                          const SizedBox(width: padding),
+
+                          ///
+                          /// RIGHT COLUMN
+                          ///
+                          DrawingCardsColumn(
+                            cardHeight: sideCardHeight,
+                            cardWidth: sideCardWidth,
+                            drawingOpenedKey: drawingOpenedKey,
+                            hideOpenedTopCard: hideOpenedTopCard,
+                          ),
+                        ],
+                      )
+                    : Column(
+                        children: [
+                          ///
+                          /// TOP ROW
+                          ///
+                          Row(
+                            children: [
+                              ///
+                              /// DRAWING CARDS
+                              ///
+                              DrawingCardsRow(
+                                cardHeight: cardHeight,
+                                cardWidth: cardWidth,
+                                drawingOpenedKey: drawingOpenedKey,
+                                hideOpenedTopCard: hideOpenedTopCard,
+                              ),
+
+                              const Spacer(),
+
+                              ///
+                              /// FINISHED CARDS
+                              ///
+                              FinishedCardsRow(
+                                cardHeight: cardHeight,
+                                cardWidth: cardWidth,
+                                pileKeys: controller.finishedPileKeys,
+                                isAnimatingMove: isAnimatingMove,
+                                onTapMoveSelected: (index) => animateSelectedToFinished(
+                                  index,
+                                  cardHeight: cardHeight,
+                                  cardWidth: cardWidth,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: padding),
+
+                          ///
+                          /// BOTTOM ROW
+                          ///
+                          Expanded(
+                            child: MainCardsRow(
                               cardHeight: cardHeight,
                               cardWidth: clampedCardWidth,
+                              columnKeys: controller.mainColumnKeys,
+                              isAnimatingMove: isAnimatingMove,
+                              hiddenTopCardColumn: hiddenTopCardColumn,
+                              onTapMoveSelected: (column) => animateSelectedToMain(
+                                column,
+                                cardHeight: cardHeight,
+                                cardWidth: clampedCardWidth,
+                              ),
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-            ),
-          );
-        },
+                        ],
+                      ),
+              );
+            },
+          ),
+        ),
       ),
     );
   }

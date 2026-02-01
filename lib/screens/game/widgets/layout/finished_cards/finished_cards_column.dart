@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:watch_it/watch_it.dart';
 
-import '../../../../../constants/constants.dart';
 import '../../../game_controller.dart';
 import '../../cards/finished_cards.dart';
 
@@ -26,20 +25,17 @@ class FinishedCardsColumn extends WatchingWidget {
     final finishedCards = state.finishedCards;
 
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(
         finishedCards.length,
-        (index) => Padding(
-          padding: EdgeInsets.only(
-            top: index == 0 ? 0 : padding,
-          ),
-          child: FinishedCards(
-            index: index,
-            cardHeight: cardHeight,
-            cardWidth: cardWidth,
-            pileKey: pileKeys[index],
-            isAnimatingMove: isAnimatingMove,
-            onTapMoveSelected: onTapMoveSelected,
-          ),
+        (index) => FinishedCards(
+          index: index,
+          cardHeight: cardHeight,
+          cardWidth: cardWidth,
+          pileKey: pileKeys[index],
+          isAnimatingMove: isAnimatingMove,
+          onTapMoveSelected: onTapMoveSelected,
         ),
       ),
     );

@@ -27,19 +27,18 @@ class MainCardsRow extends WatchingWidget {
     final mainCards = state.mainCards;
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(
         mainCards.length,
-        (index) => Expanded(
-          child: MainCardsColumn(
-            column: index,
-            cardHeight: cardHeight,
-            cardWidth: cardWidth,
-            columnKey: columnKeys[index],
-            hideTopCard: hiddenTopCardColumn == index,
-            isAnimatingMove: isAnimatingMove,
-            onTapMoveSelected: onTapMoveSelected,
-          ),
+        (index) => MainCardsColumn(
+          column: index,
+          cardHeight: cardHeight,
+          cardWidth: cardWidth,
+          columnKey: columnKeys[index],
+          hideTopCard: hiddenTopCardColumn == index,
+          isAnimatingMove: isAnimatingMove,
+          onTapMoveSelected: onTapMoveSelected,
         ),
       ),
     );

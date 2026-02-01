@@ -36,7 +36,6 @@ class DrawingUnopenedCards extends WatchingWidget {
             : CardEmpty(
                 height: cardHeight,
                 width: cardWidth,
-                label: 'Stock',
               ),
       ),
     );

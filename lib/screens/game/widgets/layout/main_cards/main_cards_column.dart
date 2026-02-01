@@ -85,7 +85,6 @@ class MainCardsColumn extends WatchingWidget {
                 CardEmpty(
                   height: cardHeight,
                   width: cardWidth,
-                  label: 'K',
                 ),
               for (var i = 0; i < mainCards.length; i += 1)
                 Positioned(

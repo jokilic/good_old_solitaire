@@ -59,7 +59,6 @@ class DrawingOpenedCards extends WatchingWidget {
             : CardEmpty(
                 height: cardHeight,
                 width: cardWidth,
-                label: 'Waste',
               ),
       ),
     );

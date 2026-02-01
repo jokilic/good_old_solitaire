@@ -19,6 +19,8 @@ class DrawingCardsColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(
+    mainAxisAlignment: MainAxisAlignment.end,
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       DrawingOpenedCards(
         cardHeight: cardHeight,

@@ -85,7 +85,6 @@ class FinishedCards extends WatchingWidget {
               : CardEmpty(
                   height: cardHeight,
                   width: cardWidth,
-                  label: 'A',
                 ),
         ),
       ),

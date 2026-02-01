@@ -19,6 +19,7 @@ class DrawingCardsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       ///
       /// DRAWING UNOPENED CARDS
@@ -27,6 +28,7 @@ class DrawingCardsRow extends StatelessWidget {
         cardHeight: cardHeight,
         cardWidth: cardWidth,
       ),
+
       const SizedBox(width: padding),
 
       ///
