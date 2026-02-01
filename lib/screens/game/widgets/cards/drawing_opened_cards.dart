@@ -14,10 +14,14 @@ import '../drag_feedback.dart';
 class DrawingOpenedCards extends WatchingWidget {
   final double cardHeight;
   final double cardWidth;
+  final GlobalKey pileKey;
+  final bool hideTopCard;
 
   const DrawingOpenedCards({
     required this.cardHeight,
     required this.cardWidth,
+    required this.pileKey,
+    required this.hideTopCard,
   });
 
   @override
@@ -38,15 +42,19 @@ class DrawingOpenedCards extends WatchingWidget {
     return GestureDetector(
       onTap: controller.selectUnopenedSectionTop,
       child: CardFrame(
+        key: pileKey,
         height: cardHeight,
         width: cardWidth,
         child: hasCards
-            ? DraggableOpenedCard(
-                topCard: openedCards.last,
-                dragPayload: dragPayload,
-                cardHeight: cardHeight,
-                cardWidth: cardWidth,
-                isSelected: isSelected,
+            ? Opacity(
+                opacity: hideTopCard ? 0.0 : 1.0,
+                child: DraggableOpenedCard(
+                  topCard: openedCards.last,
+                  dragPayload: dragPayload,
+                  cardHeight: cardHeight,
+                  cardWidth: cardWidth,
+                  isSelected: isSelected,
+                ),
               )
             : CardEmpty(
                 height: cardHeight,

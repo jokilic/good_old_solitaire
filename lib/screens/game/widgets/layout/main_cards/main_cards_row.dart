@@ -7,10 +7,18 @@ import 'main_cards_column.dart';
 class MainCardsRow extends WatchingWidget {
   final double cardHeight;
   final double cardWidth;
+  final List<GlobalKey> columnKeys;
+  final bool isAnimatingMove;
+  final int? hiddenTopCardColumn;
+  final Future<void> Function(int column) onTapMoveSelected;
 
   const MainCardsRow({
     required this.cardHeight,
     required this.cardWidth,
+    required this.columnKeys,
+    required this.isAnimatingMove,
+    required this.hiddenTopCardColumn,
+    required this.onTapMoveSelected,
   });
 
   @override
@@ -27,6 +35,10 @@ class MainCardsRow extends WatchingWidget {
             column: index,
             cardHeight: cardHeight,
             cardWidth: cardWidth,
+            columnKey: columnKeys[index],
+            hideTopCard: hiddenTopCardColumn == index,
+            isAnimatingMove: isAnimatingMove,
+            onTapMoveSelected: onTapMoveSelected,
           ),
         ),
       ),

@@ -8,10 +8,16 @@ import '../../cards/finished_cards.dart';
 class FinishedCardsColumn extends WatchingWidget {
   final double cardHeight;
   final double cardWidth;
+  final List<GlobalKey> pileKeys;
+  final bool isAnimatingMove;
+  final Future<void> Function(int index) onTapMoveSelected;
 
   const FinishedCardsColumn({
     required this.cardHeight,
     required this.cardWidth,
+    required this.pileKeys,
+    required this.isAnimatingMove,
+    required this.onTapMoveSelected,
   });
 
   @override
@@ -30,6 +36,9 @@ class FinishedCardsColumn extends WatchingWidget {
             index: index,
             cardHeight: cardHeight,
             cardWidth: cardWidth,
+            pileKey: pileKeys[index],
+            isAnimatingMove: isAnimatingMove,
+            onTapMoveSelected: onTapMoveSelected,
           ),
         ),
       ),

@@ -7,10 +7,14 @@ import '../../cards/drawing_unopened_cards.dart';
 class DrawingCardsRow extends StatelessWidget {
   final double cardHeight;
   final double cardWidth;
+  final GlobalKey drawingOpenedKey;
+  final bool hideOpenedTopCard;
 
   const DrawingCardsRow({
     required this.cardHeight,
     required this.cardWidth,
+    required this.drawingOpenedKey,
+    required this.hideOpenedTopCard,
   });
 
   @override
@@ -31,6 +35,8 @@ class DrawingCardsRow extends StatelessWidget {
       DrawingOpenedCards(
         cardHeight: cardHeight,
         cardWidth: cardWidth,
+        pileKey: drawingOpenedKey,
+        hideTopCard: hideOpenedTopCard,
       ),
     ],
   );

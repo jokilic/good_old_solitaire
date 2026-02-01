@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../constants/constants.dart';
 import '../../constants/enums.dart';
 import '../../models/drag_payload.dart';
 import '../../models/selected_card.dart';
@@ -33,6 +34,19 @@ class GameController
           draggingPayload: null,
         ),
       );
+
+  ///
+  /// VARIABLES
+  ///
+
+  late final List<GlobalKey> mainColumnKeys = List.generate(
+    7,
+    (_) => GlobalKey(),
+  );
+  late final List<GlobalKey> finishedPileKeys = List.generate(
+    4,
+    (_) => GlobalKey(),
+  );
 
   ///
   /// INIT
@@ -270,20 +284,19 @@ class GameController
       return;
     }
 
-    /// Resolve the selected card based on its source pile
-    final card = selectedCardFrom(
+    final stack = selectedStackFrom(
       selectedCard,
       drawingOpenedCards: value.drawingOpenedCards,
       mainCards: value.mainCards,
     );
 
-    if (card == null) {
+    if (stack.isEmpty) {
       return;
     }
 
     final currentPile = value.mainCards[column];
 
-    if (!canMoveToMain(card, currentPile)) {
+    if (!canMoveToMain(stack.first, currentPile)) {
       return;
     }
 
@@ -292,13 +305,31 @@ class GameController
     final mainCards = List<List<SolitaireCard>>.from(value.mainCards);
     final pile = List<SolitaireCard>.from(currentPile);
 
-    removeSelectedCardAndReveal(
-      selectedCard,
-      drawingOpenedCards: drawingOpened,
-      mainCards: mainCards,
-    );
+    if (selectedCard.source == PileType.mainCards) {
+      final sourcePile = mainCards[selectedCard.pileIndex];
+      final startIndex = sourcePile.length - stack.length;
 
-    pile.add(card);
+      final payload = DragPayload(
+        source: PileType.mainCards,
+        pileIndex: selectedCard.pileIndex,
+        cardIndex: startIndex,
+      );
+
+      removeCardsFromSource(
+        payload,
+        drawingOpenedCards: drawingOpened,
+        finishedCards: value.finishedCards,
+        mainCards: mainCards,
+      );
+    } else {
+      removeSelectedCardAndReveal(
+        selectedCard,
+        drawingOpenedCards: drawingOpened,
+        mainCards: mainCards,
+      );
+    }
+
+    pile.addAll(stack);
     mainCards[column] = pile;
 
     updateState(
@@ -458,6 +489,47 @@ class GameController
     }
   }
 
+  /// Resolves the full stack represented by the selection
+  List<SolitaireCard> selectedStackFrom(
+    SelectedCard selectedCard, {
+    required List<SolitaireCard> drawingOpenedCards,
+    required List<List<SolitaireCard>> mainCards,
+  }) {
+    switch (selectedCard.source) {
+      case PileType.drawingOpenedCards:
+        return drawingOpenedCards.isNotEmpty ? [drawingOpenedCards.last] : const [];
+
+      case PileType.mainCards:
+        if (selectedCard.pileIndex < 0 || selectedCard.pileIndex >= mainCards.length) {
+          return const [];
+        }
+
+        final pile = mainCards[selectedCard.pileIndex];
+        if (pile.isEmpty) {
+          return const [];
+        }
+
+        final start = _faceUpStackStartIndex(pile);
+        if (start < 0 || start >= pile.length) {
+          return const [];
+        }
+
+        final slice = pile.sublist(start);
+        if (slice.any((card) => !card.faceUp)) {
+          return const [];
+        }
+
+        if (!isValidMainStack(slice)) {
+          return pile.last.faceUp ? [pile.last] : const [];
+        }
+
+        return slice;
+
+      default:
+        return const [];
+    }
+  }
+
   /// Removes the selected card and reveals the next main card if needed
   void removeSelectedCardAndReveal(
     SelectedCard selectedCard, {
@@ -489,6 +561,15 @@ class GameController
       default:
         break;
     }
+  }
+
+  int _faceUpStackStartIndex(List<SolitaireCard> pile) {
+    for (var i = pile.length - 1; i >= 0; i -= 1) {
+      if (!pile[i].faceUp) {
+        return i + 1;
+      }
+    }
+    return 0;
   }
 
   /// Returns the cards represented by a drag payload, or empty if invalid
@@ -661,6 +742,69 @@ class GameController
 
     updateState(
       newDraggingPayload: payload,
+    );
+  }
+
+  int getSelectedStartIndex({
+    required List<SolitaireCard> mainCards,
+    required bool isSelected,
+  }) {
+    if (!isSelected || mainCards.isEmpty) {
+      return -1;
+    }
+
+    var firstFaceUp = 0;
+    for (var i = mainCards.length - 1; i >= 0; i -= 1) {
+      if (!mainCards[i].faceUp) {
+        firstFaceUp = i + 1;
+        break;
+      }
+    }
+
+    if (firstFaceUp >= mainCards.length) {
+      return mainCards.length - 1;
+    }
+
+    final slice = mainCards.sublist(firstFaceUp);
+    if (slice.isEmpty || slice.any((card) => !card.faceUp) || !isValidMainStack(slice)) {
+      return mainCards.length - 1;
+    }
+
+    return firstFaceUp;
+  }
+
+  Rect? rectFromKey(GlobalKey key) {
+    final context = key.currentContext;
+
+    if (context == null) {
+      return null;
+    }
+
+    final box = context.findRenderObject() as RenderBox?;
+
+    if (box == null || !box.hasSize) {
+      return null;
+    }
+
+    final offset = box.localToGlobal(Offset.zero);
+
+    return offset & box.size;
+  }
+
+  Rect? mainCardRect(int column, int cardIndex) {
+    final base = rectFromKey(mainColumnKeys[column]);
+
+    if (base == null) {
+      return null;
+    }
+
+    final topLeft = base.topLeft + Offset(0, cardIndex * mainStackOffset);
+
+    return Rect.fromLTWH(
+      topLeft.dx,
+      topLeft.dy,
+      base.width,
+      base.height,
     );
   }
 

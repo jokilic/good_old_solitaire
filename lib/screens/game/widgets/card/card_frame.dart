@@ -10,6 +10,7 @@ class CardFrame extends StatelessWidget {
     required this.height,
     required this.width,
     required this.child,
+    super.key,
     this.heightMultiplier = 1,
   });
 

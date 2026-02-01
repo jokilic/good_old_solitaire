@@ -14,11 +14,17 @@ class FinishedCards extends WatchingWidget {
   final int index;
   final double cardHeight;
   final double cardWidth;
+  final GlobalKey pileKey;
+  final bool isAnimatingMove;
+  final Future<void> Function(int index)? onTapMoveSelected;
 
   const FinishedCards({
     required this.index,
     required this.cardHeight,
     required this.cardWidth,
+    required this.pileKey,
+    required this.isAnimatingMove,
+    required this.onTapMoveSelected,
   });
 
   @override
@@ -33,8 +39,20 @@ class FinishedCards extends WatchingWidget {
       onWillAcceptWithDetails: (details) => controller.canDropOnFinished(details.data, index),
       onAcceptWithDetails: (details) => controller.moveDragToFinished(details.data, index),
       builder: (context, _, __) => GestureDetector(
-        onTap: () => controller.tryMoveSelectedToFinished(index),
+        onTap: () async {
+          if (isAnimatingMove) {
+            return;
+          }
+
+          if (state.selectedCard != null && onTapMoveSelected != null) {
+            await onTapMoveSelected!(index);
+            return;
+          }
+
+          controller.tryMoveSelectedToFinished(index);
+        },
         child: CardFrame(
+          key: pileKey,
           height: cardHeight,
           width: cardWidth,
           child: hasCards
