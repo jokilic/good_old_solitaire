@@ -67,8 +67,7 @@ class GameController extends ChangeNotifier {
 
     for (var col = 0; col < mainCards.length; col += 1) {
       for (var row = 0; row <= col; row += 1) {
-        final card = deck.removeLast();
-        card.faceUp = row == col;
+        final card = deck.removeLast()..faceUp = row == col;
         mainCards[col].add(card);
       }
     }

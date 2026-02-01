@@ -1,16 +1,13 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+import '../../constants/constants.dart';
 import '../../constants/enums.dart';
 import '../../models/solitaire_card.dart';
 import '../../util/dependencies.dart';
 import 'game_controller.dart';
-
-// TODO
-const padding = 12.0;
-const borderRadius = 8.0;
-const borderWidth = 2.0;
+import 'widgets/card/card_back.dart';
+import 'widgets/card/card_widget.dart';
+import 'widgets/stack_drag_feedback.dart';
 
 class GameScreen extends StatefulWidget {
   const GameScreen({
@@ -248,9 +245,9 @@ class _GameScreenState extends State<GameScreen> {
         cardWidth,
         cardHeight,
         child: hasCards
-            ? buildCardBack(
-                cardWidth,
-                cardHeight,
+            ? CardBack(
+                height: cardHeight,
+                width: cardWidth,
               )
             : cardEmptySlot(
                 cardWidth,
@@ -289,17 +286,17 @@ class _GameScreenState extends State<GameScreen> {
                 ),
                 childWhenDragging: Opacity(
                   opacity: 0.35,
-                  child: buildCard(
-                    controller.drawingOpenedCards.last,
-                    cardWidth,
-                    cardHeight,
+                  child: CardWidget(
+                    card: controller.drawingOpenedCards.last,
+                    width: cardWidth,
+                    height: cardHeight,
                     isSelected: isSelected,
                   ),
                 ),
-                child: buildCard(
-                  controller.drawingOpenedCards.last,
-                  cardWidth,
-                  cardHeight,
+                child: CardWidget(
+                  card: controller.drawingOpenedCards.last,
+                  width: cardWidth,
+                  height: cardHeight,
                   isSelected: isSelected,
                 ),
               )
@@ -341,16 +338,18 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                   childWhenDragging: Opacity(
                     opacity: 0.35,
-                    child: buildCard(
-                      finishedCards.last,
-                      cardWidth,
-                      cardHeight,
+                    child: CardWidget(
+                      card: finishedCards.last,
+                      width: cardWidth,
+                      height: cardHeight,
+                      isSelected: false,
                     ),
                   ),
-                  child: buildCard(
-                    finishedCards.last,
-                    cardWidth,
-                    cardHeight,
+                  child: CardWidget(
+                    card: finishedCards.last,
+                    width: cardWidth,
+                    height: cardHeight,
+                    isSelected: false,
                   ),
                 )
               : cardEmptySlot(
@@ -462,8 +461,8 @@ class _GameScreenState extends State<GameScreen> {
     double height, {
     String? label,
   }) => Container(
-    width: width,
     height: height,
+    width: width,
     alignment: Alignment.center,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(borderRadius),
@@ -485,140 +484,6 @@ class _GameScreenState extends State<GameScreen> {
           ),
   );
 
-  Widget buildCardBack(double width, double height) => Container(
-    width: width,
-    height: height,
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(borderRadius),
-      border: Border.all(
-        color: Colors.white70,
-        width: borderWidth,
-      ),
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Colors.blueGrey.shade800,
-          Colors.blueGrey.shade900,
-        ],
-      ),
-      boxShadow: const [
-        BoxShadow(
-          color: Colors.black26,
-          blurRadius: 6,
-          offset: Offset(0, 2),
-        ),
-      ],
-    ),
-    child: Center(
-      child: Container(
-        width: width * 0.55,
-        height: height * 0.35,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(
-            color: Colors.white30,
-            width: borderWidth,
-          ),
-          color: Colors.white10,
-        ),
-      ),
-    ),
-  );
-
-  Widget buildCard(
-    SolitaireCard card,
-    double width,
-    double height, {
-    bool isSelected = false,
-  }) {
-    final cardView = card.faceUp ? buildCardFront(card, width, height) : buildCardBack(width, height);
-
-    if (!isSelected) {
-      return cardView;
-    }
-
-    return Stack(
-      children: [
-        cardView,
-        Positioned.fill(
-          child: IgnorePointer(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(borderRadius),
-                border: Border.all(
-                  color: Colors.amber,
-                  width: borderWidth,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildCardFront(SolitaireCard card, double width, double height) {
-    final color = card.isRed ? Colors.red : Colors.black;
-    final label = card.cardLabel;
-    final icon = card.suitIcon;
-
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(
-          width: borderWidth,
-        ),
-        color: Colors.white,
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(4),
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: buildCardLabel(label, color),
-            ),
-            Align(
-              child: PhosphorIcon(
-                icon,
-                color: color,
-                size: 28,
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Transform.rotate(
-                angle: pi,
-                child: buildCardLabel(label, color),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget buildCardLabel(String label, Color color) => Text(
-    label,
-    style: TextStyle(
-      color: color,
-      fontSize: 12,
-      fontWeight: FontWeight.w700,
-      height: 1,
-    ),
-  );
-
   Widget buildMainCard(
     SolitaireCard card,
     int column,
@@ -628,10 +493,10 @@ class _GameScreenState extends State<GameScreen> {
     double height, {
     bool isSelected = false,
   }) {
-    final body = buildCard(
-      card,
-      width,
-      height,
+    final body = CardWidget(
+      card: card,
+      height: height,
+      width: width,
       isSelected: isSelected,
     );
 
@@ -647,10 +512,10 @@ class _GameScreenState extends State<GameScreen> {
 
     return Draggable<DragPayload>(
       data: payload,
-      feedback: buildStackDragFeedback(
-        stack,
-        width,
-        height,
+      feedback: StackDragFeedback(
+        cards: stack,
+        height: height,
+        width: width,
       ),
       childWhenDragging: Opacity(
         opacity: 0.35,
@@ -664,40 +529,12 @@ class _GameScreenState extends State<GameScreen> {
     color: Colors.transparent,
     child: Opacity(
       opacity: 0.9,
-      child: buildCard(
-        card,
-        width,
-        height,
+      child: CardWidget(
+        card: card,
+        height: height,
+        width: width,
+        isSelected: false,
       ),
     ),
   );
-
-  Widget buildStackDragFeedback(List<SolitaireCard> cards, double width, double height) {
-    if (cards.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final stackHeight = height + (cards.length - 1) * 16.0;
-
-    return Material(
-      color: Colors.transparent,
-      child: SizedBox(
-        width: width,
-        height: stackHeight,
-        child: Stack(
-          children: [
-            for (var i = 0; i < cards.length; i += 1)
-              Positioned(
-                top: i * 18.0,
-                child: buildCard(
-                  cards[i],
-                  width,
-                  height,
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
 }
