@@ -1,33 +1,11 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
-
 import '../../constants/enums.dart';
+import '../../models/drag_payload.dart';
+import '../../models/selected_card.dart';
 import '../../models/solitaire_card.dart';
 
-class SelectedCard {
-  const SelectedCard({
-    required this.source,
-    required this.pileIndex,
-  });
-
-  final PileType source;
-  final int pileIndex;
-}
-
-class DragPayload {
-  const DragPayload({
-    required this.source,
-    required this.pileIndex,
-    this.cardIndex = -1,
-  });
-
-  final PileType source;
-  final int pileIndex;
-  final int cardIndex;
-}
-
-class GameController extends ChangeNotifier {
+class GameController {
   GameController() {
     newGame();
   }
@@ -73,8 +51,7 @@ class GameController extends ChangeNotifier {
     }
 
     while (deck.isNotEmpty) {
-      final card = deck.removeLast();
-      card.faceUp = false;
+      final card = deck.removeLast()..faceUp = false;
       drawingUnopenedCards.add(card);
     }
 
@@ -83,13 +60,11 @@ class GameController extends ChangeNotifier {
 
   void drawFromStock() {
     if (drawingUnopenedCards.isNotEmpty) {
-      final card = drawingUnopenedCards.removeLast();
-      card.faceUp = true;
+      final card = drawingUnopenedCards.removeLast()..faceUp = true;
       drawingOpenedCards.add(card);
     } else if (drawingOpenedCards.isNotEmpty) {
       while (drawingOpenedCards.isNotEmpty) {
-        final card = drawingOpenedCards.removeLast();
-        card.faceUp = false;
+        final card = drawingOpenedCards.removeLast()..faceUp = false;
         drawingUnopenedCards.add(card);
       }
     }
@@ -98,8 +73,10 @@ class GameController extends ChangeNotifier {
   }
 
   void selectWasteTop() {
-    if (drawingOpenedCards.isEmpty) return;
-    final next = const SelectedCard(source: PileType.drawingOpenedCards, pileIndex: 0);
+    if (drawingOpenedCards.isEmpty) {
+      return;
+    }
+    const next = SelectedCard(source: PileType.drawingOpenedCards, pileIndex: 0);
     if (selected?.source == next.source) {
       selected = null;
     } else {
@@ -109,11 +86,17 @@ class GameController extends ChangeNotifier {
   }
 
   void selectTableauTop(int column) {
-    if (column < 0 || column >= mainCards.length) return;
+    if (column < 0 || column >= mainCards.length) {
+      return;
+    }
     final pile = mainCards[column];
-    if (pile.isEmpty) return;
+    if (pile.isEmpty) {
+      return;
+    }
     final top = pile.last;
-    if (!top.faceUp) return;
+    if (!top.faceUp) {
+      return;
+    }
 
     final next = SelectedCard(source: PileType.mainCards, pileIndex: column);
     if (selected?.source == next.source && selected?.pileIndex == next.pileIndex) {
@@ -125,24 +108,38 @@ class GameController extends ChangeNotifier {
   }
 
   void flipTableauTop(int column) {
-    if (column < 0 || column >= mainCards.length) return;
+    if (column < 0 || column >= mainCards.length) {
+      return;
+    }
     final pile = mainCards[column];
-    if (pile.isEmpty) return;
+    if (pile.isEmpty) {
+      return;
+    }
     final top = pile.last;
-    if (top.faceUp) return;
+    if (top.faceUp) {
+      return;
+    }
     top.faceUp = true;
     notifyListeners();
   }
 
   void tryMoveSelectedToFoundation(int foundationIndex) {
-    if (foundationIndex < 0 || foundationIndex >= finishedCards.length) return;
-    if (selected == null) return;
+    if (foundationIndex < 0 || foundationIndex >= finishedCards.length) {
+      return;
+    }
+    if (selected == null) {
+      return;
+    }
 
     final card = _selectedCard;
-    if (card == null) return;
+    if (card == null) {
+      return;
+    }
 
     final foundation = finishedCards[foundationIndex];
-    if (!_canMoveToFoundation(card, foundation)) return;
+    if (!_canMoveToFoundation(card, foundation)) {
+      return;
+    }
 
     _removeSelectedCardAndReveal();
     foundation.add(card);
@@ -151,14 +148,22 @@ class GameController extends ChangeNotifier {
   }
 
   void tryMoveSelectedToTableau(int column) {
-    if (column < 0 || column >= mainCards.length) return;
-    if (selected == null) return;
+    if (column < 0 || column >= mainCards.length) {
+      return;
+    }
+    if (selected == null) {
+      return;
+    }
 
     final card = _selectedCard;
-    if (card == null) return;
+    if (card == null) {
+      return;
+    }
 
     final pile = mainCards[column];
-    if (!_canMoveToTableau(card, pile)) return;
+    if (!_canMoveToTableau(card, pile)) {
+      return;
+    }
 
     _removeSelectedCardAndReveal();
     pile.add(card);
@@ -167,26 +172,38 @@ class GameController extends ChangeNotifier {
   }
 
   bool canDropOnFoundation(DragPayload payload, int foundationIndex) {
-    if (foundationIndex < 0 || foundationIndex >= finishedCards.length) return false;
+    if (foundationIndex < 0 || foundationIndex >= finishedCards.length) {
+      return false;
+    }
     final cards = _cardsFromSource(payload);
-    if (cards.isEmpty || cards.length != 1) return false;
+    if (cards.isEmpty || cards.length != 1) {
+      return false;
+    }
     return _canMoveToFoundation(cards.first, finishedCards[foundationIndex]);
   }
 
   bool canDropOnTableau(DragPayload payload, int column) {
-    if (column < 0 || column >= mainCards.length) return false;
+    if (column < 0 || column >= mainCards.length) {
+      return false;
+    }
     if (payload.source == PileType.mainCards && payload.pileIndex == column) {
       return false;
     }
     final cards = _cardsFromSource(payload);
-    if (cards.isEmpty) return false;
+    if (cards.isEmpty) {
+      return false;
+    }
     return _canMoveToTableau(cards.first, mainCards[column]);
   }
 
   void moveDragToFoundation(DragPayload payload, int foundationIndex) {
-    if (!canDropOnFoundation(payload, foundationIndex)) return;
+    if (!canDropOnFoundation(payload, foundationIndex)) {
+      return;
+    }
     final cards = _cardsFromSource(payload);
-    if (cards.isEmpty) return;
+    if (cards.isEmpty) {
+      return;
+    }
     _removeCardsFromSource(payload);
     finishedCards[foundationIndex].add(cards.first);
     selected = null;
@@ -194,9 +211,13 @@ class GameController extends ChangeNotifier {
   }
 
   void moveDragToTableau(DragPayload payload, int column) {
-    if (!canDropOnTableau(payload, column)) return;
+    if (!canDropOnTableau(payload, column)) {
+      return;
+    }
     final cards = _cardsFromSource(payload);
-    if (cards.isEmpty) return;
+    if (cards.isEmpty) {
+      return;
+    }
     _removeCardsFromSource(payload);
     mainCards[column].addAll(cards);
     selected = null;
@@ -204,7 +225,9 @@ class GameController extends ChangeNotifier {
   }
 
   SolitaireCard? get _selectedCard {
-    if (selected == null) return null;
+    if (selected == null) {
+      return null;
+    }
     switch (selected!.source) {
       case PileType.drawingOpenedCards:
         return drawingOpenedCards.isNotEmpty ? drawingOpenedCards.last : null;
@@ -217,7 +240,9 @@ class GameController extends ChangeNotifier {
   }
 
   void _removeSelectedCardAndReveal() {
-    if (selected == null) return;
+    if (selected == null) {
+      return;
+    }
     switch (selected!.source) {
       case PileType.drawingOpenedCards:
         if (drawingOpenedCards.isNotEmpty) {
@@ -253,12 +278,20 @@ class GameController extends ChangeNotifier {
           return const [];
         }
         final pile = mainCards[payload.pileIndex];
-        if (pile.isEmpty) return const [];
+        if (pile.isEmpty) {
+          return const [];
+        }
         final start = payload.cardIndex < 0 ? pile.length - 1 : payload.cardIndex;
-        if (start < 0 || start >= pile.length) return const [];
+        if (start < 0 || start >= pile.length) {
+          return const [];
+        }
         final slice = pile.sublist(start);
-        if (slice.any((card) => !card.faceUp)) return const [];
-        if (!_isValidTableauStack(slice)) return const [];
+        if (slice.any((card) => !card.faceUp)) {
+          return const [];
+        }
+        if (!_isValidTableauStack(slice)) {
+          return const [];
+        }
         return slice;
       default:
         return const [];
@@ -286,9 +319,13 @@ class GameController extends ChangeNotifier {
           return;
         }
         final pile = mainCards[payload.pileIndex];
-        if (pile.isEmpty) return;
+        if (pile.isEmpty) {
+          return;
+        }
         final start = payload.cardIndex < 0 ? pile.length - 1 : payload.cardIndex;
-        if (start < 0 || start >= pile.length) return;
+        if (start < 0 || start >= pile.length) {
+          return;
+        }
         pile.removeRange(start, pile.length);
         if (pile.isNotEmpty && !pile.last.faceUp) {
           pile.last.faceUp = true;
@@ -300,12 +337,18 @@ class GameController extends ChangeNotifier {
   }
 
   bool _isValidTableauStack(List<SolitaireCard> cards) {
-    if (cards.isEmpty) return false;
+    if (cards.isEmpty) {
+      return false;
+    }
     for (var i = 0; i < cards.length - 1; i += 1) {
       final current = cards[i];
       final next = cards[i + 1];
-      if (current.isRed == next.isRed) return false;
-      if (current.rank != next.rank + 1) return false;
+      if (current.isRed == next.isRed) {
+        return false;
+      }
+      if (current.rank != next.rank + 1) {
+        return false;
+      }
     }
     return true;
   }
@@ -323,7 +366,9 @@ class GameController extends ChangeNotifier {
       return card.rank == 13;
     }
     final top = pile.last;
-    if (!top.faceUp) return false;
+    if (!top.faceUp) {
+      return false;
+    }
     final isOppositeColor = card.isRed != top.isRed;
     return isOppositeColor && card.rank == top.rank - 1;
   }
