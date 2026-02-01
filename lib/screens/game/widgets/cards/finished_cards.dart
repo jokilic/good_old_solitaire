@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:watch_it/watch_it.dart';
 
 import '../../../../constants/enums.dart';
 import '../../../../models/drag_payload.dart';
@@ -9,7 +10,7 @@ import '../card/card_frame.dart';
 import '../card/card_widget.dart';
 import '../drag_feedback.dart';
 
-class FinishedCards extends StatelessWidget {
+class FinishedCards extends WatchingWidget {
   final int index;
   final double cardHeight;
   final double cardWidth;
@@ -23,8 +24,9 @@ class FinishedCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = getIt.get<GameController>();
+    final state = watchIt<GameController>().value;
 
-    final finishedCards = controller.finishedCards[index];
+    final finishedCards = state.finishedCards[index];
     final hasCards = finishedCards.isNotEmpty;
 
     return DragTarget<DragPayload>(

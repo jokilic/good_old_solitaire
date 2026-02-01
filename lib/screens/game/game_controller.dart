@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 import '../../constants/enums.dart';
@@ -28,14 +26,8 @@ class GameController
         (
           drawingUnopenedCards: [],
           drawingOpenedCards: [],
-          mainCards: List.generate(
-            7,
-            (_) => [],
-          ),
-          finishedCards: List.generate(
-            4,
-            (_) => [],
-          ),
+          mainCards: List.generate(7, (_) => []),
+          finishedCards: List.generate(4, (_) => []),
           selectedCard: null,
         ),
       );
@@ -51,23 +43,6 @@ class GameController
   ///
   /// METHODS
   ///
-
-  /// Updates `state` with any passed value.
-  void updateState({
-    List<SolitaireCard>? newDrawingUnopenedCards,
-    List<SolitaireCard>? newDrawingOpenedCards,
-    List<List<SolitaireCard>>? newMainCards,
-    List<List<SolitaireCard>>? newFinishedCards,
-    Object? newSelectedCard = noSelectedCard,
-  }) {
-    value = (
-      drawingUnopenedCards: newDrawingUnopenedCards ?? value.drawingUnopenedCards,
-      drawingOpenedCards: newDrawingOpenedCards ?? value.drawingOpenedCards,
-      mainCards: newMainCards ?? value.mainCards,
-      finishedCards: newFinishedCards ?? value.finishedCards,
-      selectedCard: newSelectedCard == noSelectedCard ? value.selectedCard : newSelectedCard as SelectedCard?,
-    );
-  }
 
   /// Builds and deals a fresh game.
   void newGame() {
@@ -87,7 +62,7 @@ class GameController
     }
 
     /// Shuffle the deck before dealing.
-    deck.shuffle(Random());
+    deck.shuffle();
 
     final newMainCards = List.generate(7, (_) => <SolitaireCard>[]);
     final newFinishedCards = List.generate(4, (_) => <SolitaireCard>[]);
@@ -674,5 +649,22 @@ class GameController
 
     final isOppositeColor = card.isRed != top.isRed;
     return isOppositeColor && card.rank == top.rank - 1;
+  }
+
+  /// Updates `state` with any passed value.
+  void updateState({
+    List<SolitaireCard>? newDrawingUnopenedCards,
+    List<SolitaireCard>? newDrawingOpenedCards,
+    List<List<SolitaireCard>>? newMainCards,
+    List<List<SolitaireCard>>? newFinishedCards,
+    Object? newSelectedCard = noSelectedCard,
+  }) {
+    value = (
+      drawingUnopenedCards: newDrawingUnopenedCards ?? value.drawingUnopenedCards,
+      drawingOpenedCards: newDrawingOpenedCards ?? value.drawingOpenedCards,
+      mainCards: newMainCards ?? value.mainCards,
+      finishedCards: newFinishedCards ?? value.finishedCards,
+      selectedCard: newSelectedCard == noSelectedCard ? value.selectedCard : newSelectedCard as SelectedCard?,
+    );
   }
 }

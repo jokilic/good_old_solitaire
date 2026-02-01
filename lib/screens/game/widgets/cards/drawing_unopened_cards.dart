@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:watch_it/watch_it.dart';
 
 import '../../../../util/dependencies.dart';
 import '../../game_controller.dart';
@@ -6,7 +7,7 @@ import '../card/card_back.dart';
 import '../card/card_empty.dart';
 import '../card/card_frame.dart';
 
-class DrawingUnopenedCards extends StatelessWidget {
+class DrawingUnopenedCards extends WatchingWidget {
   final double cardHeight;
   final double cardWidth;
 
@@ -18,8 +19,9 @@ class DrawingUnopenedCards extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = getIt.get<GameController>();
+    final state = watchIt<GameController>().value;
 
-    final hasCards = controller.drawingUnopenedCards.isNotEmpty;
+    final hasCards = state.drawingUnopenedCards.isNotEmpty;
 
     return GestureDetector(
       onTap: controller.drawFromStock,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:watch_it/watch_it.dart';
 
-import '../../../../../util/dependencies.dart';
 import '../../../game_controller.dart';
 import 'main_cards_column.dart';
 
-class MainCardsRow extends StatelessWidget {
+class MainCardsRow extends WatchingWidget {
   final double cardHeight;
   final double cardWidth;
 
@@ -15,12 +15,13 @@ class MainCardsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = getIt.get<GameController>();
+    final state = watchIt<GameController>().value;
+    final mainCards = state.mainCards;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(
-        controller.mainCards.length,
+        mainCards.length,
         (index) => Expanded(
           child: MainCardsColumn(
             column: index,

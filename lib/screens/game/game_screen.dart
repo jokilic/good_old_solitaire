@@ -10,7 +10,10 @@ import 'widgets/layout/finished_cards/finished_cards_row.dart';
 import 'widgets/layout/main_cards/main_cards_row.dart';
 
 class GameScreen extends StatefulWidget {
+  final String instanceId;
+
   const GameScreen({
+    required this.instanceId,
     required super.key,
   });
 
@@ -25,6 +28,7 @@ class _GameScreenState extends State<GameScreen> {
 
     registerIfNotInitialized<GameController>(
       GameController.new,
+      afterRegister: (controller) => controller.init(),
     );
   }
 
@@ -37,8 +41,6 @@ class _GameScreenState extends State<GameScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = getIt.get<GameController>();
-
-    // final state = watchIt<GameController>().value;
 
     return Scaffold(
       backgroundColor: Colors.green,

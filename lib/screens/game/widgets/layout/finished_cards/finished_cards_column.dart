@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:watch_it/watch_it.dart';
 
 import '../../../../../constants/constants.dart';
-import '../../../../../util/dependencies.dart';
 import '../../../game_controller.dart';
 import '../../cards/finished_cards.dart';
 
-class FinishedCardsColumn extends StatelessWidget {
+class FinishedCardsColumn extends WatchingWidget {
   final double cardHeight;
   final double cardWidth;
 
@@ -16,11 +16,12 @@ class FinishedCardsColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = getIt.get<GameController>();
+    final state = watchIt<GameController>().value;
+    final finishedCards = state.finishedCards;
 
     return Column(
       children: List.generate(
-        controller.finishedCards.length,
+        finishedCards.length,
         (index) => Padding(
           padding: EdgeInsets.only(
             top: index == 0 ? 0 : padding,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:watch_it/watch_it.dart';
 
 import '../../../../../constants/enums.dart';
 import '../../../../../models/drag_payload.dart';
@@ -8,7 +9,7 @@ import '../../card/card_empty.dart';
 import '../../card/card_frame.dart';
 import '../../card/card_main.dart';
 
-class MainCardsColumn extends StatelessWidget {
+class MainCardsColumn extends WatchingWidget {
   final int column;
   final double cardHeight;
   final double cardWidth;
@@ -22,28 +23,32 @@ class MainCardsColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = getIt.get<GameController>();
+    final state = watchIt<GameController>().value;
 
-    final mainCards = controller.mainCards[column];
-    final isSelected = controller.selected?.source == PileType.mainCards && controller.selected?.pileIndex == column;
+    final mainCards = state.mainCards[column];
+    final isSelected = state.selectedCard?.source == PileType.mainCards && state.selectedCard?.pileIndex == column;
 
     return DragTarget<DragPayload>(
       onWillAcceptWithDetails: (details) => controller.canDropOnTableau(details.data, column),
       onAcceptWithDetails: (details) => controller.moveDragToTableau(details.data, column),
       builder: (context, _, __) => GestureDetector(
         onTap: () {
-          if (controller.selected != null && !(controller.selected!.source == PileType.mainCards && controller.selected!.pileIndex == column)) {
+          if (state.selectedCard != null && !(state.selectedCard!.source == PileType.mainCards && state.selectedCard!.pileIndex == column)) {
             controller.tryMoveSelectedToTableau(column);
             return;
           }
+
           if (mainCards.isEmpty) {
             controller.tryMoveSelectedToTableau(column);
             return;
           }
+
           final top = mainCards.last;
           if (!top.faceUp) {
             controller.flipTableauTop(column);
             return;
           }
+
           controller.selectTableauTop(column);
         },
         child: CardFrame(
