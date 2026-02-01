@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 
-import '../../../../../constants/constants.dart';
 import '../../cards/drawing_opened_cards.dart';
 import '../../cards/drawing_unopened_cards.dart';
 
@@ -28,8 +27,6 @@ class DrawingCardsRow extends StatelessWidget {
         cardHeight: cardHeight,
         cardWidth: cardWidth,
       ),
-
-      const SizedBox(width: padding),
 
       ///
       /// DRAWING OPENED CARDS

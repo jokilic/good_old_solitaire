@@ -5,6 +5,7 @@ import '../../constants/durations.dart';
 import '../../constants/enums.dart';
 import '../../models/selected_card.dart';
 import '../../models/solitaire_card.dart';
+import '../../util/card_size.dart';
 import '../../util/dependencies.dart';
 import 'game_controller.dart';
 import 'widgets/card/card_widget.dart';
@@ -374,13 +375,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
               final availableHeight = constraints.maxHeight - padding * 2;
               final availableWidth = constraints.maxWidth - padding * 2;
 
-              final cardWidth = (availableWidth - 6 * 8) / 7;
-              final clampedCardWidth = cardWidth.clamp(48.0, 72.0);
+              const cardAspectRatio = 1.4;
 
-              final cardHeight = clampedCardWidth * 1.4;
+              final cardWidth = getCardWidth(
+                isLandscape: isLandscape,
+                availableHeight: availableHeight,
+                availableWidth: availableWidth,
+                padding: padding,
+                cardAspectRatio: cardAspectRatio,
+              );
 
-              final sideCardHeight = ((availableHeight - 3 * 8) / 4).clamp(36.0, cardHeight);
-              final sideCardWidth = (sideCardHeight / 1.4).clamp(28.0, clampedCardWidth);
+              final cardHeight = cardWidth * cardAspectRatio;
 
               final hiddenTopCardColumn = tapMoveSource?.source == PileType.mainCards ? tapMoveSource!.pileIndex : null;
               final hideOpenedTopCard = tapMoveSource?.source == PileType.drawingOpenedCards;
@@ -394,14 +399,14 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           /// LEFT COLUMN
                           ///
                           FinishedCardsColumn(
-                            cardHeight: sideCardHeight,
-                            cardWidth: sideCardWidth,
+                            cardHeight: cardHeight,
+                            cardWidth: cardWidth,
                             pileKeys: controller.finishedPileKeys,
                             isAnimatingMove: isAnimatingMove,
                             onTapMoveSelected: (index) => animateSelectedToFinished(
                               index,
-                              cardHeight: sideCardHeight,
-                              cardWidth: sideCardWidth,
+                              cardHeight: cardHeight,
+                              cardWidth: cardWidth,
                             ),
                           ),
 
@@ -413,14 +418,14 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           Expanded(
                             child: MainCardsRow(
                               cardHeight: cardHeight,
-                              cardWidth: clampedCardWidth,
+                              cardWidth: cardWidth,
                               columnKeys: controller.mainColumnKeys,
                               isAnimatingMove: isAnimatingMove,
                               hiddenTopCardColumn: hiddenTopCardColumn,
                               onTapMoveSelected: (column) => animateSelectedToMain(
                                 column,
                                 cardHeight: cardHeight,
-                                cardWidth: clampedCardWidth,
+                                cardWidth: cardWidth,
                               ),
                             ),
                           ),
@@ -431,8 +436,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           /// RIGHT COLUMN
                           ///
                           DrawingCardsColumn(
-                            cardHeight: sideCardHeight,
-                            cardWidth: sideCardWidth,
+                            cardHeight: cardHeight,
+                            cardWidth: cardWidth,
                             drawingOpenedKey: drawingOpenedKey,
                             hideOpenedTopCard: hideOpenedTopCard,
                           ),
@@ -443,6 +448,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           ///
                           /// TOP ROW
                           ///
+                          // TODO: I want spacing logic same as bottom row. Since there's two cards + empty space + four cards, you should add that empty space and use spacing logic like bottom row
                           Row(
                             children: [
                               ///
@@ -454,8 +460,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                 drawingOpenedKey: drawingOpenedKey,
                                 hideOpenedTopCard: hideOpenedTopCard,
                               ),
-
-                              const Spacer(),
 
                               ///
                               /// FINISHED CARDS
@@ -482,14 +486,14 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           Expanded(
                             child: MainCardsRow(
                               cardHeight: cardHeight,
-                              cardWidth: clampedCardWidth,
+                              cardWidth: cardWidth,
                               columnKeys: controller.mainColumnKeys,
                               isAnimatingMove: isAnimatingMove,
                               hiddenTopCardColumn: hiddenTopCardColumn,
                               onTapMoveSelected: (column) => animateSelectedToMain(
                                 column,
                                 cardHeight: cardHeight,
-                                cardWidth: clampedCardWidth,
+                                cardWidth: cardWidth,
                               ),
                             ),
                           ),

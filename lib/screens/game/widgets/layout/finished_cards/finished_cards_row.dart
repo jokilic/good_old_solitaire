@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:watch_it/watch_it.dart';
 
-import '../../../../../constants/constants.dart';
 import '../../../game_controller.dart';
 import '../../cards/finished_cards.dart';
 
@@ -29,16 +28,13 @@ class FinishedCardsRow extends WatchingWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(
         finishedCards.length,
-        (index) => Padding(
-          padding: const EdgeInsets.only(left: padding),
-          child: FinishedCards(
-            index: index,
-            cardHeight: cardHeight,
-            cardWidth: cardWidth,
-            pileKey: pileKeys[index],
-            isAnimatingMove: isAnimatingMove,
-            onTapMoveSelected: onTapMoveSelected,
-          ),
+        (index) => FinishedCards(
+          index: index,
+          cardHeight: cardHeight,
+          cardWidth: cardWidth,
+          pileKey: pileKeys[index],
+          isAnimatingMove: isAnimatingMove,
+          onTapMoveSelected: onTapMoveSelected,
         ),
       ),
     );
