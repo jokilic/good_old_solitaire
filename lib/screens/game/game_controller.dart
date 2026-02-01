@@ -1,15 +1,56 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+
 import '../../constants/enums.dart';
 import '../../models/drag_payload.dart';
 import '../../models/selected_card.dart';
 import '../../models/solitaire_card.dart';
 
-class GameController {
-  GameController() {
-    newGame();
+class GameController
+    extends
+        ValueNotifier<
+          ({
+            List<SolitaireCard> drawingUnopenedCards,
+            List<SolitaireCard> drawingOpenedCards,
+            List<List<SolitaireCard>> mainCards,
+            List<List<SolitaireCard>> finishedCards,
+            SelectedCard? selectedCard,
+          })
+        > {
+  GameController()
+    : super((
+        drawingUnopenedCards: [],
+        drawingOpenedCards: [],
+        mainCards: List.generate(
+          7,
+          (_) => [],
+        ),
+        finishedCards: List.generate(
+          4,
+          (_) => [],
+        ),
+        selectedCard: null,
+      ));
+
+  /// Updates `state` with any passed value
+  void updateState({
+    List<SolitaireCard>? newDrawingUnopenedCards,
+    List<SolitaireCard>? newDrawingOpenedCards,
+    List<List<SolitaireCard>>? newMainCards,
+    List<List<SolitaireCard>>? newFinishedCards,
+    SelectedCard? newSelectedCard,
+  }) {
+    value = (
+      drawingUnopenedCards: newDrawingUnopenedCards ?? value.drawingUnopenedCards,
+      drawingOpenedCards: newDrawingOpenedCards ?? value.drawingOpenedCards,
+      mainCards: newMainCards ?? value.mainCards,
+      finishedCards: newFinishedCards ?? value.finishedCards,
+      selectedCard: newSelectedCard ?? value.selectedCard,
+    );
   }
 
+  // TODO: Remove all these variables below and everywhere where they are used, use the `value` instead and use `updateState` to update relevant values
   final List<SolitaireCard> drawingUnopenedCards = [];
   final List<SolitaireCard> drawingOpenedCards = [];
   final List<List<SolitaireCard>> mainCards = List.generate(7, (_) => []);
