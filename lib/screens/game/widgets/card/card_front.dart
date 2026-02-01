@@ -9,13 +9,13 @@ import 'card_label.dart';
 
 class CardFront extends StatelessWidget {
   final SolitaireCard card;
-  final double width;
   final double height;
+  final double width;
 
   const CardFront({
     required this.card,
-    required this.width,
     required this.height,
+    required this.width,
   });
 
   @override

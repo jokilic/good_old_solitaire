@@ -7,14 +7,14 @@ import 'card_front.dart';
 
 class CardWidget extends StatelessWidget {
   final SolitaireCard card;
-  final double width;
   final double height;
+  final double width;
   final bool isSelected;
 
   const CardWidget({
     required this.card,
-    required this.width,
     required this.height,
+    required this.width,
     required this.isSelected,
   });
 

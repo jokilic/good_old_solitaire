@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import '../../../../constants/constants.dart';
 
 class CardBack extends StatelessWidget {
-  final double width;
   final double height;
+  final double width;
 
   const CardBack({
-    required this.width,
     required this.height,
+    required this.width,
   });
 
   @override

@@ -5,13 +5,13 @@ import 'card/card_widget.dart';
 
 class StackDragFeedback extends StatelessWidget {
   final List<SolitaireCard> cards;
-  final double width;
   final double height;
+  final double width;
 
   const StackDragFeedback({
     required this.cards,
-    required this.width,
     required this.height,
+    required this.width,
   });
 
   @override
