@@ -6,6 +6,7 @@ import '../../constants/enums.dart';
 import '../../models/drag_payload.dart';
 import '../../models/selected_card.dart';
 import '../../models/solitaire_card.dart';
+import '../../util/nullable_objects.dart';
 
 class GameController
     extends
@@ -18,48 +19,60 @@ class GameController
             SelectedCard? selectedCard,
           })
         > {
-  GameController()
-    : super((
-        drawingUnopenedCards: [],
-        drawingOpenedCards: [],
-        mainCards: List.generate(
-          7,
-          (_) => [],
-        ),
-        finishedCards: List.generate(
-          4,
-          (_) => [],
-        ),
-        selectedCard: null,
-      ));
+  ///
+  /// CONSTRUCTOR
+  ///
 
-  /// Updates `state` with any passed value
+  GameController()
+    : super(
+        (
+          drawingUnopenedCards: [],
+          drawingOpenedCards: [],
+          mainCards: List.generate(
+            7,
+            (_) => [],
+          ),
+          finishedCards: List.generate(
+            4,
+            (_) => [],
+          ),
+          selectedCard: null,
+        ),
+      );
+
+  ///
+  /// INIT
+  ///
+
+  void init() {
+    newGame();
+  }
+
+  ///
+  /// METHODS
+  ///
+
+  /// Updates `state` with any passed value.
   void updateState({
     List<SolitaireCard>? newDrawingUnopenedCards,
     List<SolitaireCard>? newDrawingOpenedCards,
     List<List<SolitaireCard>>? newMainCards,
     List<List<SolitaireCard>>? newFinishedCards,
-    SelectedCard? newSelectedCard,
+    Object? newSelectedCard = noSelectedCard,
   }) {
     value = (
       drawingUnopenedCards: newDrawingUnopenedCards ?? value.drawingUnopenedCards,
       drawingOpenedCards: newDrawingOpenedCards ?? value.drawingOpenedCards,
       mainCards: newMainCards ?? value.mainCards,
       finishedCards: newFinishedCards ?? value.finishedCards,
-      selectedCard: newSelectedCard ?? value.selectedCard,
+      selectedCard: newSelectedCard == noSelectedCard ? value.selectedCard : newSelectedCard as SelectedCard?,
     );
   }
 
-  // TODO: Remove all these variables below and everywhere where they are used, use the `value` instead and use `updateState` to update relevant values
-  final List<SolitaireCard> drawingUnopenedCards = [];
-  final List<SolitaireCard> drawingOpenedCards = [];
-  final List<List<SolitaireCard>> mainCards = List.generate(7, (_) => []);
-  final List<List<SolitaireCard>> finishedCards = List.generate(4, (_) => []);
-
-  SelectedCard? selected;
-
+  /// Builds and deals a fresh game.
   void newGame() {
     final deck = <SolitaireCard>[];
+    /// Generate a full 52-card deck (all suits, ranks 1-13).
     for (final suit in Suit.values) {
       for (var rank = 1; rank <= 13; rank += 1) {
         deck.add(
@@ -72,65 +85,86 @@ class GameController
       }
     }
 
+    /// Shuffle the deck before dealing.
     deck.shuffle(Random());
 
-    for (final pile in mainCards) {
-      pile.clear();
-    }
-    for (final pile in finishedCards) {
-      pile.clear();
-    }
-    drawingUnopenedCards.clear();
-    drawingOpenedCards.clear();
-    selected = null;
-
-    for (var col = 0; col < mainCards.length; col += 1) {
+    /// Deal the tableau: 1..7 cards per column, only top card face-up.
+    final newMainCards = List.generate(7, (_) => <SolitaireCard>[]);
+    final newFinishedCards = List.generate(4, (_) => <SolitaireCard>[]);
+    final newDrawingUnopenedCards = <SolitaireCard>[];
+    for (var col = 0; col < newMainCards.length; col += 1) {
       for (var row = 0; row <= col; row += 1) {
         final card = deck.removeLast()..faceUp = row == col;
-        mainCards[col].add(card);
+        newMainCards[col].add(card);
       }
     }
 
+    /// Move remaining cards to the stock (face-down).
     while (deck.isNotEmpty) {
       final card = deck.removeLast()..faceUp = false;
-      drawingUnopenedCards.add(card);
+      newDrawingUnopenedCards.add(card);
     }
 
-    notifyListeners();
+    /// Commit the new game state in one notifier update.
+    updateState(
+      newDrawingUnopenedCards: newDrawingUnopenedCards,
+      newDrawingOpenedCards: const [],
+      newMainCards: newMainCards,
+      newFinishedCards: newFinishedCards,
+      newSelectedCard: null,
+    );
   }
 
+  /// Draws from stock to waste, or recycles waste to stock.
   void drawFromStock() {
-    if (drawingUnopenedCards.isNotEmpty) {
-      final card = drawingUnopenedCards.removeLast()..faceUp = true;
-      drawingOpenedCards.add(card);
-    } else if (drawingOpenedCards.isNotEmpty) {
-      while (drawingOpenedCards.isNotEmpty) {
-        final card = drawingOpenedCards.removeLast()..faceUp = false;
-        drawingUnopenedCards.add(card);
+    final hasUnopened = value.drawingUnopenedCards.isNotEmpty;
+    final hasOpened = value.drawingOpenedCards.isNotEmpty;
+    if (!hasUnopened && !hasOpened) {
+      if (value.selectedCard != null) {
+        updateState(newSelectedCard: null);
+      }
+      return;
+    }
+    /// Work on copies to keep notifier updates atomic.
+    final drawingUnopened = List<SolitaireCard>.from(value.drawingUnopenedCards);
+    final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
+    if (drawingUnopened.isNotEmpty) {
+      /// Move one card from stock to waste.
+      final card = drawingUnopened.removeLast()..faceUp = true;
+      drawingOpened.add(card);
+    } else if (drawingOpened.isNotEmpty) {
+      /// Recycle waste back to stock, flipping face-down.
+      while (drawingOpened.isNotEmpty) {
+        final card = drawingOpened.removeLast()..faceUp = false;
+        drawingUnopened.add(card);
       }
     }
-    selected = null;
-    notifyListeners();
+    updateState(
+      newDrawingUnopenedCards: drawingUnopened,
+      newDrawingOpenedCards: drawingOpened,
+      newSelectedCard: null,
+    );
   }
 
+  /// Toggles selection of the top waste card.
   void selectWasteTop() {
-    if (drawingOpenedCards.isEmpty) {
+    if (value.drawingOpenedCards.isEmpty) {
       return;
     }
     const next = SelectedCard(source: PileType.drawingOpenedCards, pileIndex: 0);
-    if (selected?.source == next.source) {
-      selected = null;
+    if (value.selectedCard?.source == next.source) {
+      updateState(newSelectedCard: null);
     } else {
-      selected = next;
+      updateState(newSelectedCard: next);
     }
-    notifyListeners();
   }
 
+  /// Toggles selection of the top card in a tableau column.
   void selectTableauTop(int column) {
-    if (column < 0 || column >= mainCards.length) {
+    if (column < 0 || column >= value.mainCards.length) {
       return;
     }
-    final pile = mainCards[column];
+    final pile = value.mainCards[column];
     if (pile.isEmpty) {
       return;
     }
@@ -139,20 +173,22 @@ class GameController
       return;
     }
 
+    /// Toggle selection for the same column.
     final next = SelectedCard(source: PileType.mainCards, pileIndex: column);
-    if (selected?.source == next.source && selected?.pileIndex == next.pileIndex) {
-      selected = null;
+    final selectedCard = value.selectedCard;
+    if (selectedCard?.source == next.source && selectedCard?.pileIndex == next.pileIndex) {
+      updateState(newSelectedCard: null);
     } else {
-      selected = next;
+      updateState(newSelectedCard: next);
     }
-    notifyListeners();
   }
 
+  /// Flips the top card of a tableau column if it is face-down.
   void flipTableauTop(int column) {
-    if (column < 0 || column >= mainCards.length) {
+    if (column < 0 || column >= value.mainCards.length) {
       return;
     }
-    final pile = mainCards[column];
+    final pile = value.mainCards[column];
     if (pile.isEmpty) {
       return;
     }
@@ -161,150 +197,253 @@ class GameController
       return;
     }
     top.faceUp = true;
-    notifyListeners();
+    /// Update value to notify listeners.
+    updateState(newMainCards: List<List<SolitaireCard>>.from(value.mainCards));
   }
 
+  /// Attempts to move the selected card to the given foundation.
   void tryMoveSelectedToFoundation(int foundationIndex) {
-    if (foundationIndex < 0 || foundationIndex >= finishedCards.length) {
+    if (foundationIndex < 0 || foundationIndex >= value.finishedCards.length) {
       return;
     }
-    if (selected == null) {
+    final selectedCard = value.selectedCard;
+    if (selectedCard == null) {
       return;
     }
 
-    final card = _selectedCard;
+    /// Resolve the selected card based on its source pile.
+    final card = _selectedCardFrom(
+      selectedCard,
+      drawingOpenedCards: value.drawingOpenedCards,
+      mainCards: value.mainCards,
+    );
     if (card == null) {
       return;
     }
 
-    final foundation = finishedCards[foundationIndex];
-    if (!_canMoveToFoundation(card, foundation)) {
+    final currentFoundation = value.finishedCards[foundationIndex];
+    if (!_canMoveToFoundation(card, currentFoundation)) {
       return;
     }
 
-    _removeSelectedCardAndReveal();
+    /// Perform move on copies and commit in a single update.
+    final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
+    final mainCards = List<List<SolitaireCard>>.from(value.mainCards);
+    final finishedCards = List<List<SolitaireCard>>.from(value.finishedCards);
+    final foundation = List<SolitaireCard>.from(currentFoundation);
+    _removeSelectedCardAndReveal(
+      selectedCard,
+      drawingOpenedCards: drawingOpened,
+      mainCards: mainCards,
+    );
     foundation.add(card);
-    selected = null;
-    notifyListeners();
+    finishedCards[foundationIndex] = foundation;
+    updateState(
+      newDrawingOpenedCards: drawingOpened,
+      newMainCards: mainCards,
+      newFinishedCards: finishedCards,
+      newSelectedCard: null,
+    );
   }
 
+  /// Attempts to move the selected card to a tableau column.
   void tryMoveSelectedToTableau(int column) {
-    if (column < 0 || column >= mainCards.length) {
+    if (column < 0 || column >= value.mainCards.length) {
       return;
     }
-    if (selected == null) {
+    final selectedCard = value.selectedCard;
+    if (selectedCard == null) {
       return;
     }
 
-    final card = _selectedCard;
+    /// Resolve the selected card based on its source pile.
+    final card = _selectedCardFrom(
+      selectedCard,
+      drawingOpenedCards: value.drawingOpenedCards,
+      mainCards: value.mainCards,
+    );
     if (card == null) {
       return;
     }
 
-    final pile = mainCards[column];
-    if (!_canMoveToTableau(card, pile)) {
+    final currentPile = value.mainCards[column];
+    if (!_canMoveToTableau(card, currentPile)) {
       return;
     }
 
-    _removeSelectedCardAndReveal();
+    /// Perform move on copies and commit in a single update.
+    final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
+    final mainCards = List<List<SolitaireCard>>.from(value.mainCards);
+    final pile = List<SolitaireCard>.from(currentPile);
+    _removeSelectedCardAndReveal(
+      selectedCard,
+      drawingOpenedCards: drawingOpened,
+      mainCards: mainCards,
+    );
     pile.add(card);
-    selected = null;
-    notifyListeners();
+    mainCards[column] = pile;
+    updateState(
+      newDrawingOpenedCards: drawingOpened,
+      newMainCards: mainCards,
+      newSelectedCard: null,
+    );
   }
 
+  /// Validates whether a drag payload can drop on a foundation pile.
   bool canDropOnFoundation(DragPayload payload, int foundationIndex) {
-    if (foundationIndex < 0 || foundationIndex >= finishedCards.length) {
+    if (foundationIndex < 0 || foundationIndex >= value.finishedCards.length) {
       return false;
     }
-    final cards = _cardsFromSource(payload);
+    final cards = _cardsFromSource(
+      payload,
+      drawingOpenedCards: value.drawingOpenedCards,
+      finishedCards: value.finishedCards,
+      mainCards: value.mainCards,
+    );
     if (cards.isEmpty || cards.length != 1) {
       return false;
     }
-    return _canMoveToFoundation(cards.first, finishedCards[foundationIndex]);
+    return _canMoveToFoundation(cards.first, value.finishedCards[foundationIndex]);
   }
 
+  /// Validates whether a drag payload can drop on a tableau column.
   bool canDropOnTableau(DragPayload payload, int column) {
-    if (column < 0 || column >= mainCards.length) {
+    if (column < 0 || column >= value.mainCards.length) {
       return false;
     }
     if (payload.source == PileType.mainCards && payload.pileIndex == column) {
       return false;
     }
-    final cards = _cardsFromSource(payload);
+    final cards = _cardsFromSource(
+      payload,
+      drawingOpenedCards: value.drawingOpenedCards,
+      finishedCards: value.finishedCards,
+      mainCards: value.mainCards,
+    );
     if (cards.isEmpty) {
       return false;
     }
-    return _canMoveToTableau(cards.first, mainCards[column]);
+    return _canMoveToTableau(cards.first, value.mainCards[column]);
   }
 
+  /// Executes a drag-drop move to a foundation (after validation).
   void moveDragToFoundation(DragPayload payload, int foundationIndex) {
     if (!canDropOnFoundation(payload, foundationIndex)) {
       return;
     }
-    final cards = _cardsFromSource(payload);
+    final cards = _cardsFromSource(
+      payload,
+      drawingOpenedCards: value.drawingOpenedCards,
+      finishedCards: value.finishedCards,
+      mainCards: value.mainCards,
+    );
     if (cards.isEmpty) {
       return;
     }
-    _removeCardsFromSource(payload);
-    finishedCards[foundationIndex].add(cards.first);
-    selected = null;
-    notifyListeners();
+    final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
+    final finishedCards = List<List<SolitaireCard>>.from(value.finishedCards);
+    final mainCards = List<List<SolitaireCard>>.from(value.mainCards);
+    _removeCardsFromSource(
+      payload,
+      drawingOpenedCards: drawingOpened,
+      finishedCards: finishedCards,
+      mainCards: mainCards,
+    );
+    final foundation = List<SolitaireCard>.from(finishedCards[foundationIndex])..add(cards.first);
+    finishedCards[foundationIndex] = foundation;
+    updateState(
+      newDrawingOpenedCards: drawingOpened,
+      newMainCards: mainCards,
+      newFinishedCards: finishedCards,
+      newSelectedCard: null,
+    );
   }
 
+  /// Executes a drag-drop move to a tableau column (after validation).
   void moveDragToTableau(DragPayload payload, int column) {
     if (!canDropOnTableau(payload, column)) {
       return;
     }
-    final cards = _cardsFromSource(payload);
+    final cards = _cardsFromSource(
+      payload,
+      drawingOpenedCards: value.drawingOpenedCards,
+      finishedCards: value.finishedCards,
+      mainCards: value.mainCards,
+    );
     if (cards.isEmpty) {
       return;
     }
-    _removeCardsFromSource(payload);
-    mainCards[column].addAll(cards);
-    selected = null;
-    notifyListeners();
+    final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
+    final mainCards = List<List<SolitaireCard>>.from(value.mainCards);
+    final finishedCards = List<List<SolitaireCard>>.from(value.finishedCards);
+    _removeCardsFromSource(
+      payload,
+      drawingOpenedCards: drawingOpened,
+      finishedCards: finishedCards,
+      mainCards: mainCards,
+    );
+    final pile = List<SolitaireCard>.from(mainCards[column])..addAll(cards);
+    mainCards[column] = pile;
+    updateState(
+      newDrawingOpenedCards: drawingOpened,
+      newMainCards: mainCards,
+      newFinishedCards: finishedCards,
+      newSelectedCard: null,
+    );
   }
 
-  SolitaireCard? get _selectedCard {
-    if (selected == null) {
-      return null;
-    }
-    switch (selected!.source) {
+  /// Resolves the actual card represented by the selection.
+  SolitaireCard? _selectedCardFrom(
+    SelectedCard selectedCard, {
+    required List<SolitaireCard> drawingOpenedCards,
+    required List<List<SolitaireCard>> mainCards,
+  }) {
+    switch (selectedCard.source) {
       case PileType.drawingOpenedCards:
         return drawingOpenedCards.isNotEmpty ? drawingOpenedCards.last : null;
       case PileType.mainCards:
-        final pile = mainCards[selected!.pileIndex];
+        final pile = mainCards[selectedCard.pileIndex];
         return pile.isNotEmpty ? pile.last : null;
       default:
         return null;
     }
   }
 
-  void _removeSelectedCardAndReveal() {
-    if (selected == null) {
-      return;
-    }
-    switch (selected!.source) {
+  /// Removes the selected card and reveals the next tableau card if needed.
+  void _removeSelectedCardAndReveal(
+    SelectedCard selectedCard, {
+    required List<SolitaireCard> drawingOpenedCards,
+    required List<List<SolitaireCard>> mainCards,
+  }) {
+    switch (selectedCard.source) {
       case PileType.drawingOpenedCards:
         if (drawingOpenedCards.isNotEmpty) {
           drawingOpenedCards.removeLast();
         }
         break;
       case PileType.mainCards:
-        final pile = mainCards[selected!.pileIndex];
+        final pileIndex = selectedCard.pileIndex;
+        final pile = List<SolitaireCard>.from(mainCards[pileIndex]);
         if (pile.isNotEmpty) {
           pile.removeLast();
         }
         if (pile.isNotEmpty && !pile.last.faceUp) {
           pile.last.faceUp = true;
         }
+        mainCards[pileIndex] = pile;
         break;
       default:
         break;
     }
   }
 
-  List<SolitaireCard> _cardsFromSource(DragPayload payload) {
+  /// Returns the cards represented by a drag payload, or empty if invalid.
+  List<SolitaireCard> _cardsFromSource(
+    DragPayload payload, {
+    required List<SolitaireCard> drawingOpenedCards,
+    required List<List<SolitaireCard>> finishedCards,
+    required List<List<SolitaireCard>> mainCards,
+  }) {
     switch (payload.source) {
       case PileType.drawingOpenedCards:
         return drawingOpenedCards.isNotEmpty ? [drawingOpenedCards.last] : const [];
@@ -339,7 +478,13 @@ class GameController
     }
   }
 
-  void _removeCardsFromSource(DragPayload payload) {
+  /// Removes cards represented by a drag payload and reveals tableau if needed.
+  void _removeCardsFromSource(
+    DragPayload payload, {
+    required List<SolitaireCard> drawingOpenedCards,
+    required List<List<SolitaireCard>> finishedCards,
+    required List<List<SolitaireCard>> mainCards,
+  }) {
     switch (payload.source) {
       case PileType.drawingOpenedCards:
         if (drawingOpenedCards.isNotEmpty) {
@@ -350,16 +495,19 @@ class GameController
         if (payload.pileIndex < 0 || payload.pileIndex >= finishedCards.length) {
           return;
         }
-        final pile = finishedCards[payload.pileIndex];
+        final pileIndex = payload.pileIndex;
+        final pile = List<SolitaireCard>.from(finishedCards[pileIndex]);
         if (pile.isNotEmpty) {
           pile.removeLast();
         }
+        finishedCards[pileIndex] = pile;
         break;
       case PileType.mainCards:
         if (payload.pileIndex < 0 || payload.pileIndex >= mainCards.length) {
           return;
         }
-        final pile = mainCards[payload.pileIndex];
+        final pileIndex = payload.pileIndex;
+        final pile = List<SolitaireCard>.from(mainCards[pileIndex]);
         if (pile.isEmpty) {
           return;
         }
@@ -371,12 +519,14 @@ class GameController
         if (pile.isNotEmpty && !pile.last.faceUp) {
           pile.last.faceUp = true;
         }
+        mainCards[pileIndex] = pile;
         break;
       default:
         break;
     }
   }
 
+  /// Validates a descending alternating-color stack.
   bool _isValidTableauStack(List<SolitaireCard> cards) {
     if (cards.isEmpty) {
       return false;
@@ -394,6 +544,7 @@ class GameController
     return true;
   }
 
+  /// Checks if a card can be placed on a foundation pile.
   bool _canMoveToFoundation(SolitaireCard card, List<SolitaireCard> foundation) {
     if (foundation.isEmpty) {
       return card.rank == 1;
@@ -402,6 +553,7 @@ class GameController
     return card.suit == top.suit && card.rank == top.rank + 1;
   }
 
+  /// Checks if a card can be placed on a tableau pile.
   bool _canMoveToTableau(SolitaireCard card, List<SolitaireCard> pile) {
     if (pile.isEmpty) {
       return card.rank == 13;

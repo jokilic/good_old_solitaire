@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 
 import '../../../../constants/enums.dart';
+import '../../../../models/drag_payload.dart';
 import '../../../../models/solitaire_card.dart';
-import '../../game_controller.dart';
 import '../stack_drag_feedback.dart';
 import 'card_widget.dart';
 
