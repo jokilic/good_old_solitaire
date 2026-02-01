@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../constants/constants.dart';
+import '../../../../constants/images.dart';
 
 class CardBack extends StatelessWidget {
   final double height;
@@ -19,7 +20,7 @@ class CardBack extends StatelessWidget {
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(borderRadius),
       border: Border.all(
-        color: Colors.white70,
+        color: Colors.white,
         width: borderWidth,
       ),
       gradient: LinearGradient(
@@ -38,18 +39,13 @@ class CardBack extends StatelessWidget {
         ),
       ],
     ),
-    child: Center(
-      child: Container(
-        height: height * 0.35,
-        width: width * 0.55,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(borderRadius),
-          border: Border.all(
-            color: Colors.white30,
-            width: borderWidth,
-          ),
-          color: Colors.white10,
-        ),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(borderRadius),
+      child: Image.asset(
+        SolitaireImages.cardBack,
+        height: height,
+        width: width,
+        fit: BoxFit.cover,
       ),
     ),
   );

@@ -45,16 +45,13 @@ class _GameScreenState extends State<GameScreen> {
     return Scaffold(
       backgroundColor: Colors.green,
       appBar: AppBar(
-        title: const Text('Good Old Solitaire'),
         backgroundColor: Colors.green,
         elevation: 0,
-        actions: [
-          IconButton(
-            onPressed: controller.newGame,
-            icon: const Icon(Icons.refresh),
-            tooltip: 'New Game',
-          ),
-        ],
+        leading: IconButton(
+          onPressed: controller.newGame,
+          icon: const Icon(Icons.refresh),
+          tooltip: 'New Game',
+        ),
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
