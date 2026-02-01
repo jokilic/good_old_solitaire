@@ -35,7 +35,6 @@ dependencies:
   logger: 2.6.2
   package_info_plus: 9.0.0
   phosphor_flutter: 2.1.0
-  playing_cards: 0.4.1+11
   watch_it: 2.4.1
 
 dev_dependencies:

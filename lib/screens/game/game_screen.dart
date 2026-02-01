@@ -1,8 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:playing_cards/playing_cards.dart' as pc;
+import 'dart:math';
 
+import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
+import '../../constants/enums.dart';
+import '../../models/solitaire_card.dart';
 import '../../util/dependencies.dart';
 import 'game_controller.dart';
+
+// TODO
+const padding = 12.0;
+const borderRadius = 8.0;
+const borderWidth = 2.0;
 
 class GameScreen extends StatefulWidget {
   const GameScreen({
@@ -14,8 +22,6 @@ class GameScreen extends StatefulWidget {
 }
 
 class _GameScreenState extends State<GameScreen> {
-  late final GameController controller;
-
   @override
   void initState() {
     super.initState();
@@ -45,10 +51,11 @@ class _GameScreenState extends State<GameScreen> {
     // ).value;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A6E3A),
+      backgroundColor: Colors.green,
       appBar: AppBar(
         title: const Text('Good Old Solitaire'),
-        backgroundColor: const Color(0xFF0B5F33),
+        backgroundColor: Colors.green,
+        elevation: 0,
         actions: [
           IconButton(
             onPressed: controller.newGame,
@@ -59,34 +66,48 @@ class _GameScreenState extends State<GameScreen> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final padding = 12.0;
           final isLandscape = constraints.maxWidth > constraints.maxHeight;
+
+          final availableHeight = constraints.maxHeight - padding * 2;
           final availableWidth = constraints.maxWidth - padding * 2;
+
           final cardWidth = (availableWidth - 6 * 8) / 7;
           final clampedCardWidth = cardWidth.clamp(48.0, 92.0);
+
           final cardHeight = clampedCardWidth * 1.4;
-          final availableHeight = constraints.maxHeight - padding * 2;
+
           final sideCardHeight = ((availableHeight - 3 * 8) / 4).clamp(36.0, cardHeight);
           final sideCardWidth = (sideCardHeight / 1.4).clamp(28.0, clampedCardWidth);
 
           return Padding(
-            padding: EdgeInsets.all(padding),
+            padding: const EdgeInsets.all(padding),
             child: isLandscape
                 ? Row(
                     children: [
-                      _buildFoundationColumn(
+                      ///
+                      /// FINISHED CARDS
+                      ///
+                      buildFinishedCardsColumn(
                         sideCardWidth,
                         sideCardHeight,
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: padding),
+
+                      ///
+                      /// MAIN CARDS
+                      ///
                       Expanded(
-                        child: _buildTableauRow(
+                        child: buildMainCardsRow(
                           clampedCardWidth,
                           cardHeight,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      _buildStockWasteColumn(
+                      const SizedBox(width: padding),
+
+                      ///
+                      /// DRAWING CARDS
+                      ///
+                      buildDrawingCardsColumn(
                         sideCardWidth,
                         sideCardHeight,
                       ),
@@ -94,10 +115,34 @@ class _GameScreenState extends State<GameScreen> {
                   )
                 : Column(
                     children: [
-                      _buildTopRow(clampedCardWidth, cardHeight),
-                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          ///
+                          /// DRAWING CARDS
+                          ///
+                          buildDrawingCardsRow(
+                            cardWidth,
+                            cardHeight,
+                          ),
+
+                          const Spacer(),
+
+                          ///
+                          /// FINISHED CARDS
+                          ///
+                          buildFinishedCardsRow(
+                            cardWidth,
+                            cardHeight,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: padding),
+
+                      ///
+                      /// MAIN CARDS
+                      ///
                       Expanded(
-                        child: _buildTableauRow(
+                        child: buildMainCardsRow(
                           clampedCardWidth,
                           cardHeight,
                         ),
@@ -110,286 +155,385 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget _buildTopRow(double cardWidth, double cardHeight) {
-    return Row(
-      children: [
-        _buildStockWasteRow(cardWidth, cardHeight),
-        const Spacer(),
-        _buildFoundationRow(cardWidth, cardHeight),
-      ],
-    );
-  }
-
-  Widget _buildStockWasteRow(
+  Widget buildDrawingCardsRow(
     double cardWidth,
-    double cardHeight, {
-    bool isLandscape = false,
-  }) {
-    final stock = _buildStockPile(cardWidth, cardHeight);
-    final waste = _buildWastePile(cardWidth, cardHeight);
-    return Row(
-      children: [
-        if (isLandscape) waste else stock,
-        const SizedBox(width: 8),
-        if (isLandscape) stock else waste,
-      ],
-    );
-  }
+    double cardHeight,
+  ) => Row(
+    children: [
+      ///
+      /// DRAWING UNOPENED CARDS
+      ///
+      buildDrawingUnopenedCards(
+        cardWidth,
+        cardHeight,
+      ),
+      const SizedBox(width: padding),
 
-  Widget _buildFoundationRow(double cardWidth, double cardHeight) {
+      ///
+      /// DRAWING OPENED CARDS
+      ///
+      buildDrawingOpenedCards(
+        cardWidth,
+        cardHeight,
+      ),
+    ],
+  );
+
+  Widget buildFinishedCardsRow(double cardWidth, double cardHeight) {
+    final controller = getIt.get<GameController>(
+      instanceName: widget.key.toString(),
+    );
+
     return Row(
       children: List.generate(
-        controller.foundations.length,
+        controller.finishedCards.length,
         (index) => Padding(
-          padding: const EdgeInsets.only(left: 8),
-          child: _buildFoundationPile(index, cardWidth, cardHeight),
+          padding: const EdgeInsets.only(left: padding),
+          child: buildFinishedCards(
+            index,
+            cardWidth,
+            cardHeight,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildFoundationColumn(double cardWidth, double cardHeight) {
+  Widget buildFinishedCardsColumn(double cardWidth, double cardHeight) {
+    final controller = getIt.get<GameController>(
+      instanceName: widget.key.toString(),
+    );
+
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
       children: List.generate(
-        controller.foundations.length,
+        controller.finishedCards.length,
         (index) => Padding(
-          padding: EdgeInsets.only(top: index == 0 ? 0 : 8),
-          child: _buildFoundationPile(index, cardWidth, cardHeight),
+          padding: EdgeInsets.only(
+            top: index == 0 ? 0 : padding,
+          ),
+          child: buildFinishedCards(
+            index,
+            cardWidth,
+            cardHeight,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildStockWasteColumn(double cardWidth, double cardHeight) {
-    final stock = _buildStockPile(cardWidth, cardHeight);
-    final waste = _buildWastePile(cardWidth, cardHeight);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        waste,
-        const SizedBox(height: 8),
-        stock,
-      ],
-    );
-  }
+  Widget buildDrawingCardsColumn(double cardWidth, double cardHeight) => Column(
+    children: [
+      buildDrawingOpenedCards(
+        cardWidth,
+        cardHeight,
+      ),
+      const SizedBox(height: padding),
+      buildDrawingUnopenedCards(
+        cardWidth,
+        cardHeight,
+      ),
+    ],
+  );
 
-  Widget _buildStockPile(double cardWidth, double cardHeight) {
-    final hasCards = controller.stock.isNotEmpty;
+  Widget buildDrawingUnopenedCards(double cardWidth, double cardHeight) {
+    final controller = getIt.get<GameController>(
+      instanceName: widget.key.toString(),
+    );
+
+    final hasCards = controller.drawingUnopenedCards.isNotEmpty;
+
     return GestureDetector(
       onTap: controller.drawFromStock,
-      child: _pileFrame(
+      child: cardFrame(
         cardWidth,
         cardHeight,
-        heightMultiplier: 1,
-        child: hasCards ? _buildCardBack(cardWidth, cardHeight) : _emptySlot(cardWidth, cardHeight, label: 'Stock'),
+        child: hasCards
+            ? buildCardBack(
+                cardWidth,
+                cardHeight,
+              )
+            : cardEmptySlot(
+                cardWidth,
+                cardHeight,
+                label: 'Stock',
+              ),
       ),
     );
   }
 
-  Widget _buildWastePile(double cardWidth, double cardHeight) {
-    final hasCards = controller.waste.isNotEmpty;
-    final isSelected = controller.selected?.source == PileType.waste;
-    final dragPayload = const DragPayload(source: PileType.waste, pileIndex: 0);
+  Widget buildDrawingOpenedCards(double cardWidth, double cardHeight) {
+    final controller = getIt.get<GameController>(
+      instanceName: widget.key.toString(),
+    );
+
+    final hasCards = controller.drawingOpenedCards.isNotEmpty;
+    final isSelected = controller.selected?.source == PileType.drawingOpenedCards;
+
+    const dragPayload = DragPayload(
+      source: PileType.drawingOpenedCards,
+      pileIndex: 0,
+    );
+
     return GestureDetector(
       onTap: controller.selectWasteTop,
-      child: _pileFrame(
+      child: cardFrame(
         cardWidth,
         cardHeight,
-        heightMultiplier: 1,
         child: hasCards
             ? Draggable<DragPayload>(
                 data: dragPayload,
-                feedback: _dragFeedback(
-                  controller.waste.last,
+                feedback: buildDragFeedback(
+                  controller.drawingOpenedCards.last,
                   cardWidth,
                   cardHeight,
                 ),
                 childWhenDragging: Opacity(
                   opacity: 0.35,
-                  child: _buildCard(
-                    controller.waste.last,
+                  child: buildCard(
+                    controller.drawingOpenedCards.last,
                     cardWidth,
                     cardHeight,
                     isSelected: isSelected,
                   ),
                 ),
-                child: _buildCard(
-                  controller.waste.last,
+                child: buildCard(
+                  controller.drawingOpenedCards.last,
                   cardWidth,
                   cardHeight,
                   isSelected: isSelected,
                 ),
               )
-            : _emptySlot(cardWidth, cardHeight, label: 'Waste'),
+            : cardEmptySlot(
+                cardWidth,
+                cardHeight,
+                label: 'Waste',
+              ),
       ),
     );
   }
 
-  Widget _buildFoundationPile(int index, double cardWidth, double cardHeight) {
-    final pile = controller.foundations[index];
-    final hasCards = pile.isNotEmpty;
+  Widget buildFinishedCards(int index, double cardWidth, double cardHeight) {
+    final controller = getIt.get<GameController>(
+      instanceName: widget.key.toString(),
+    );
+
+    final finishedCards = controller.finishedCards[index];
+    final hasCards = finishedCards.isNotEmpty;
+
     return DragTarget<DragPayload>(
       onWillAcceptWithDetails: (details) => controller.canDropOnFoundation(details.data, index),
       onAcceptWithDetails: (details) => controller.moveDragToFoundation(details.data, index),
-      builder: (context, _, __) {
-        return GestureDetector(
-          onTap: () => controller.tryMoveSelectedToFoundation(index),
-          child: _pileFrame(
-            cardWidth,
-            cardHeight,
-            heightMultiplier: 1,
-            child: hasCards
-                ? Draggable<DragPayload>(
-                    data: DragPayload(source: PileType.foundation, pileIndex: index),
-                    feedback: _dragFeedback(pile.last, cardWidth, cardHeight),
-                    childWhenDragging: Opacity(
-                      opacity: 0.35,
-                      child: _buildCard(pile.last, cardWidth, cardHeight),
+      builder: (context, _, __) => GestureDetector(
+        onTap: () => controller.tryMoveSelectedToFoundation(index),
+        child: cardFrame(
+          cardWidth,
+          cardHeight,
+          child: hasCards
+              ? Draggable<DragPayload>(
+                  data: DragPayload(
+                    source: PileType.finishedCards,
+                    pileIndex: index,
+                  ),
+                  feedback: buildDragFeedback(
+                    finishedCards.last,
+                    cardWidth,
+                    cardHeight,
+                  ),
+                  childWhenDragging: Opacity(
+                    opacity: 0.35,
+                    child: buildCard(
+                      finishedCards.last,
+                      cardWidth,
+                      cardHeight,
                     ),
-                    child: _buildCard(pile.last, cardWidth, cardHeight),
-                  )
-                : _emptySlot(cardWidth, cardHeight, label: 'A'),
-          ),
-        );
-      },
+                  ),
+                  child: buildCard(
+                    finishedCards.last,
+                    cardWidth,
+                    cardHeight,
+                  ),
+                )
+              : cardEmptySlot(
+                  cardWidth,
+                  cardHeight,
+                  label: 'A',
+                ),
+        ),
+      ),
     );
   }
 
-  Widget _buildTableauRow(double cardWidth, double cardHeight) {
+  Widget buildMainCardsRow(double cardWidth, double cardHeight) {
+    final controller = getIt.get<GameController>(
+      instanceName: widget.key.toString(),
+    );
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: List.generate(controller.tableau.length, (index) {
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: _buildTableauColumn(index, cardWidth, cardHeight),
+      children: List.generate(
+        controller.mainCards.length,
+        (index) => Expanded(
+          child: buildMainCardsColumn(
+            index,
+            cardWidth,
+            cardHeight,
           ),
-        );
-      }),
+        ),
+      ),
     );
   }
 
-  Widget _buildTableauColumn(int column, double cardWidth, double cardHeight) {
-    final pile = controller.tableau[column];
-    final isSelected = controller.selected?.source == PileType.tableau && controller.selected?.pileIndex == column;
+  Widget buildMainCardsColumn(int column, double cardWidth, double cardHeight) {
+    final controller = getIt.get<GameController>(
+      instanceName: widget.key.toString(),
+    );
+
+    final mainCards = controller.mainCards[column];
+    final isSelected = controller.selected?.source == PileType.mainCards && controller.selected?.pileIndex == column;
 
     return DragTarget<DragPayload>(
       onWillAcceptWithDetails: (details) => controller.canDropOnTableau(details.data, column),
       onAcceptWithDetails: (details) => controller.moveDragToTableau(details.data, column),
-      builder: (context, _, __) {
-        return GestureDetector(
-          onTap: () {
-            if (controller.selected != null && !(controller.selected!.source == PileType.tableau && controller.selected!.pileIndex == column)) {
-              controller.tryMoveSelectedToTableau(column);
-              return;
-            }
-            if (pile.isEmpty) {
-              controller.tryMoveSelectedToTableau(column);
-              return;
-            }
-            final top = pile.last;
-            if (!top.faceUp) {
-              controller.flipTableauTop(column);
-              return;
-            }
-            controller.selectTableauTop(column);
-          },
-          child: _pileFrame(
-            cardWidth,
-            cardHeight,
-            heightMultiplier: 5.2,
-            child: Stack(
-              children: [
-                if (pile.isEmpty) _emptySlot(cardWidth, cardHeight, label: 'K'),
-                for (var i = 0; i < pile.length; i += 1)
-                  Positioned(
-                    top: i * 22.0,
-                    child: _buildTableauCard(
-                      pile[i],
-                      column,
-                      i,
-                      pile.sublist(i),
-                      cardWidth,
-                      cardHeight,
-                      isSelected: isSelected && i == pile.length - 1,
-                    ),
+      builder: (context, _, __) => GestureDetector(
+        onTap: () {
+          if (controller.selected != null && !(controller.selected!.source == PileType.mainCards && controller.selected!.pileIndex == column)) {
+            controller.tryMoveSelectedToTableau(column);
+            return;
+          }
+          if (mainCards.isEmpty) {
+            controller.tryMoveSelectedToTableau(column);
+            return;
+          }
+          final top = mainCards.last;
+          if (!top.faceUp) {
+            controller.flipTableauTop(column);
+            return;
+          }
+          controller.selectTableauTop(column);
+        },
+        child: cardFrame(
+          cardWidth,
+          cardHeight,
+          heightMultiplier: 10,
+          child: Stack(
+            children: [
+              if (mainCards.isEmpty)
+                cardEmptySlot(
+                  cardWidth,
+                  cardHeight,
+                  label: 'K',
+                ),
+              for (var i = 0; i < mainCards.length; i += 1)
+                Positioned(
+                  top: i * 20.0,
+                  child: buildMainCard(
+                    mainCards[i],
+                    column,
+                    i,
+                    mainCards.sublist(i),
+                    cardWidth,
+                    cardHeight,
+                    isSelected: isSelected && i == mainCards.length - 1,
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
-  Widget _pileFrame(
+  Widget cardFrame(
     double width,
     double height, {
-    double heightMultiplier = 1,
     required Widget child,
-  }) {
-    return SizedBox(
-      width: width,
-      height: height * heightMultiplier,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: child,
-      ),
-    );
-  }
+    double heightMultiplier = 1,
+  }) => SizedBox(
+    width: width,
+    height: height * heightMultiplier,
+    child: Align(
+      alignment: Alignment.topCenter,
+      child: child,
+    ),
+  );
 
-  Widget _emptySlot(double width, double height, {String? label}) {
-    return Container(
-      width: width,
-      height: height,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.white30, width: 1.2),
-        color: Colors.white.withOpacity(0.08),
+  Widget cardEmptySlot(
+    double width,
+    double height, {
+    String? label,
+  }) => Container(
+    width: width,
+    height: height,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(borderRadius),
+      border: Border.all(
+        color: Colors.white30,
+        width: borderWidth,
       ),
-      child: label == null
-          ? null
-          : Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white54,
-                fontWeight: FontWeight.w600,
-              ),
+      color: Colors.white10,
+    ),
+    child: label == null
+        ? null
+        : Text(
+            label,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              color: Colors.white54,
+              fontWeight: FontWeight.w600,
             ),
-    );
-  }
+          ),
+  );
 
-  Widget _buildCardBack(double width, double height) {
-    final backCard = pc.PlayingCard(pc.Suit.spades, pc.CardValue.ace);
-    return SizedBox(
-      width: width,
-      height: height,
-      child: pc.PlayingCardView(
-        card: backCard,
-        showBack: true,
-        elevation: 2,
+  Widget buildCardBack(double width, double height) => Container(
+    width: width,
+    height: height,
+    alignment: Alignment.center,
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(borderRadius),
+      border: Border.all(
+        color: Colors.white70,
+        width: borderWidth,
       ),
-    );
-  }
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Colors.blueGrey.shade800,
+          Colors.blueGrey.shade900,
+        ],
+      ),
+      boxShadow: const [
+        BoxShadow(
+          color: Colors.black26,
+          blurRadius: 6,
+          offset: Offset(0, 2),
+        ),
+      ],
+    ),
+    child: Center(
+      child: Container(
+        width: width * 0.55,
+        height: height * 0.35,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(borderRadius),
+          border: Border.all(
+            color: Colors.white30,
+            width: borderWidth,
+          ),
+          color: Colors.white10,
+        ),
+      ),
+    ),
+  );
 
-  Widget _buildCard(
-    CardModel card,
+  Widget buildCard(
+    SolitaireCard card,
     double width,
     double height, {
     bool isSelected = false,
   }) {
-    final playingCard = _toPlayingCard(card);
-    final cardView = SizedBox(
-      width: width,
-      height: height,
-      child: pc.PlayingCardView(
-        card: playingCard,
-        showBack: !card.faceUp,
-        elevation: 2,
-      ),
-    );
+    final cardView = card.faceUp ? buildCardFront(card, width, height) : buildCardBack(width, height);
 
     if (!isSelected) {
       return cardView;
@@ -402,8 +546,11 @@ class _GameScreenState extends State<GameScreen> {
           child: IgnorePointer(
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.amber, width: 2),
+                borderRadius: BorderRadius.circular(borderRadius),
+                border: Border.all(
+                  color: Colors.amber,
+                  width: borderWidth,
+                ),
               ),
             ),
           ),
@@ -412,65 +559,76 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  pc.PlayingCard _toPlayingCard(CardModel card) {
-    return pc.PlayingCard(_toPlayingSuit(card.suit), _toPlayingValue(card.rank));
+  Widget buildCardFront(SolitaireCard card, double width, double height) {
+    final color = card.isRed ? Colors.red : Colors.black;
+    final label = card.cardLabel;
+    final icon = card.suitIcon;
+
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(
+          width: borderWidth,
+        ),
+        color: Colors.white,
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 6,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(4),
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.topLeft,
+              child: buildCardLabel(label, color),
+            ),
+            Align(
+              child: PhosphorIcon(
+                icon,
+                color: color,
+                size: 28,
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: Transform.rotate(
+                angle: pi,
+                child: buildCardLabel(label, color),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  pc.Suit _toPlayingSuit(Suit suit) {
-    switch (suit) {
-      case Suit.clubs:
-        return pc.Suit.clubs;
-      case Suit.diamonds:
-        return pc.Suit.diamonds;
-      case Suit.hearts:
-        return pc.Suit.hearts;
-      case Suit.spades:
-        return pc.Suit.spades;
-    }
-  }
+  Widget buildCardLabel(String label, Color color) => Text(
+    label,
+    style: TextStyle(
+      color: color,
+      fontSize: 12,
+      fontWeight: FontWeight.w700,
+      height: 1,
+    ),
+  );
 
-  pc.CardValue _toPlayingValue(int rank) {
-    switch (rank) {
-      case 1:
-        return pc.CardValue.ace;
-      case 2:
-        return pc.CardValue.two;
-      case 3:
-        return pc.CardValue.three;
-      case 4:
-        return pc.CardValue.four;
-      case 5:
-        return pc.CardValue.five;
-      case 6:
-        return pc.CardValue.six;
-      case 7:
-        return pc.CardValue.seven;
-      case 8:
-        return pc.CardValue.eight;
-      case 9:
-        return pc.CardValue.nine;
-      case 10:
-        return pc.CardValue.ten;
-      case 11:
-        return pc.CardValue.jack;
-      case 12:
-        return pc.CardValue.queen;
-      case 13:
-        return pc.CardValue.king;
-    }
-    return pc.CardValue.ace;
-  }
-
-  Widget _buildTableauCard(
-    CardModel card,
+  Widget buildMainCard(
+    SolitaireCard card,
     int column,
     int cardIndex,
-    List<CardModel> stack,
+    List<SolitaireCard> stack,
     double width,
     double height, {
     bool isSelected = false,
   }) {
-    final body = _buildCard(
+    final body = buildCard(
       card,
       width,
       height,
@@ -482,13 +640,18 @@ class _GameScreenState extends State<GameScreen> {
     }
 
     final payload = DragPayload(
-      source: PileType.tableau,
+      source: PileType.mainCards,
       pileIndex: column,
       cardIndex: cardIndex,
     );
+
     return Draggable<DragPayload>(
       data: payload,
-      feedback: _dragStackFeedback(stack, width, height),
+      feedback: buildStackDragFeedback(
+        stack,
+        width,
+        height,
+      ),
       childWhenDragging: Opacity(
         opacity: 0.35,
         child: body,
@@ -497,21 +660,25 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
-  Widget _dragFeedback(CardModel card, double width, double height) {
-    return Material(
-      color: Colors.transparent,
-      child: Opacity(
-        opacity: 0.9,
-        child: _buildCard(card, width, height),
+  Widget buildDragFeedback(SolitaireCard card, double width, double height) => Material(
+    color: Colors.transparent,
+    child: Opacity(
+      opacity: 0.9,
+      child: buildCard(
+        card,
+        width,
+        height,
       ),
-    );
-  }
+    ),
+  );
 
-  Widget _dragStackFeedback(List<CardModel> cards, double width, double height) {
+  Widget buildStackDragFeedback(List<SolitaireCard> cards, double width, double height) {
     if (cards.isEmpty) {
       return const SizedBox.shrink();
     }
-    final stackHeight = height + (cards.length - 1) * 18.0;
+
+    final stackHeight = height + (cards.length - 1) * 16.0;
+
     return Material(
       color: Colors.transparent,
       child: SizedBox(
@@ -522,7 +689,11 @@ class _GameScreenState extends State<GameScreen> {
             for (var i = 0; i < cards.length; i += 1)
               Positioned(
                 top: i * 18.0,
-                child: _buildCard(cards[i], width, height),
+                child: buildCard(
+                  cards[i],
+                  width,
+                  height,
+                ),
               ),
           ],
         ),

@@ -8,7 +8,9 @@ void main() {
 
 class MainApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => MaterialApp(
-    home: GameScreen(),
+  Widget build(BuildContext context) => const MaterialApp(
+    home: GameScreen(
+      key: ValueKey('game'),
+    ),
   );
 }
