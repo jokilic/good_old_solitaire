@@ -7,6 +7,7 @@ import '../../models/selected_card.dart';
 import '../../models/solitaire_card.dart';
 import '../../util/card_size.dart';
 import '../../util/dependencies.dart';
+import '../../util/main_stack_layout.dart';
 import 'game_controller.dart';
 import 'widgets/card/card_widget.dart';
 import 'widgets/cards/drawing_opened_cards.dart';
@@ -160,12 +161,12 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         child: IgnorePointer(
           child: SizedBox(
             width: cardWidth,
-            height: cardHeight + mainStackOffset * (cards.length - 1),
+            height: cardHeight + mainStackTotalOffset(cards),
             child: Stack(
               children: [
                 for (var i = 0; i < cards.length; i += 1)
                   Positioned(
-                    top: i * mainStackOffset,
+                    top: mainStackTopOffset(cards, i),
                     child: CardWidget(
                       card: cards[i],
                       height: cardHeight,

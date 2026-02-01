@@ -3,3 +3,4 @@ const padding = 12.0;
 const borderRadius = 8.0;
 const borderWidth = 2.0;
 const mainStackOffset = 20.0;
+const mainStackFaceDownOffset = 12.0;

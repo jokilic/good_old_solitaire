@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:watch_it/watch_it.dart';
 
-import '../../../../../constants/constants.dart';
 import '../../../../../constants/enums.dart';
 import '../../../../../models/drag_payload.dart';
 import '../../../../../util/dependencies.dart';
+import '../../../../../util/main_stack_layout.dart';
 import '../../../game_controller.dart';
 import '../../card/card_empty.dart';
 import '../../card/card_frame.dart';
@@ -96,7 +96,7 @@ class MainCardsColumn extends WatchingWidget {
                 ),
               for (var i = 0; i < mainCards.length; i += 1)
                 Positioned(
-                  top: i * mainStackOffset,
+                  top: mainStackTopOffset(mainCards, i),
                   child: Opacity(
                     opacity: () {
                       final isDraggedCard = isDraggingStack && draggingPayload!.cardIndex <= i;

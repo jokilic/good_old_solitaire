@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../../constants/constants.dart';
 import '../../constants/enums.dart';
 import '../../models/drag_payload.dart';
 import '../../models/selected_card.dart';
 import '../../models/solitaire_card.dart';
+import '../../util/main_stack_layout.dart';
 import '../../util/nullable_objects.dart';
 
 class GameController
@@ -827,7 +827,8 @@ class GameController
       return null;
     }
 
-    final topLeft = base.topLeft + Offset(0, cardIndex * mainStackOffset);
+    final cards = value.mainCards[column];
+    final topLeft = base.topLeft + Offset(0, mainStackTopOffset(cards, cardIndex));
 
     return Rect.fromLTWH(
       topLeft.dx,
