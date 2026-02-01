@@ -47,11 +47,16 @@ class _GameScreenState extends State<GameScreen> {
       appBar: AppBar(
         backgroundColor: Colors.green,
         elevation: 0,
-        leading: IconButton(
-          onPressed: controller.newGame,
-          icon: const Icon(Icons.refresh),
-          tooltip: 'New Game',
-        ),
+        actions: [
+          IconButton(
+            onPressed: controller.newGame,
+            icon: const Icon(
+              Icons.refresh,
+              color: Colors.white,
+            ),
+            tooltip: 'New Game',
+          ),
+        ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {

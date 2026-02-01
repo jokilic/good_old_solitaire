@@ -27,6 +27,8 @@ class MainCardsColumn extends WatchingWidget {
 
     final mainCards = state.mainCards[column];
     final isSelected = state.selectedCard?.source == PileType.mainCards && state.selectedCard?.pileIndex == column;
+    final draggingPayload = state.draggingPayload;
+    final isDraggingStack = draggingPayload?.source == PileType.mainCards && draggingPayload?.pileIndex == column;
 
     return DragTarget<DragPayload>(
       onWillAcceptWithDetails: (details) => controller.canDropOnMain(details.data, column),
@@ -66,14 +68,17 @@ class MainCardsColumn extends WatchingWidget {
               for (var i = 0; i < mainCards.length; i += 1)
                 Positioned(
                   top: i * 20.0,
-                  child: CardMain(
-                    card: mainCards[i],
-                    column: column,
-                    cardIndex: i,
-                    stack: mainCards.sublist(i),
-                    height: cardHeight,
-                    width: cardWidth,
-                    isSelected: isSelected && i == mainCards.length - 1,
+                  child: Opacity(
+                    opacity: isDraggingStack && draggingPayload!.cardIndex <= i ? 0.35 : 1.0,
+                    child: CardMain(
+                      card: mainCards[i],
+                      column: column,
+                      cardIndex: i,
+                      stack: mainCards.sublist(i),
+                      height: cardHeight,
+                      width: cardWidth,
+                      isSelected: isSelected && i == mainCards.length - 1,
+                    ),
                   ),
                 ),
             ],

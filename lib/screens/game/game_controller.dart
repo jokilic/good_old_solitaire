@@ -15,6 +15,7 @@ class GameController
             List<List<SolitaireCard>> mainCards,
             List<List<SolitaireCard>> finishedCards,
             SelectedCard? selectedCard,
+            DragPayload? draggingPayload,
           })
         > {
   ///
@@ -29,6 +30,7 @@ class GameController
           mainCards: List.generate(7, (_) => []),
           finishedCards: List.generate(4, (_) => []),
           selectedCard: null,
+          draggingPayload: null,
         ),
       );
 
@@ -651,6 +653,17 @@ class GameController
     return isOppositeColor && card.rank == top.rank - 1;
   }
 
+  /// Triggered when user starts dragging [CardMain]
+  void setDraggingPayload(DragPayload? payload) {
+    if (value.draggingPayload == payload) {
+      return;
+    }
+
+    updateState(
+      newDraggingPayload: payload,
+    );
+  }
+
   /// Updates `state` with any passed value
   void updateState({
     List<SolitaireCard>? newDrawingUnopenedCards,
@@ -658,6 +671,7 @@ class GameController
     List<List<SolitaireCard>>? newMainCards,
     List<List<SolitaireCard>>? newFinishedCards,
     Object? newSelectedCard = noSelectedCard,
+    Object? newDraggingPayload = noDraggingPayload,
   }) {
     value = (
       drawingUnopenedCards: newDrawingUnopenedCards ?? value.drawingUnopenedCards,
@@ -665,6 +679,7 @@ class GameController
       mainCards: newMainCards ?? value.mainCards,
       finishedCards: newFinishedCards ?? value.finishedCards,
       selectedCard: newSelectedCard == noSelectedCard ? value.selectedCard : newSelectedCard as SelectedCard?,
+      draggingPayload: newDraggingPayload == noDraggingPayload ? value.draggingPayload : newDraggingPayload as DragPayload?,
     );
   }
 }

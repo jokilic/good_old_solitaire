@@ -3,6 +3,8 @@ import 'package:flutter/cupertino.dart';
 import '../../../../constants/enums.dart';
 import '../../../../models/drag_payload.dart';
 import '../../../../models/solitaire_card.dart';
+import '../../../../util/dependencies.dart';
+import '../../game_controller.dart';
 import '../stack_drag_feedback.dart';
 import 'card_widget.dart';
 
@@ -27,6 +29,8 @@ class CardMain extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = getIt.get<GameController>();
+
     final body = CardWidget(
       card: card,
       height: height,
@@ -51,10 +55,11 @@ class CardMain extends StatelessWidget {
         height: height,
         width: width,
       ),
-      childWhenDragging: Opacity(
-        opacity: 0.35,
-        child: body,
-      ),
+      onDragStarted: () => controller.setDraggingPayload(payload),
+      onDragEnd: (_) => controller.setDraggingPayload(null),
+      onDraggableCanceled: (_, __) => controller.setDraggingPayload(null),
+      onDragCompleted: () => controller.setDraggingPayload(null),
+      childWhenDragging: body,
       child: body,
     );
   }
