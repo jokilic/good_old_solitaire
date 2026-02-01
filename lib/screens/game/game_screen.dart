@@ -388,20 +388,20 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             builder: (context, constraints) {
               final isLandscape = constraints.maxWidth > constraints.maxHeight;
 
-              final availableHeight = constraints.maxHeight - padding * 2;
-              final availableWidth = constraints.maxWidth - padding * 2;
-
               const cardAspectRatio = 1.4;
 
+              final shortestAvailableSide = MediaQuery.sizeOf(context).shortestSide - padding * 2;
+
               final cardWidth = getCardWidth(
-                isLandscape: isLandscape,
-                availableHeight: availableHeight,
-                availableWidth: availableWidth,
+                shortestAvailableSide: shortestAvailableSide,
                 padding: padding,
                 cardAspectRatio: cardAspectRatio,
               );
 
               final cardHeight = cardWidth * cardAspectRatio;
+              final stackHeightMultiplier = mainStackHeightMultiplier(
+                cardHeight: cardHeight,
+              );
 
               final hiddenTopCardColumn = tapMoveSource?.source == PileType.mainCards ? tapMoveSource!.pileIndex : null;
               final hideOpenedTopCard = tapMoveSource?.source == PileType.drawingOpenedCards;
@@ -433,8 +433,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           ///
                           Expanded(
                             child: MainCardsRow(
+                              isLandscape: isLandscape,
                               cardHeight: cardHeight,
                               cardWidth: cardWidth,
+                              stackHeightMultiplier: stackHeightMultiplier,
                               columnKeys: controller.mainColumnKeys,
                               isAnimatingMove: isAnimatingMove,
                               hiddenTopCardColumn: hiddenTopCardColumn,
@@ -515,8 +517,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           ///
                           Expanded(
                             child: MainCardsRow(
+                              isLandscape: isLandscape,
                               cardHeight: cardHeight,
                               cardWidth: cardWidth,
+                              stackHeightMultiplier: stackHeightMultiplier,
                               columnKeys: controller.mainColumnKeys,
                               isAnimatingMove: isAnimatingMove,
                               hiddenTopCardColumn: hiddenTopCardColumn,

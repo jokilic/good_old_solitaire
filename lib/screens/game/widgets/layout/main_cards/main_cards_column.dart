@@ -14,6 +14,7 @@ class MainCardsColumn extends WatchingWidget {
   final int column;
   final double cardHeight;
   final double cardWidth;
+  final double stackHeightMultiplier;
   final GlobalKey columnKey;
   final bool hideTopCard;
   final bool isAnimatingMove;
@@ -23,6 +24,7 @@ class MainCardsColumn extends WatchingWidget {
     required this.column,
     required this.cardHeight,
     required this.cardWidth,
+    required this.stackHeightMultiplier,
     required this.columnKey,
     required this.hideTopCard,
     required this.isAnimatingMove,
@@ -86,7 +88,7 @@ class MainCardsColumn extends WatchingWidget {
           key: columnKey,
           height: cardHeight,
           width: cardWidth,
-          heightMultiplier: 10,
+          heightMultiplier: stackHeightMultiplier,
           child: Stack(
             children: [
               if (mainCards.isEmpty)
