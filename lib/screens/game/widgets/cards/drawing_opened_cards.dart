@@ -39,6 +39,8 @@ class DrawingOpenedCards extends WatchingWidget {
       pileIndex: 0,
     );
 
+    final cardUnderTop = openedCards.length > 1 ? openedCards[openedCards.length - 2] : null;
+
     return GestureDetector(
       onTap: controller.selectUnopenedSectionTop,
       child: CardFrame(
@@ -50,6 +52,7 @@ class DrawingOpenedCards extends WatchingWidget {
                 opacity: hideTopCard ? 0.0 : 1.0,
                 child: DraggableOpenedCard(
                   topCard: openedCards.last,
+                  cardUnderTop: cardUnderTop,
                   dragPayload: dragPayload,
                   cardHeight: cardHeight,
                   cardWidth: cardWidth,
@@ -67,6 +70,7 @@ class DrawingOpenedCards extends WatchingWidget {
 
 class DraggableOpenedCard extends StatelessWidget {
   final SolitaireCard topCard;
+  final SolitaireCard? cardUnderTop;
   final DragPayload dragPayload;
   final double cardHeight;
   final double cardWidth;
@@ -74,6 +78,7 @@ class DraggableOpenedCard extends StatelessWidget {
 
   const DraggableOpenedCard({
     required this.topCard,
+    required this.cardUnderTop,
     required this.dragPayload,
     required this.cardHeight,
     required this.cardWidth,
@@ -88,15 +93,17 @@ class DraggableOpenedCard extends StatelessWidget {
       height: cardHeight,
       width: cardWidth,
     ),
-    childWhenDragging: Opacity(
-      opacity: 0.35,
-      child: CardWidget(
-        card: topCard,
-        width: cardWidth,
-        height: cardHeight,
-        isSelected: isSelected,
-      ),
-    ),
+    childWhenDragging: cardUnderTop != null
+        ? CardWidget(
+            card: cardUnderTop!,
+            width: cardWidth,
+            height: cardHeight,
+            isSelected: false,
+          )
+        : CardEmpty(
+            height: cardHeight,
+            width: cardWidth,
+          ),
     child: CardWidget(
       card: topCard,
       width: cardWidth,

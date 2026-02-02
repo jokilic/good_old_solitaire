@@ -37,10 +37,14 @@ class MainCardsColumn extends WatchingWidget {
     final state = watchIt<GameController>().value;
 
     final mainCards = state.mainCards[column];
+
     final selectedCard = state.selectedCard;
     final isSelected = selectedCard?.source == PileType.mainCards && selectedCard?.pileIndex == column;
+
     final draggingPayload = state.draggingPayload;
     final isDraggingStack = draggingPayload?.source == PileType.mainCards && draggingPayload?.pileIndex == column;
+    final isDraggingAllFromColumn = isDraggingStack && draggingPayload!.cardIndex == 0;
+
     final selectedStartIndex = controller.getSelectedStartIndex(
       mainCards: mainCards,
       selectedCard: isSelected ? selectedCard : null,
@@ -91,7 +95,7 @@ class MainCardsColumn extends WatchingWidget {
           heightMultiplier: stackHeightMultiplier,
           child: Stack(
             children: [
-              if (mainCards.isEmpty)
+              if (mainCards.isEmpty || isDraggingAllFromColumn)
                 CardEmpty(
                   height: cardHeight,
                   width: cardWidth,
@@ -108,7 +112,7 @@ class MainCardsColumn extends WatchingWidget {
                         return 0.0;
                       }
 
-                      return isDraggedCard ? 0.35 : 1.0;
+                      return isDraggedCard ? 0.0 : 1.0;
                     }(),
                     child: CardMain(
                       card: mainCards[i],

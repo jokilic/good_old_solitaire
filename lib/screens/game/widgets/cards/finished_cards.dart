@@ -35,6 +35,8 @@ class FinishedCards extends WatchingWidget {
     final finishedCards = state.finishedCards[index];
     final hasCards = finishedCards.isNotEmpty;
 
+    final cardUnderTop = finishedCards.length > 1 ? finishedCards[finishedCards.length - 2] : null;
+
     return DragTarget<DragPayload>(
       onWillAcceptWithDetails: (details) => controller.canDropOnFinished(details.data, index),
       onAcceptWithDetails: (details) => controller.moveDragToFinished(details.data, index),
@@ -66,15 +68,17 @@ class FinishedCards extends WatchingWidget {
                     height: cardHeight,
                     width: cardWidth,
                   ),
-                  childWhenDragging: Opacity(
-                    opacity: 0.35,
-                    child: CardWidget(
-                      card: finishedCards.last,
-                      width: cardWidth,
-                      height: cardHeight,
-                      isSelected: false,
-                    ),
-                  ),
+                  childWhenDragging: cardUnderTop != null
+                      ? CardWidget(
+                          card: cardUnderTop,
+                          width: cardWidth,
+                          height: cardHeight,
+                          isSelected: false,
+                        )
+                      : CardEmpty(
+                          height: cardHeight,
+                          width: cardWidth,
+                        ),
                   child: CardWidget(
                     card: finishedCards.last,
                     width: cardWidth,
