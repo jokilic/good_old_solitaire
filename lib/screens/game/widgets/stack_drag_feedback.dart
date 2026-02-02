@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../constants/constants.dart';
 import '../../../models/solitaire_card.dart';
 import 'card/card_widget.dart';
 
@@ -32,11 +33,28 @@ class StackDragFeedback extends StatelessWidget {
             for (var i = 0; i < cards.length; i += 1)
               Positioned(
                 top: i * 18.0,
-                child: CardWidget(
-                  card: cards[i],
-                  height: height,
-                  width: width,
-                  isSelected: false,
+                child: Stack(
+                  children: [
+                    CardWidget(
+                      card: cards[i],
+                      height: height,
+                      width: width,
+                      isSelected: false,
+                    ),
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(borderRadius),
+                            border: Border.all(
+                              color: Colors.amber,
+                              width: borderWidth,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
           ],
