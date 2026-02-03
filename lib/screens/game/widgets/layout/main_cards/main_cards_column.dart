@@ -50,6 +50,7 @@ class MainCardsColumn extends WatchingWidget {
       selectedCard: isSelected ? selectedCard : null,
     );
     final hideTapMovedStack = hideTopCard && isSelected && selectedStartIndex >= 0;
+    final showEmptyPlaceholder = mainCards.isEmpty || isDraggingAllFromColumn || (hideTapMovedStack && selectedStartIndex == 0);
 
     Future<void> handleTap({int? cardIndex}) async {
       if (isAnimatingMove) {
@@ -96,7 +97,7 @@ class MainCardsColumn extends WatchingWidget {
           heightMultiplier: stackHeightMultiplier,
           child: Stack(
             children: [
-              if (mainCards.isEmpty || isDraggingAllFromColumn)
+              if (showEmptyPlaceholder)
                 CardEmpty(
                   height: cardHeight,
                   width: cardWidth,
