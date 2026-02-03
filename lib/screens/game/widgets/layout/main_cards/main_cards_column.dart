@@ -49,6 +49,7 @@ class MainCardsColumn extends WatchingWidget {
       mainCards: mainCards,
       selectedCard: isSelected ? selectedCard : null,
     );
+    final hideTapMovedStack = hideTopCard && isSelected && selectedStartIndex >= 0;
 
     Future<void> handleTap({int? cardIndex}) async {
       if (isAnimatingMove) {
@@ -106,9 +107,7 @@ class MainCardsColumn extends WatchingWidget {
                   child: Opacity(
                     opacity: () {
                       final isDraggedCard = isDraggingStack && draggingPayload!.cardIndex <= i;
-                      final isHiddenSource = hideTopCard && i == mainCards.length - 1;
-
-                      if (isHiddenSource) {
+                      if (hideTapMovedStack && i >= selectedStartIndex) {
                         return 0.0;
                       }
 

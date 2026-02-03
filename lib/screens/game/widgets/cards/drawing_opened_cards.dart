@@ -24,6 +24,54 @@ class DrawingOpenedCards extends WatchingWidget {
     required this.hideTopCard,
   });
 
+  Widget getOpenedCardView({
+    required bool hasCards,
+    required bool hideTopCard,
+    required double cardHeight,
+    required double cardWidth,
+    required List<SolitaireCard> openedCards,
+    required SolitaireCard? cardUnderTop,
+    required DragPayload dragPayload,
+    required bool isSelected,
+  }) {
+    Widget empty() => CardEmpty(
+      height: cardHeight,
+      width: cardWidth,
+    );
+
+    Widget underTopOrEmpty() {
+      final card = cardUnderTop;
+
+      if (card == null) {
+        return empty();
+      }
+
+      return CardWidget(
+        card: card,
+        width: cardWidth,
+        height: cardHeight,
+        isSelected: false,
+      );
+    }
+
+    if (!hasCards) {
+      return empty();
+    }
+
+    if (hideTopCard) {
+      return underTopOrEmpty();
+    }
+
+    return DraggableOpenedCard(
+      topCard: openedCards.last,
+      cardUnderTop: cardUnderTop,
+      dragPayload: dragPayload,
+      cardHeight: cardHeight,
+      cardWidth: cardWidth,
+      isSelected: isSelected,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = getIt.get<GameController>();
@@ -47,22 +95,16 @@ class DrawingOpenedCards extends WatchingWidget {
         key: pileKey,
         height: cardHeight,
         width: cardWidth,
-        child: hasCards
-            ? Opacity(
-                opacity: hideTopCard ? 0.0 : 1.0,
-                child: DraggableOpenedCard(
-                  topCard: openedCards.last,
-                  cardUnderTop: cardUnderTop,
-                  dragPayload: dragPayload,
-                  cardHeight: cardHeight,
-                  cardWidth: cardWidth,
-                  isSelected: isSelected,
-                ),
-              )
-            : CardEmpty(
-                height: cardHeight,
-                width: cardWidth,
-              ),
+        child: getOpenedCardView(
+          hasCards: hasCards,
+          hideTopCard: hideTopCard,
+          cardHeight: cardHeight,
+          cardWidth: cardWidth,
+          openedCards: openedCards,
+          cardUnderTop: cardUnderTop,
+          dragPayload: dragPayload,
+          isSelected: isSelected,
+        ),
       ),
     );
   }
