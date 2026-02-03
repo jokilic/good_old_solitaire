@@ -23,21 +23,6 @@ class CardBack extends StatelessWidget {
         color: Colors.white,
         width: borderWidth,
       ),
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Colors.blueGrey.shade800,
-          Colors.blueGrey.shade900,
-        ],
-      ),
-      boxShadow: const [
-        BoxShadow(
-          color: Colors.black26,
-          blurRadius: 6,
-          offset: Offset(0, 2),
-        ),
-      ],
     ),
     child: ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
