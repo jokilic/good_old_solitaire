@@ -21,42 +21,36 @@ class FinishedCardsRow extends WatchingWidget {
     final state = watchIt<GameController>().value;
     final finishedCards = state.finishedCards;
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Expanded(
-          flex: 3,
-          child: SizedBox.shrink(),
-        ),
-        ...List.generate(
-          finishedCards.length,
-          (index) => Expanded(
-            flex: 2,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: padding / 2),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final cardWidth = constraints.maxWidth;
-                  final cardHeight = cardWidth * cardAspectRatio;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final slotWidth = (constraints.maxWidth - padding * 6) / 7;
+        final cardWidth = slotWidth > 0 ? slotWidth : 0.0;
+        final cardHeight = cardWidth * cardAspectRatio;
 
-                  return FinishedCards(
-                    index: index,
-                    cardHeight: cardHeight,
-                    cardWidth: cardWidth,
-                    pileKey: pileKeys[index],
-                    isAnimatingMove: isAnimatingMove,
-                    onTapMoveSelected: onTapMoveSelected,
-                  );
-                },
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: List.generate(
+            finishedCards.length,
+            (index) => Padding(
+              padding: EdgeInsets.only(
+                right: index == finishedCards.length - 1 ? 0 : padding,
+              ),
+              child: SizedBox(
+                width: cardWidth,
+                child: FinishedCards(
+                  index: index,
+                  cardHeight: cardHeight,
+                  cardWidth: cardWidth,
+                  pileKey: pileKeys[index],
+                  isAnimatingMove: isAnimatingMove,
+                  onTapMoveSelected: onTapMoveSelected,
+                ),
               ),
             ),
           ),
-        ),
-        const Expanded(
-          flex: 3,
-          child: SizedBox.shrink(),
-        ),
-      ],
+        );
+      },
     );
   }
 }
