@@ -828,7 +828,14 @@ class GameController
     }
 
     final cards = value.mainCards[column];
-    final topLeft = base.topLeft + Offset(0, mainStackTopOffset(cards, cardIndex));
+    final topLeft = base.topLeft + Offset(
+      0,
+      mainStackTopOffset(
+        cards,
+        cardIndex,
+        cardWidth: base.width,
+      ),
+    );
 
     return Rect.fromLTWH(
       topLeft.dx,

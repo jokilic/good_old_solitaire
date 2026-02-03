@@ -49,12 +49,6 @@ flutter:
   assets:
     - assets/
 
-  fonts:
-    - family: Playwrite
-      fonts:
-        - asset: assets/playwrite.ttf
-          weight: 500
-
 # Run code generation - `flutter pub run build_runner build -d`
 
 # Configuration for 'flutter_launcher_icons'

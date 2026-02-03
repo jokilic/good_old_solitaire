@@ -5,6 +5,7 @@ import '../../constants/durations.dart';
 import '../../constants/enums.dart';
 import '../../models/selected_card.dart';
 import '../../models/solitaire_card.dart';
+import '../../util/card_size.dart';
 import '../../util/dependencies.dart';
 import '../../util/main_stack_layout.dart';
 import 'game_controller.dart';
@@ -160,12 +161,16 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         child: IgnorePointer(
           child: SizedBox(
             width: cardWidth,
-            height: cardHeight + mainStackTotalOffset(cards),
+            height: cardHeight + mainStackTotalOffset(cards, cardWidth: cardWidth),
             child: Stack(
               children: [
                 for (var i = 0; i < cards.length; i += 1)
                   Positioned(
-                    top: mainStackTopOffset(cards, i),
+                    top: mainStackTopOffset(
+                      cards,
+                      i,
+                      cardWidth: cardWidth,
+                    ),
                     child: CardWidget(
                       card: cards[i],
                       height: cardHeight,
@@ -252,7 +257,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
       if (sourceRect != null) {
         cardWidth = sourceRect.width;
-        final computedHeight = sourceRect.height - (maxMainStackCards - 1) * mainStackOffset;
+        final computedHeight = sourceRect.height - (maxMainStackCards - 1) * mainStackOffsetFromCardWidth(sourceRect.width);
         cardHeight = computedHeight > 0 ? computedHeight : sourceRect.width * cardAspectRatio;
       }
     } else {
@@ -358,7 +363,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       if (sourceRect != null) {
         cardWidth = sourceRect.width;
 
-        final computedHeight = sourceRect.height - (maxMainStackCards - 1) * mainStackOffset;
+        final computedHeight = sourceRect.height - (maxMainStackCards - 1) * mainStackOffsetFromCardWidth(sourceRect.width);
 
         cardHeight = computedHeight > 0 ? computedHeight : sourceRect.width * cardAspectRatio;
       }
@@ -407,148 +412,159 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final controller = getIt.get<GameController>();
 
     return Scaffold(
-      backgroundColor: Colors.green,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(padding),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final isLandscape = constraints.maxWidth > constraints.maxHeight;
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF374147),
+              Color(0xFF191B1F),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(padding),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isLandscape = constraints.maxWidth > constraints.maxHeight;
 
-              final hiddenTopCardColumn = tapMoveSource?.source == PileType.mainCards ? tapMoveSource!.pileIndex : null;
-              final hideOpenedTopCard = tapMoveSource?.source == PileType.drawingOpenedCards;
+                final hiddenTopCardColumn = tapMoveSource?.source == PileType.mainCards ? tapMoveSource!.pileIndex : null;
+                final hideOpenedTopCard = tapMoveSource?.source == PileType.drawingOpenedCards;
 
-              Widget buildCardSlot(
-                Widget Function(double cardWidth, double cardHeight) childBuilder,
-              ) => LayoutBuilder(
-                builder: (context, slotConstraints) {
-                  final cardWidth = slotConstraints.maxWidth;
-                  final cardHeight = cardWidth * cardAspectRatio;
+                Widget buildCardSlot(
+                  Widget Function(double cardWidth, double cardHeight) childBuilder,
+                ) => LayoutBuilder(
+                  builder: (context, slotConstraints) {
+                    final cardWidth = slotConstraints.maxWidth;
+                    final cardHeight = cardWidth * cardAspectRatio;
 
-                  return childBuilder(
-                    cardWidth,
-                    cardHeight,
-                  );
-                },
-              );
+                    return childBuilder(
+                      cardWidth,
+                      cardHeight,
+                    );
+                  },
+                );
 
-              return IgnorePointer(
-                ignoring: isAnimatingMove,
-                child: isLandscape
-                    ? Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Expanded(
-                            child: SizedBox.shrink(),
-                          ),
-                          const SizedBox(width: padding),
-                          Expanded(
-                            flex: 7,
-                            child: Column(
-                              children: [
-                                Expanded(
-                                  child: MainCardsRow(
-                                    columnKeys: controller.mainColumnKeys,
-                                    isAnimatingMove: isAnimatingMove,
-                                    hiddenTopCardColumn: hiddenTopCardColumn,
-                                    onTapMoveSelected: animateSelectedToMain,
-                                  ),
-                                ),
-                                const SizedBox(height: padding),
-                                FinishedCardsRow(
-                                  pileKeys: controller.finishedPileKeys,
-                                  isAnimatingMove: isAnimatingMove,
-                                  onTapMoveSelected: animateSelectedToFinished,
-                                ),
-                              ],
+                return IgnorePointer(
+                  ignoring: isAnimatingMove,
+                  child: isLandscape
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Expanded(
+                              child: SizedBox.shrink(),
                             ),
-                          ),
-                          const SizedBox(width: padding),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: padding / 2),
-                              child: DrawingCardsColumn(
-                                drawingOpenedKey: drawingOpenedKey,
-                                hideOpenedTopCard: hideOpenedTopCard,
+                            const SizedBox(width: padding),
+                            Expanded(
+                              flex: 7,
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    child: MainCardsRow(
+                                      columnKeys: controller.mainColumnKeys,
+                                      isAnimatingMove: isAnimatingMove,
+                                      hiddenTopCardColumn: hiddenTopCardColumn,
+                                      onTapMoveSelected: animateSelectedToMain,
+                                    ),
+                                  ),
+                                  const SizedBox(height: padding),
+                                  FinishedCardsRow(
+                                    pileKeys: controller.finishedPileKeys,
+                                    isAnimatingMove: isAnimatingMove,
+                                    onTapMoveSelected: animateSelectedToFinished,
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                        ],
-                      )
-                    : Column(
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ...List.generate(
-                                controller.finishedPileKeys.length,
-                                (index) => Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: padding / 2),
-                                    child: buildCardSlot(
-                                      (cardWidth, cardHeight) => FinishedCards(
-                                        index: index,
-                                        cardHeight: cardHeight,
-                                        cardWidth: cardWidth,
-                                        pileKey: controller.finishedPileKeys[index],
-                                        isAnimatingMove: isAnimatingMove,
-                                        onTapMoveSelected: animateSelectedToFinished,
+                            const SizedBox(width: padding),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: padding / 2),
+                                child: DrawingCardsColumn(
+                                  drawingOpenedKey: drawingOpenedKey,
+                                  hideOpenedTopCard: hideOpenedTopCard,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ...List.generate(
+                                  controller.finishedPileKeys.length,
+                                  (index) => Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: padding / 2),
+                                      child: buildCardSlot(
+                                        (cardWidth, cardHeight) => FinishedCards(
+                                          index: index,
+                                          cardHeight: cardHeight,
+                                          cardWidth: cardWidth,
+                                          pileKey: controller.finishedPileKeys[index],
+                                          isAnimatingMove: isAnimatingMove,
+                                          onTapMoveSelected: animateSelectedToFinished,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: padding / 2),
-                                  child: buildCardSlot(
-                                    (cardWidth, cardHeight) => SizedBox(
-                                      width: cardWidth,
-                                      height: cardHeight,
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: padding / 2),
+                                    child: buildCardSlot(
+                                      (cardWidth, cardHeight) => SizedBox(
+                                        width: cardWidth,
+                                        height: cardHeight,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: padding / 2),
-                                  child: buildCardSlot(
-                                    (cardWidth, cardHeight) => DrawingOpenedCards(
-                                      cardHeight: cardHeight,
-                                      cardWidth: cardWidth,
-                                      pileKey: drawingOpenedKey,
-                                      hideTopCard: hideOpenedTopCard,
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: padding / 2),
+                                    child: buildCardSlot(
+                                      (cardWidth, cardHeight) => DrawingOpenedCards(
+                                        cardHeight: cardHeight,
+                                        cardWidth: cardWidth,
+                                        pileKey: drawingOpenedKey,
+                                        hideTopCard: hideOpenedTopCard,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: padding / 2),
-                                  child: buildCardSlot(
-                                    (cardWidth, cardHeight) => DrawingUnopenedCards(
-                                      cardHeight: cardHeight,
-                                      cardWidth: cardWidth,
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: padding / 2),
+                                    child: buildCardSlot(
+                                      (cardWidth, cardHeight) => DrawingUnopenedCards(
+                                        cardHeight: cardHeight,
+                                        cardWidth: cardWidth,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: padding),
-                          Expanded(
-                            child: MainCardsRow(
-                              columnKeys: controller.mainColumnKeys,
-                              isAnimatingMove: isAnimatingMove,
-                              hiddenTopCardColumn: hiddenTopCardColumn,
-                              onTapMoveSelected: animateSelectedToMain,
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-              );
-            },
+
+                            const SizedBox(height: padding),
+                            Expanded(
+                              child: MainCardsRow(
+                                columnKeys: controller.mainColumnKeys,
+                                isAnimatingMove: isAnimatingMove,
+                                hiddenTopCardColumn: hiddenTopCardColumn,
+                                onTapMoveSelected: animateSelectedToMain,
+                              ),
+                            ),
+                          ],
+                        ),
+                );
+              },
+            ),
           ),
         ),
       ),

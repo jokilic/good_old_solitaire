@@ -104,7 +104,11 @@ class MainCardsColumn extends WatchingWidget {
                 ),
               for (var i = 0; i < mainCards.length; i += 1)
                 Positioned(
-                  top: mainStackTopOffset(mainCards, i),
+                  top: mainStackTopOffset(
+                    mainCards,
+                    i,
+                    cardWidth: cardWidth,
+                  ),
                   child: Opacity(
                     opacity: () {
                       final isDraggedCard = isDraggingStack && draggingPayload!.cardIndex <= i;

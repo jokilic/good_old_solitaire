@@ -42,6 +42,7 @@ class MainCardsRow extends WatchingWidget {
                   cardWidth: cardWidth,
                   stackHeightMultiplier: mainStackHeightMultiplier(
                     cardHeight: cardHeight,
+                    cardWidth: cardWidth,
                   ),
                   columnKey: columnKeys[index],
                   hideTopCard: hiddenTopCardColumn == index,
