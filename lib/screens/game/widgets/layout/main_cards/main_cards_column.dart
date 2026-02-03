@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:watch_it/watch_it.dart';
 
+import '../../../../../constants/durations.dart';
 import '../../../../../constants/enums.dart';
 import '../../../../../models/drag_payload.dart';
 import '../../../../../util/dependencies.dart';
@@ -37,6 +39,8 @@ class MainCardsColumn extends WatchingWidget {
     final state = watchIt<GameController>().value;
 
     final mainCards = state.mainCards[column];
+    final revealVersion = state.mainRevealVersions[column];
+    final revealCardKey = state.mainRevealCardKeys[column];
 
     final selectedCard = state.selectedCard;
     final isSelected = selectedCard?.source == PileType.mainCards && selectedCard?.pileIndex == column;
@@ -118,16 +122,38 @@ class MainCardsColumn extends WatchingWidget {
 
                       return isDraggedCard ? 0.0 : 1.0;
                     }(),
-                    child: CardMain(
-                      card: mainCards[i],
-                      column: column,
-                      cardIndex: i,
-                      stack: mainCards.sublist(i),
-                      height: cardHeight,
-                      width: cardWidth,
-                      isSelected: isSelected && i >= selectedStartIndex,
-                      onTap: () => handleTap(cardIndex: i),
-                    ),
+                    child: () {
+                      final card = mainCards[i];
+                      final isTopCard = i == mainCards.length - 1;
+                      final shouldAnimateReveal = isTopCard && card.faceUp && revealVersion > 0 && revealCardKey == card.revealKey;
+
+                      final cardMain = CardMain(
+                        card: card,
+                        column: column,
+                        cardIndex: i,
+                        stack: mainCards.sublist(i),
+                        height: cardHeight,
+                        width: cardWidth,
+                        isSelected: isSelected && i >= selectedStartIndex,
+                        onTap: () => handleTap(cardIndex: i),
+                      );
+
+                      if (!shouldAnimateReveal) {
+                        return cardMain;
+                      }
+
+                      return Animate(
+                        key: ValueKey('main-reveal-$column-$revealVersion'),
+                        effects: const [
+                          FlipEffect(
+                            duration: SolitaireDurations.animation,
+                            curve: Curves.easeIn,
+                            direction: Axis.horizontal,
+                          ),
+                        ],
+                        child: cardMain,
+                      );
+                    }(),
                   ),
                 ),
             ],

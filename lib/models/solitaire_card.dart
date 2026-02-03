@@ -14,6 +14,7 @@ class SolitaireCard {
   });
 
   bool get isRed => suit == Suit.diamonds || suit == Suit.hearts;
+  String get revealKey => '${suit.name}-$rank';
 
   String get cardLabel => switch (rank) {
     1 => 'A',

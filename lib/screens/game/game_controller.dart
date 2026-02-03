@@ -15,6 +15,8 @@ class GameController
             List<SolitaireCard> drawingOpenedCards,
             List<List<SolitaireCard>> mainCards,
             List<List<SolitaireCard>> finishedCards,
+            List<int> mainRevealVersions,
+            List<String?> mainRevealCardKeys,
             SelectedCard? selectedCard,
             DragPayload? draggingPayload,
           })
@@ -30,6 +32,8 @@ class GameController
           drawingOpenedCards: [],
           mainCards: List.generate(7, (_) => []),
           finishedCards: List.generate(4, (_) => []),
+          mainRevealVersions: List.filled(7, 0),
+          mainRevealCardKeys: List.filled(7, null),
           selectedCard: null,
           draggingPayload: null,
         ),
@@ -104,6 +108,8 @@ class GameController
       newDrawingOpenedCards: const [],
       newMainCards: newMainCards,
       newFinishedCards: newFinishedCards,
+      newMainRevealVersions: List.filled(7, 0),
+      newMainRevealCardKeys: List.filled(7, null),
       newSelectedCard: null,
     );
   }
@@ -288,12 +294,16 @@ class GameController
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
     final mainCards = List<List<SolitaireCard>>.from(value.mainCards);
     final finishedCards = List<List<SolitaireCard>>.from(value.finishedCards);
+    final mainRevealVersions = List<int>.from(value.mainRevealVersions);
+    final mainRevealCardKeys = List<String?>.from(value.mainRevealCardKeys);
     final finished = List<SolitaireCard>.from(currentFinished);
 
     removeSelectedCardAndReveal(
       selectedCard,
       drawingOpenedCards: drawingOpened,
       mainCards: mainCards,
+      mainRevealVersions: mainRevealVersions,
+      mainRevealCardKeys: mainRevealCardKeys,
     );
 
     finished.add(card);
@@ -303,6 +313,8 @@ class GameController
       newDrawingOpenedCards: drawingOpened,
       newMainCards: mainCards,
       newFinishedCards: finishedCards,
+      newMainRevealVersions: mainRevealVersions,
+      newMainRevealCardKeys: mainRevealCardKeys,
       newSelectedCard: null,
     );
   }
@@ -338,6 +350,8 @@ class GameController
     /// Perform move on copies and commit in a single update
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
     final mainCards = List<List<SolitaireCard>>.from(value.mainCards);
+    final mainRevealVersions = List<int>.from(value.mainRevealVersions);
+    final mainRevealCardKeys = List<String?>.from(value.mainRevealCardKeys);
     final pile = List<SolitaireCard>.from(currentPile);
 
     if (selectedCard.source == PileType.mainCards) {
@@ -355,12 +369,16 @@ class GameController
         drawingOpenedCards: drawingOpened,
         finishedCards: value.finishedCards,
         mainCards: mainCards,
+        mainRevealVersions: mainRevealVersions,
+        mainRevealCardKeys: mainRevealCardKeys,
       );
     } else {
       removeSelectedCardAndReveal(
         selectedCard,
         drawingOpenedCards: drawingOpened,
         mainCards: mainCards,
+        mainRevealVersions: mainRevealVersions,
+        mainRevealCardKeys: mainRevealCardKeys,
       );
     }
 
@@ -370,6 +388,8 @@ class GameController
     updateState(
       newDrawingOpenedCards: drawingOpened,
       newMainCards: mainCards,
+      newMainRevealVersions: mainRevealVersions,
+      newMainRevealCardKeys: mainRevealCardKeys,
       newSelectedCard: null,
     );
   }
@@ -444,12 +464,16 @@ class GameController
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
     final finishedCards = List<List<SolitaireCard>>.from(value.finishedCards);
     final mainCards = List<List<SolitaireCard>>.from(value.mainCards);
+    final mainRevealVersions = List<int>.from(value.mainRevealVersions);
+    final mainRevealCardKeys = List<String?>.from(value.mainRevealCardKeys);
 
     removeCardsFromSource(
       payload,
       drawingOpenedCards: drawingOpened,
       finishedCards: finishedCards,
       mainCards: mainCards,
+      mainRevealVersions: mainRevealVersions,
+      mainRevealCardKeys: mainRevealCardKeys,
     );
 
     final finished = List<SolitaireCard>.from(finishedCards[finishedIndex])
@@ -462,6 +486,8 @@ class GameController
       newDrawingOpenedCards: drawingOpened,
       newMainCards: mainCards,
       newFinishedCards: finishedCards,
+      newMainRevealVersions: mainRevealVersions,
+      newMainRevealCardKeys: mainRevealCardKeys,
       newSelectedCard: null,
     );
   }
@@ -486,12 +512,16 @@ class GameController
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
     final mainCards = List<List<SolitaireCard>>.from(value.mainCards);
     final finishedCards = List<List<SolitaireCard>>.from(value.finishedCards);
+    final mainRevealVersions = List<int>.from(value.mainRevealVersions);
+    final mainRevealCardKeys = List<String?>.from(value.mainRevealCardKeys);
 
     removeCardsFromSource(
       payload,
       drawingOpenedCards: drawingOpened,
       finishedCards: finishedCards,
       mainCards: mainCards,
+      mainRevealVersions: mainRevealVersions,
+      mainRevealCardKeys: mainRevealCardKeys,
     );
 
     final pile = List<SolitaireCard>.from(mainCards[column])..addAll(cards);
@@ -501,6 +531,8 @@ class GameController
       newDrawingOpenedCards: drawingOpened,
       newMainCards: mainCards,
       newFinishedCards: finishedCards,
+      newMainRevealVersions: mainRevealVersions,
+      newMainRevealCardKeys: mainRevealCardKeys,
       newSelectedCard: null,
     );
   }
@@ -578,6 +610,8 @@ class GameController
     SelectedCard selectedCard, {
     required List<SolitaireCard> drawingOpenedCards,
     required List<List<SolitaireCard>> mainCards,
+    required List<int> mainRevealVersions,
+    required List<String?> mainRevealCardKeys,
   }) {
     switch (selectedCard.source) {
       case PileType.drawingOpenedCards:
@@ -596,6 +630,8 @@ class GameController
 
         if (pile.isNotEmpty && !pile.last.faceUp) {
           pile.last.faceUp = true;
+          mainRevealVersions[pileIndex] += 1;
+          mainRevealCardKeys[pileIndex] = pile.last.revealKey;
         }
 
         mainCards[pileIndex] = pile;
@@ -665,6 +701,8 @@ class GameController
     required List<SolitaireCard> drawingOpenedCards,
     required List<List<SolitaireCard>> finishedCards,
     required List<List<SolitaireCard>> mainCards,
+    required List<int> mainRevealVersions,
+    required List<String?> mainRevealCardKeys,
   }) {
     switch (payload.source) {
       case PileType.drawingOpenedCards:
@@ -710,6 +748,8 @@ class GameController
 
         if (pile.isNotEmpty && !pile.last.faceUp) {
           pile.last.faceUp = true;
+          mainRevealVersions[pileIndex] += 1;
+          mainRevealCardKeys[pileIndex] = pile.last.revealKey;
         }
 
         mainCards[pileIndex] = pile;
@@ -851,6 +891,8 @@ class GameController
     List<SolitaireCard>? newDrawingOpenedCards,
     List<List<SolitaireCard>>? newMainCards,
     List<List<SolitaireCard>>? newFinishedCards,
+    List<int>? newMainRevealVersions,
+    List<String?>? newMainRevealCardKeys,
     Object? newSelectedCard = noSelectedCard,
     Object? newDraggingPayload = noDraggingPayload,
   }) {
@@ -859,6 +901,8 @@ class GameController
       drawingOpenedCards: newDrawingOpenedCards ?? value.drawingOpenedCards,
       mainCards: newMainCards ?? value.mainCards,
       finishedCards: newFinishedCards ?? value.finishedCards,
+      mainRevealVersions: newMainRevealVersions ?? value.mainRevealVersions,
+      mainRevealCardKeys: newMainRevealCardKeys ?? value.mainRevealCardKeys,
       selectedCard: newSelectedCard == noSelectedCard ? value.selectedCard : newSelectedCard as SelectedCard?,
       draggingPayload: newDraggingPayload == noDraggingPayload ? value.draggingPayload : newDraggingPayload as DragPayload?,
     );
