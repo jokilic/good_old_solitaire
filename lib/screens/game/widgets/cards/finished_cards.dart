@@ -5,6 +5,7 @@ import '../../../../constants/enums.dart';
 import '../../../../models/drag_payload.dart';
 import '../../../../util/dependencies.dart';
 import '../../game_controller.dart';
+import '../animated_return_draggable.dart';
 import '../card/card_empty.dart';
 import '../card/card_frame.dart';
 import '../card/card_widget.dart';
@@ -58,7 +59,7 @@ class FinishedCards extends WatchingWidget {
           height: cardHeight,
           width: cardWidth,
           child: hasCards
-              ? Draggable<DragPayload>(
+              ? AnimatedReturnDraggable<DragPayload>(
                   data: DragPayload(
                     source: PileType.finishedCards,
                     pileIndex: index,

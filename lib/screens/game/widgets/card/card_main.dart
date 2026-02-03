@@ -5,6 +5,7 @@ import '../../../../models/drag_payload.dart';
 import '../../../../models/solitaire_card.dart';
 import '../../../../util/dependencies.dart';
 import '../../game_controller.dart';
+import '../animated_return_draggable.dart';
 import '../stack_drag_feedback.dart';
 import 'card_widget.dart';
 
@@ -58,7 +59,7 @@ class CardMain extends StatelessWidget {
       cardIndex: cardIndex,
     );
 
-    return Draggable<DragPayload>(
+    return AnimatedReturnDraggable<DragPayload>(
       data: payload,
       feedback: StackDragFeedback(
         cards: stack,
@@ -66,9 +67,13 @@ class CardMain extends StatelessWidget {
         width: width,
       ),
       onDragStarted: () => controller.setDraggingPayload(payload),
-      onDragEnd: (_) => controller.setDraggingPayload(null),
-      onDraggableCanceled: (_, __) => controller.setDraggingPayload(null),
+      onDragEnd: (details) {
+        if (details.wasAccepted) {
+          controller.setDraggingPayload(null);
+        }
+      },
       onDragCompleted: () => controller.setDraggingPayload(null),
+      onReturnAnimationCompleted: () => controller.setDraggingPayload(null),
       childWhenDragging: tappableBody,
       child: tappableBody,
     );

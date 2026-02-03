@@ -6,6 +6,7 @@ import '../../../../models/drag_payload.dart';
 import '../../../../models/solitaire_card.dart';
 import '../../../../util/dependencies.dart';
 import '../../game_controller.dart';
+import '../animated_return_draggable.dart';
 import '../card/card_empty.dart';
 import '../card/card_frame.dart';
 import '../card/card_widget.dart';
@@ -128,7 +129,7 @@ class DraggableOpenedCard extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Draggable<DragPayload>(
+  Widget build(BuildContext context) => AnimatedReturnDraggable<DragPayload>(
     data: dragPayload,
     feedback: DragFeedback(
       card: topCard,
