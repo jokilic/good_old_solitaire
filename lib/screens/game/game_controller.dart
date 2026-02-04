@@ -914,16 +914,31 @@ class GameController
     }
 
     final cards = value.mainCards[column];
-    final topLeft =
-        base.topLeft +
-        Offset(
-          0,
+    double topOffset;
+
+    if (cards.isEmpty) {
+      topOffset = 0;
+    } else if (cardIndex < cards.length) {
+      topOffset = mainStackTopOffset(
+        cards,
+        cardIndex,
+        cardWidth: base.width,
+      );
+    } else {
+      // For insertion at the end, place after the current top card.
+      topOffset =
           mainStackTopOffset(
             cards,
-            cardIndex,
+            cards.length - 1,
             cardWidth: base.width,
-          ),
-        );
+          ) +
+          mainStackOffsetForCard(
+            cards.last,
+            cardWidth: base.width,
+          );
+    }
+
+    final topLeft = base.topLeft + Offset(0, topOffset);
 
     return Rect.fromLTWH(
       topLeft.dx,
