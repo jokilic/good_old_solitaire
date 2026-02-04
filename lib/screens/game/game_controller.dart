@@ -24,6 +24,11 @@ class GameController
             List<String?> mainRevealCardKeys,
             SelectedCard? selectedCard,
             DragPayload? draggingPayload,
+            int dropSettleVersion,
+            PileType? dropSettleTarget,
+            int? dropSettlePileIndex,
+            List<String> dropSettleCardKeys,
+            Offset? dropSettleFromOffset,
           })
         > {
   ///
@@ -46,6 +51,11 @@ class GameController
            mainRevealCardKeys: List.filled(7, null),
            selectedCard: null,
            draggingPayload: null,
+           dropSettleVersion: 0,
+           dropSettleTarget: null,
+           dropSettlePileIndex: null,
+           dropSettleCardKeys: const [],
+           dropSettleFromOffset: null,
          ),
        );
 
@@ -123,6 +133,10 @@ class GameController
       newMainRevealVersions: List.filled(7, 0),
       newMainRevealCardKeys: List.filled(7, null),
       newSelectedCard: null,
+      newDropSettleTarget: null,
+      newDropSettlePileIndex: null,
+      newDropSettleCardKeys: const [],
+      newDropSettleFromOffset: null,
     );
   }
 
@@ -482,7 +496,11 @@ class GameController
   }
 
   /// Executes a drag-drop move to finished cards (after validation)
-  void moveDragToFinished(DragPayload payload, int finishedIndex) {
+  void moveDragToFinished(
+    DragPayload payload,
+    int finishedIndex, {
+    Offset? dropOffset,
+  }) {
     if (!canDropOnFinished(payload, finishedIndex)) {
       return;
     }
@@ -526,13 +544,22 @@ class GameController
       newMainRevealVersions: mainRevealVersions,
       newMainRevealCardKeys: mainRevealCardKeys,
       newSelectedCard: null,
+      newDropSettleVersion: dropOffset == null ? null : value.dropSettleVersion + 1,
+      newDropSettleTarget: dropOffset == null ? noDropSettleTarget : PileType.finishedCards,
+      newDropSettlePileIndex: dropOffset == null ? noDropSettlePileIndex : finishedIndex,
+      newDropSettleCardKeys: dropOffset == null ? null : [cards.first.revealKey],
+      newDropSettleFromOffset: dropOffset ?? noDropSettleFromOffset,
     );
 
     unawaited(sound.playCardPlace());
   }
 
   /// Executes a drag-drop move to main cards column (after validation)
-  void moveDragToMain(DragPayload payload, int column) {
+  void moveDragToMain(
+    DragPayload payload,
+    int column, {
+    Offset? dropOffset,
+  }) {
     if (!canDropOnMain(payload, column)) {
       return;
     }
@@ -573,6 +600,11 @@ class GameController
       newMainRevealVersions: mainRevealVersions,
       newMainRevealCardKeys: mainRevealCardKeys,
       newSelectedCard: null,
+      newDropSettleVersion: dropOffset == null ? null : value.dropSettleVersion + 1,
+      newDropSettleTarget: dropOffset == null ? noDropSettleTarget : PileType.mainCards,
+      newDropSettlePileIndex: dropOffset == null ? noDropSettlePileIndex : column,
+      newDropSettleCardKeys: dropOffset == null ? null : cards.map((card) => card.revealKey).toList(),
+      newDropSettleFromOffset: dropOffset ?? noDropSettleFromOffset,
     );
 
     unawaited(sound.playCardPlace());
@@ -960,6 +992,11 @@ class GameController
     List<String?>? newMainRevealCardKeys,
     Object? newSelectedCard = noSelectedCard,
     Object? newDraggingPayload = noDraggingPayload,
+    int? newDropSettleVersion,
+    Object? newDropSettleTarget = noDropSettleTarget,
+    Object? newDropSettlePileIndex = noDropSettlePileIndex,
+    List<String>? newDropSettleCardKeys,
+    Object? newDropSettleFromOffset = noDropSettleFromOffset,
   }) {
     value = (
       drawingUnopenedCards: newDrawingUnopenedCards ?? value.drawingUnopenedCards,
@@ -972,6 +1009,11 @@ class GameController
       mainRevealCardKeys: newMainRevealCardKeys ?? value.mainRevealCardKeys,
       selectedCard: newSelectedCard == noSelectedCard ? value.selectedCard : newSelectedCard as SelectedCard?,
       draggingPayload: newDraggingPayload == noDraggingPayload ? value.draggingPayload : newDraggingPayload as DragPayload?,
+      dropSettleVersion: newDropSettleVersion ?? value.dropSettleVersion,
+      dropSettleTarget: newDropSettleTarget == noDropSettleTarget ? value.dropSettleTarget : newDropSettleTarget as PileType?,
+      dropSettlePileIndex: newDropSettlePileIndex == noDropSettlePileIndex ? value.dropSettlePileIndex : newDropSettlePileIndex as int?,
+      dropSettleCardKeys: newDropSettleCardKeys ?? value.dropSettleCardKeys,
+      dropSettleFromOffset: newDropSettleFromOffset == noDropSettleFromOffset ? value.dropSettleFromOffset : newDropSettleFromOffset as Offset?,
     );
   }
 }

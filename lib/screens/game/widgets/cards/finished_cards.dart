@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:watch_it/watch_it.dart';
 
+import '../../../../constants/durations.dart';
 import '../../../../constants/enums.dart';
 import '../../../../models/drag_payload.dart';
 import '../../../../models/solitaire_card.dart';
@@ -40,12 +42,22 @@ class FinishedCards extends WatchingWidget {
 
     final finishedCards = state.finishedCards[index];
     final hasCards = finishedCards.isNotEmpty;
+    final shouldApplyDropSettle =
+        hasCards &&
+        state.dropSettleTarget == PileType.finishedCards &&
+        state.dropSettlePileIndex == index &&
+        state.dropSettleFromOffset != null &&
+        state.dropSettleCardKeys.contains(finishedCards.last.revealKey);
 
     final cardUnderTop = finishedCards.length > 1 ? finishedCards[finishedCards.length - 2] : null;
 
     return DragTarget<DragPayload>(
       onWillAcceptWithDetails: (details) => controller.canDropOnFinished(details.data, index),
-      onAcceptWithDetails: (details) => controller.moveDragToFinished(details.data, index),
+      onAcceptWithDetails: (details) => controller.moveDragToFinished(
+        details.data,
+        index,
+        dropOffset: details.offset,
+      ),
       builder: (context, _, __) => GestureDetector(
         onTap: () async {
           if (isAnimatingMove) {
@@ -63,18 +75,47 @@ class FinishedCards extends WatchingWidget {
           key: pileKey,
           height: effectiveCardHeight,
           width: cardWidth,
-          child: hasCards
-              ? DraggableFinishedCard(
-                  index: index,
-                  topCard: finishedCards.last,
-                  cardUnderTop: cardUnderTop,
-                  cardHeight: effectiveCardHeight,
-                  cardWidth: cardWidth,
-                )
-              : CardEmpty(
-                  height: effectiveCardHeight,
-                  width: cardWidth,
+          child: () {
+            if (!hasCards) {
+              return CardEmpty(
+                height: effectiveCardHeight,
+                width: cardWidth,
+              );
+            }
+
+            final child = DraggableFinishedCard(
+              index: index,
+              topCard: finishedCards.last,
+              cardUnderTop: cardUnderTop,
+              cardHeight: effectiveCardHeight,
+              cardWidth: cardWidth,
+            );
+
+            if (!shouldApplyDropSettle) {
+              return child;
+            }
+
+            final toRect = controller.rectFromKey(pileKey);
+            final dropDelta = toRect == null ? Offset.zero : state.dropSettleFromOffset! - toRect.topLeft;
+            final shouldUseDropSettle = toRect != null && dropDelta.distance > 0.5;
+
+            if (!shouldUseDropSettle) {
+              return child;
+            }
+
+            return Animate(
+              key: ValueKey('finished-drop-settle-$index-${state.dropSettleVersion}'),
+              effects: [
+                MoveEffect(
+                  begin: dropDelta,
+                  end: Offset.zero,
+                  duration: SolitaireDurations.animation,
+                  curve: Curves.easeOutCubic,
                 ),
+              ],
+              child: child,
+            );
+          }(),
         ),
       ),
     );

@@ -5,6 +5,7 @@ import 'package:watch_it/watch_it.dart';
 import '../../../../../constants/durations.dart';
 import '../../../../../constants/enums.dart';
 import '../../../../../models/drag_payload.dart';
+import '../../../../../util/card_size.dart';
 import '../../../../../util/dependencies.dart';
 import '../../../../../util/main_stack_layout.dart';
 import '../../../game_controller.dart';
@@ -41,6 +42,8 @@ class MainCardsColumn extends WatchingWidget {
     final mainCards = state.mainCards[column];
     final revealVersion = state.mainRevealVersions[column];
     final revealCardKey = state.mainRevealCardKeys[column];
+    final shouldApplyDropSettle =
+        state.dropSettleTarget == PileType.mainCards && state.dropSettlePileIndex == column && state.dropSettleCardKeys.isNotEmpty && state.dropSettleFromOffset != null;
 
     final selectedCard = state.selectedCard;
     final isSelected = selectedCard?.source == PileType.mainCards && selectedCard?.pileIndex == column;
@@ -64,9 +67,7 @@ class MainCardsColumn extends WatchingWidget {
       final latestState = controller.value;
       final selectedCard = latestState.selectedCard;
       final columnCards = latestState.mainCards[column];
-      final isSameColumnSelected =
-          selectedCard?.source == PileType.mainCards &&
-          selectedCard?.pileIndex == column;
+      final isSameColumnSelected = selectedCard?.source == PileType.mainCards && selectedCard?.pileIndex == column;
 
       if (selectedCard != null && !isSameColumnSelected) {
         final selectedStack = controller.selectedStackFrom(
@@ -74,9 +75,7 @@ class MainCardsColumn extends WatchingWidget {
           drawingOpenedCards: latestState.drawingOpenedCards,
           mainCards: latestState.mainCards,
         );
-        final canMoveSelected =
-            selectedStack.isNotEmpty &&
-            controller.canMoveToMain(selectedStack.first, columnCards);
+        final canMoveSelected = selectedStack.isNotEmpty && controller.canMoveToMain(selectedStack.first, columnCards);
 
         if (canMoveSelected) {
           if (onTapMoveSelected != null) {
@@ -109,7 +108,11 @@ class MainCardsColumn extends WatchingWidget {
 
     return DragTarget<DragPayload>(
       onWillAcceptWithDetails: (details) => controller.canDropOnMain(details.data, column),
-      onAcceptWithDetails: (details) => controller.moveDragToMain(details.data, column),
+      onAcceptWithDetails: (details) => controller.moveDragToMain(
+        details.data,
+        column,
+        dropOffset: details.offset,
+      ),
       builder: (context, _, __) => GestureDetector(
         onTap: handleTap,
         child: CardFrame(
@@ -144,6 +147,8 @@ class MainCardsColumn extends WatchingWidget {
                       final card = mainCards[i];
                       final isTopCard = i == mainCards.length - 1;
                       final shouldAnimateReveal = isTopCard && card.faceUp && revealVersion > 0 && revealCardKey == card.revealKey;
+                      final dropSettleIndex = shouldApplyDropSettle ? state.dropSettleCardKeys.indexOf(card.revealKey) : -1;
+                      final shouldAnimateDropSettle = dropSettleIndex >= 0;
 
                       final cardMain = CardMain(
                         card: card,
@@ -156,20 +161,51 @@ class MainCardsColumn extends WatchingWidget {
                         onTap: () => handleTap(cardIndex: i),
                       );
 
-                      if (!shouldAnimateReveal) {
-                        return cardMain;
+                      Widget child = cardMain;
+
+                      if (shouldAnimateReveal) {
+                        child = Animate(
+                          key: ValueKey('main-reveal-$column-$revealVersion'),
+                          effects: const [
+                            FlipEffect(
+                              duration: SolitaireDurations.animation,
+                              curve: Curves.easeIn,
+                              direction: Axis.horizontal,
+                            ),
+                          ],
+                          child: child,
+                        );
+                      }
+
+                      if (!shouldAnimateDropSettle) {
+                        return child;
+                      }
+
+                      final toRect = controller.mainCardRect(column, i);
+                      final fromTopLeft =
+                          state.dropSettleFromOffset! +
+                          Offset(
+                            0,
+                            dropSettleIndex * mainStackOffsetFromCardWidth(cardWidth),
+                          );
+                      final dropDelta = toRect == null ? Offset.zero : fromTopLeft - toRect.topLeft;
+                      final shouldUseDropSettle = toRect != null && dropDelta.distance > 0.5;
+
+                      if (!shouldUseDropSettle) {
+                        return child;
                       }
 
                       return Animate(
-                        key: ValueKey('main-reveal-$column-$revealVersion'),
-                        effects: const [
-                          FlipEffect(
+                        key: ValueKey('main-drop-settle-$column-${state.dropSettleVersion}-${card.revealKey}'),
+                        effects: [
+                          MoveEffect(
+                            begin: dropDelta,
+                            end: Offset.zero,
                             duration: SolitaireDurations.animation,
-                            curve: Curves.easeIn,
-                            direction: Axis.horizontal,
+                            curve: Curves.easeOutCubic,
                           ),
                         ],
-                        child: cardMain,
+                        child: child,
                       );
                     }(),
                   ),
