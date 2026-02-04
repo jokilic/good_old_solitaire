@@ -7,27 +7,27 @@ class SoundService {
 
   Future<void> playCardLift() => play(
     sound: GameSound.cardLift,
-    assetPath: 'sounds/card_lift.ogg',
+    assetPath: 'sounds/card_lift.m4a',
   );
 
   Future<void> playCardPlace() => play(
     sound: GameSound.cardPlace,
-    assetPath: 'sounds/card_place.ogg',
+    assetPath: 'sounds/card_place.m4a',
   );
 
   Future<void> playCardFlip() => play(
     sound: GameSound.cardFlip,
-    assetPath: 'sounds/card_flip.ogg',
+    assetPath: 'sounds/card_flip.m4a',
   );
 
   Future<void> playCardDraw() => play(
     sound: GameSound.cardDraw,
-    assetPath: 'sounds/card_draw.ogg',
+    assetPath: 'sounds/card_draw.m4a',
   );
 
   Future<void> playDrawPileReset() => play(
     sound: GameSound.drawPileReset,
-    assetPath: 'sounds/card_draw_pile_reset.ogg',
+    assetPath: 'sounds/card_draw_pile_reset.m4a',
   );
 
   Future<void> play({
