@@ -461,49 +461,49 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                               children: [
                                 Builder(
                                   builder: (context) => Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: padding / 2),
-                                      child: LayoutBuilder(
-                                        builder: (context, topConstraints) {
-                                          final slotWidth = (topConstraints.maxWidth - padding * 6) / 7;
-                                          final clampedSlotWidth = slotWidth > 0 ? slotWidth : 0.0;
-                                          final drawingSectionWidth = clampedSlotWidth * 2 + padding;
-                                          final emptySectionWidth = clampedSlotWidth;
-                                          final finishedSectionWidth = clampedSlotWidth * 4 + padding * 3;
+                                    padding: const EdgeInsets.symmetric(horizontal: padding / 2),
+                                    child: LayoutBuilder(
+                                      builder: (context, topConstraints) {
+                                        final slotWidth = (topConstraints.maxWidth - padding * 6) / 7;
+                                        final clampedSlotWidth = slotWidth > 0 ? slotWidth : 0.0;
+                                        final drawingSectionWidth = clampedSlotWidth * 2 + padding;
+                                        final emptySectionWidth = clampedSlotWidth;
+                                        final finishedSectionWidth = clampedSlotWidth * 4 + padding * 3;
 
-                                          return Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              SizedBox(
-                                                width: drawingSectionWidth,
-                                                child: DrawingCardsRow(
-                                                  drawingOpenedKey: drawingOpenedKey,
-                                                  hideOpenedTopCard: hideOpenedTopCard,
+                                        return Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(
+                                              width: drawingSectionWidth,
+                                              child: DrawingCardsRow(
+                                                drawingOpenedKey: drawingOpenedKey,
+                                                hideOpenedTopCard: hideOpenedTopCard,
+                                              ),
+                                            ),
+                                            const SizedBox(width: padding),
+                                            SizedBox(
+                                              width: emptySectionWidth,
+                                              child: buildCardSlot(
+                                                (cardWidth, cardHeight) => SizedBox(
+                                                  width: cardWidth,
+                                                  height: cardHeight,
                                                 ),
                                               ),
-                                              const SizedBox(width: padding),
-                                              SizedBox(
-                                                width: emptySectionWidth,
-                                                child: buildCardSlot(
-                                                  (cardWidth, cardHeight) => SizedBox(
-                                                    width: cardWidth,
-                                                    height: cardHeight,
-                                                  ),
-                                                ),
+                                            ),
+                                            const SizedBox(width: padding),
+                                            SizedBox(
+                                              width: finishedSectionWidth,
+                                              child: FinishedCardsRow(
+                                                pileKeys: controller.finishedPileKeys,
+                                                isAnimatingMove: isAnimatingMove,
+                                                onTapMoveSelected: animateSelectedToFinished,
                                               ),
-                                              const SizedBox(width: padding),
-                                              SizedBox(
-                                                width: finishedSectionWidth,
-                                                child: FinishedCardsRow(
-                                                  pileKeys: controller.finishedPileKeys,
-                                                  isAnimatingMove: isAnimatingMove,
-                                                  onTapMoveSelected: animateSelectedToFinished,
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      ),
+                                            ),
+                                          ],
+                                        );
+                                      },
                                     ),
+                                  ),
                                 ),
                                 const SizedBox(height: padding),
                                 Expanded(
@@ -559,6 +559,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                             cardWidth: cardWidth,
                                             pileKey: drawingOpenedKey,
                                             hideTopCard: hideOpenedTopCard,
+                                            revealFromRight: true,
                                           ),
                                         ),
                                       ),

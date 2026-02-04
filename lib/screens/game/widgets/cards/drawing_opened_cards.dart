@@ -23,12 +23,14 @@ class DrawingOpenedCards extends WatchingWidget {
   final double cardWidth;
   final GlobalKey pileKey;
   final bool hideTopCard;
+  final bool revealFromRight;
 
   const DrawingOpenedCards({
     required this.cardHeight,
     required this.cardWidth,
     required this.pileKey,
     required this.hideTopCard,
+    this.revealFromRight = false,
   });
 
   Widget getOpenedCardView({
@@ -89,7 +91,7 @@ class DrawingOpenedCards extends WatchingWidget {
       key: ValueKey('drawing-reveal-$revealVersion'),
       effects: [
         MoveEffect(
-          begin: Offset(-revealShiftX, 0),
+          begin: Offset(revealFromRight ? revealShiftX : -revealShiftX, 0),
           end: Offset.zero,
           duration: SolitaireDurations.animation,
           curve: Curves.easeIn,
