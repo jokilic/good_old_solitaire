@@ -1,4 +1,6 @@
 // TODO
+const compactLayoutMaxWidth = 560;
+
 const cardAspectRatio = 1.65;
 const padding = 6.0;
 const borderRadius = 6.0;

@@ -23,12 +23,11 @@ class FinishedCardsRow extends WatchingWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final slotWidth = (constraints.maxWidth - padding * 6) / 7;
+        final slotWidth = (constraints.maxWidth - padding * (finishedCards.length - 1)) / finishedCards.length;
         final cardWidth = slotWidth > 0 ? slotWidth : 0.0;
         final cardHeight = cardWidth * cardAspectRatio;
 
         return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: List.generate(
             finishedCards.length,
