@@ -54,6 +54,7 @@ class SoundService {
 
       await player.setPlayerMode(PlayerMode.lowLatency);
       await player.setReleaseMode(ReleaseMode.stop);
+      await player.setVolume(0.5);
 
       return player;
     },

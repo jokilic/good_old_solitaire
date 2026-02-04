@@ -36,6 +36,7 @@ class FinishedCards extends WatchingWidget {
   Widget build(BuildContext context) {
     final controller = getIt.get<GameController>();
     final state = watchIt<GameController>().value;
+    final effectiveCardHeight = cardHeight - 2;
 
     final finishedCards = state.finishedCards[index];
     final hasCards = finishedCards.isNotEmpty;
@@ -60,18 +61,18 @@ class FinishedCards extends WatchingWidget {
         },
         child: CardFrame(
           key: pileKey,
-          height: cardHeight,
+          height: effectiveCardHeight,
           width: cardWidth,
           child: hasCards
               ? DraggableFinishedCard(
                   index: index,
                   topCard: finishedCards.last,
                   cardUnderTop: cardUnderTop,
-                  cardHeight: cardHeight,
+                  cardHeight: effectiveCardHeight,
                   cardWidth: cardWidth,
                 )
               : CardEmpty(
-                  height: cardHeight,
+                  height: effectiveCardHeight,
                   width: cardWidth,
                 ),
         ),

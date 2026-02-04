@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:watch_it/watch_it.dart';
 
+import '../../../../constants/constants.dart';
+import '../../../../constants/durations.dart';
 import '../../../../constants/enums.dart';
 import '../../../../models/drag_payload.dart';
 import '../../../../models/solitaire_card.dart';
@@ -37,6 +40,9 @@ class DrawingOpenedCards extends WatchingWidget {
     required SolitaireCard? cardUnderTop,
     required DragPayload dragPayload,
     required bool isSelected,
+    required bool shouldAnimateReveal,
+    required int revealVersion,
+    required double revealShiftX,
   }) {
     Widget empty() => CardEmpty(
       height: cardHeight,
@@ -66,7 +72,7 @@ class DrawingOpenedCards extends WatchingWidget {
       return underTopOrEmpty();
     }
 
-    return DraggableOpenedCard(
+    final topCard = DraggableOpenedCard(
       topCard: openedCards.last,
       cardUnderTop: cardUnderTop,
       dragPayload: dragPayload,
@@ -74,15 +80,47 @@ class DrawingOpenedCards extends WatchingWidget {
       cardWidth: cardWidth,
       isSelected: isSelected,
     );
+
+    if (!shouldAnimateReveal) {
+      return topCard;
+    }
+
+    return Animate(
+      key: ValueKey('drawing-reveal-$revealVersion'),
+      effects: [
+        MoveEffect(
+          begin: Offset(-revealShiftX, 0),
+          end: Offset.zero,
+          duration: SolitaireDurations.animation,
+          curve: Curves.easeIn,
+        ),
+        const ScaleEffect(
+          begin: Offset(0.92, 0.92),
+          end: Offset(1, 1),
+          duration: SolitaireDurations.animation,
+          curve: Curves.easeIn,
+        ),
+        const FadeEffect(
+          begin: 0.2,
+          end: 1,
+          duration: SolitaireDurations.animation,
+          curve: Curves.easeIn,
+        ),
+      ],
+      child: topCard,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final controller = getIt.get<GameController>();
     final state = watchIt<GameController>().value;
+    final effectiveCardHeight = cardHeight - 2;
 
     final openedCards = state.drawingOpenedCards;
     final hasCards = openedCards.isNotEmpty;
+    final revealVersion = state.drawingRevealVersion;
+    final revealCardKey = state.drawingRevealCardKey;
 
     final isSelected = state.selectedCard?.source == PileType.drawingOpenedCards;
 
@@ -92,22 +130,26 @@ class DrawingOpenedCards extends WatchingWidget {
     );
 
     final cardUnderTop = openedCards.length > 1 ? openedCards[openedCards.length - 2] : null;
+    final shouldAnimateReveal = hasCards && revealVersion > 0 && revealCardKey == openedCards.last.revealKey;
 
     return GestureDetector(
       onTap: controller.selectUnopenedSectionTop,
       child: CardFrame(
         key: pileKey,
-        height: cardHeight,
+        height: effectiveCardHeight,
         width: cardWidth,
         child: getOpenedCardView(
           hasCards: hasCards,
           hideTopCard: hideTopCard,
-          cardHeight: cardHeight,
+          cardHeight: effectiveCardHeight,
           cardWidth: cardWidth,
           openedCards: openedCards,
           cardUnderTop: cardUnderTop,
           dragPayload: dragPayload,
           isSelected: isSelected,
+          shouldAnimateReveal: shouldAnimateReveal,
+          revealVersion: revealVersion,
+          revealShiftX: cardWidth + padding,
         ),
       ),
     );

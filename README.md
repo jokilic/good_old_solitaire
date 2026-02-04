@@ -4,6 +4,8 @@
 
 🃏 **Good old Solitaire** is a simple card game made in **Flutter**. 👨‍💻
 
+### Sounds
+
 - [ ] Sound of undoing move (when it reverses)
 - [ ] Sound of completing game (when all cards are in foundation)
 - [ ] Sound of restarting game (when it resets)

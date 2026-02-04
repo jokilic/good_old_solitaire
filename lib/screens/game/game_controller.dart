@@ -16,6 +16,8 @@ class GameController
           ({
             List<SolitaireCard> drawingUnopenedCards,
             List<SolitaireCard> drawingOpenedCards,
+            int drawingRevealVersion,
+            String? drawingRevealCardKey,
             List<List<SolitaireCard>> mainCards,
             List<List<SolitaireCard>> finishedCards,
             List<int> mainRevealVersions,
@@ -36,6 +38,8 @@ class GameController
          (
            drawingUnopenedCards: [],
            drawingOpenedCards: [],
+           drawingRevealVersion: 0,
+           drawingRevealCardKey: null,
            mainCards: List.generate(7, (_) => []),
            finishedCards: List.generate(4, (_) => []),
            mainRevealVersions: List.filled(7, 0),
@@ -112,6 +116,8 @@ class GameController
     updateState(
       newDrawingUnopenedCards: newDrawingUnopenedCards,
       newDrawingOpenedCards: const [],
+      newDrawingRevealVersion: 0,
+      newDrawingRevealCardKey: null,
       newMainCards: newMainCards,
       newFinishedCards: newFinishedCards,
       newMainRevealVersions: List.filled(7, 0),
@@ -135,6 +141,8 @@ class GameController
     /// Work on copies to keep notifier updates atomic
     final drawingUnopened = List<SolitaireCard>.from(value.drawingUnopenedCards);
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
+    var drawingRevealVersion = value.drawingRevealVersion;
+    var drawingRevealCardKey = value.drawingRevealCardKey;
     var didDrawCard = false;
     var didResetDrawPile = false;
 
@@ -142,6 +150,8 @@ class GameController
     if (drawingUnopened.isNotEmpty) {
       final card = drawingUnopened.removeLast()..faceUp = true;
       drawingOpened.add(card);
+      drawingRevealVersion += 1;
+      drawingRevealCardKey = card.revealKey;
       didDrawCard = true;
     }
     /// Recycle drawing opened back to drawing unopened, flipping face-down
@@ -150,6 +160,7 @@ class GameController
         final card = drawingOpened.removeLast()..faceUp = false;
         drawingUnopened.add(card);
       }
+      drawingRevealCardKey = null;
       didResetDrawPile = true;
     }
 
@@ -157,6 +168,8 @@ class GameController
     updateState(
       newDrawingUnopenedCards: drawingUnopened,
       newDrawingOpenedCards: drawingOpened,
+      newDrawingRevealVersion: drawingRevealVersion,
+      newDrawingRevealCardKey: drawingRevealCardKey,
       newSelectedCard: null,
     );
 
@@ -924,6 +937,8 @@ class GameController
   void updateState({
     List<SolitaireCard>? newDrawingUnopenedCards,
     List<SolitaireCard>? newDrawingOpenedCards,
+    int? newDrawingRevealVersion,
+    Object? newDrawingRevealCardKey = noDrawingRevealCardKey,
     List<List<SolitaireCard>>? newMainCards,
     List<List<SolitaireCard>>? newFinishedCards,
     List<int>? newMainRevealVersions,
@@ -934,6 +949,8 @@ class GameController
     value = (
       drawingUnopenedCards: newDrawingUnopenedCards ?? value.drawingUnopenedCards,
       drawingOpenedCards: newDrawingOpenedCards ?? value.drawingOpenedCards,
+      drawingRevealVersion: newDrawingRevealVersion ?? value.drawingRevealVersion,
+      drawingRevealCardKey: newDrawingRevealCardKey == noDrawingRevealCardKey ? value.drawingRevealCardKey : newDrawingRevealCardKey as String?,
       mainCards: newMainCards ?? value.mainCards,
       finishedCards: newFinishedCards ?? value.finishedCards,
       mainRevealVersions: newMainRevealVersions ?? value.mainRevealVersions,

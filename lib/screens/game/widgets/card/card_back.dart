@@ -20,9 +20,15 @@ class CardBack extends StatelessWidget {
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(borderRadius),
       border: Border.all(
-        color: Colors.white,
         width: borderWidth,
       ),
+      boxShadow: const [
+        BoxShadow(
+          color: Colors.black26,
+          blurRadius: 6,
+          offset: Offset(0, 2),
+        ),
+      ],
     ),
     child: ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),

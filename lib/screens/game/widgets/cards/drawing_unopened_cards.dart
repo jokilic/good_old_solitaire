@@ -76,7 +76,7 @@ class _PressableUnopenedCardState extends State<PressableUnopenedCard> {
       width: widget.cardWidth,
       child: AnimatedContainer(
         duration: SolitaireDurations.animationLong,
-        curve: Curves.easeOut,
+        curve: Curves.easeIn,
         transform: Matrix4.translationValues(0, isPressed && widget.hasCards ? -4 : 0, 0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadius),
