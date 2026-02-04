@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../constants/enums.dart';
 import '../../models/drag_payload.dart';
 import '../../models/selected_card.dart';
 import '../../models/solitaire_card.dart';
+import '../../services/game_sound_service.dart';
+import '../../util/dependencies.dart';
 import '../../util/main_stack_layout.dart';
 import '../../util/nullable_objects.dart';
 
@@ -25,19 +29,22 @@ class GameController
   /// CONSTRUCTOR
   ///
 
-  GameController()
-    : super(
-        (
-          drawingUnopenedCards: [],
-          drawingOpenedCards: [],
-          mainCards: List.generate(7, (_) => []),
-          finishedCards: List.generate(4, (_) => []),
-          mainRevealVersions: List.filled(7, 0),
-          mainRevealCardKeys: List.filled(7, null),
-          selectedCard: null,
-          draggingPayload: null,
-        ),
-      );
+  final GameSoundService sound;
+
+  GameController({
+    required this.sound,
+  }) : super(
+         (
+           drawingUnopenedCards: [],
+           drawingOpenedCards: [],
+           mainCards: List.generate(7, (_) => []),
+           finishedCards: List.generate(4, (_) => []),
+           mainRevealVersions: List.filled(7, 0),
+           mainRevealCardKeys: List.filled(7, null),
+           selectedCard: null,
+           draggingPayload: null,
+         ),
+       );
 
   ///
   /// VARIABLES
@@ -129,11 +136,16 @@ class GameController
     /// Work on copies to keep notifier updates atomic
     final drawingUnopened = List<SolitaireCard>.from(value.drawingUnopenedCards);
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
+    var didDrawCard = false;
+    var didExhaustDrawPile = false;
+    var didResetDrawPile = false;
 
     /// Move one card from drawing unopened to drawing opened
     if (drawingUnopened.isNotEmpty) {
       final card = drawingUnopened.removeLast()..faceUp = true;
       drawingOpened.add(card);
+      didDrawCard = true;
+      didExhaustDrawPile = drawingUnopened.isEmpty;
     }
     /// Recycle drawing opened back to drawing unopened, flipping face-down
     else if (drawingOpened.isNotEmpty) {
@@ -141,6 +153,7 @@ class GameController
         final card = drawingOpened.removeLast()..faceUp = false;
         drawingUnopened.add(card);
       }
+      didResetDrawPile = true;
     }
 
     /// Commit the new game state in one notifier update
@@ -149,6 +162,18 @@ class GameController
       newDrawingOpenedCards: drawingOpened,
       newSelectedCard: null,
     );
+
+    if (didDrawCard) {
+      unawaited(sound.playCardDraw());
+    }
+
+    if (didExhaustDrawPile) {
+      unawaited(sound.playDrawPileExhausted());
+    }
+
+    if (didResetDrawPile) {
+      unawaited(sound.playDrawPileReset());
+    }
   }
 
   /// Toggles selection of the top unopened section card
@@ -247,6 +272,8 @@ class GameController
         value.mainCards,
       ),
     );
+
+    unawaited(sound.playCardFlip());
   }
 
   /// Attempts to move the selected card to the given finished cards pile
@@ -317,6 +344,8 @@ class GameController
       newMainRevealCardKeys: mainRevealCardKeys,
       newSelectedCard: null,
     );
+
+    unawaited(sound.playCardPlace());
   }
 
   /// Attempts to move the selected card to main cards column
@@ -392,6 +421,8 @@ class GameController
       newMainRevealCardKeys: mainRevealCardKeys,
       newSelectedCard: null,
     );
+
+    unawaited(sound.playCardPlace());
   }
 
   /// Validates whether a drag payload can drop on a finished pile
@@ -490,6 +521,8 @@ class GameController
       newMainRevealCardKeys: mainRevealCardKeys,
       newSelectedCard: null,
     );
+
+    unawaited(sound.playCardPlace());
   }
 
   /// Executes a drag-drop move to main cards column (after validation)
@@ -535,6 +568,8 @@ class GameController
       newMainRevealCardKeys: mainRevealCardKeys,
       newSelectedCard: null,
     );
+
+    unawaited(sound.playCardPlace());
   }
 
   /// Resolves the actual card represented by the selection
@@ -632,6 +667,7 @@ class GameController
           pile.last.faceUp = true;
           mainRevealVersions[pileIndex] += 1;
           mainRevealCardKeys[pileIndex] = pile.last.revealKey;
+          unawaited(sound.playCardFlip());
         }
 
         mainCards[pileIndex] = pile;
@@ -750,6 +786,7 @@ class GameController
           pile.last.faceUp = true;
           mainRevealVersions[pileIndex] += 1;
           mainRevealCardKeys[pileIndex] = pile.last.revealKey;
+          unawaited(sound.playCardFlip());
         }
 
         mainCards[pileIndex] = pile;

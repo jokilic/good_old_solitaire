@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'screens/game/game_screen.dart';
+import 'util/dependencies.dart';
 
-void main() {
+Future<void> main() async {
+  await initializeServices();
   runApp(MainApp());
 }
 

@@ -18,3 +18,12 @@ enum PileType {
   /// Finished cards section
   finishedCards,
 }
+
+enum GameSound {
+  cardLift,
+  cardPlace,
+  cardFlip,
+  cardDraw,
+  drawPileExhausted,
+  drawPileReset,
+}

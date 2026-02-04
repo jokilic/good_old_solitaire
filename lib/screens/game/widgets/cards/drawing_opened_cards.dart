@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:watch_it/watch_it.dart';
 
 import '../../../../constants/enums.dart';
 import '../../../../models/drag_payload.dart';
 import '../../../../models/solitaire_card.dart';
+import '../../../../services/game_sound_service.dart';
 import '../../../../util/dependencies.dart';
 import '../../game_controller.dart';
 import '../animated_return_draggable.dart';
@@ -138,6 +141,10 @@ class _DraggableOpenedCardState extends State<DraggableOpenedCard> {
   void setPressed(bool value) {
     if (isPressed == value) {
       return;
+    }
+
+    if (value) {
+      unawaited(getIt.get<GameSoundService>().playCardLift());
     }
 
     setState(() {

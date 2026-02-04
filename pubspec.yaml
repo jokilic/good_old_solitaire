@@ -28,6 +28,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  audioplayers: 6.5.1
   flutter_animate: 4.5.2
   get_it: 9.2.0
   hive_ce: 2.19.1
