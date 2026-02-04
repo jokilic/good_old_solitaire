@@ -23,18 +23,18 @@ class DrawingCardsRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
+            child: DrawingUnopenedCards(
+              cardHeight: cardHeight,
+              cardWidth: cardWidth,
+            ),
+          ),
+          const SizedBox(width: padding),
+          Expanded(
             child: DrawingOpenedCards(
               cardHeight: cardHeight,
               cardWidth: cardWidth,
               pileKey: drawingOpenedKey,
               hideTopCard: hideOpenedTopCard,
-            ),
-          ),
-          const SizedBox(width: padding),
-          Expanded(
-            child: DrawingUnopenedCards(
-              cardHeight: cardHeight,
-              cardWidth: cardWidth,
             ),
           ),
         ],

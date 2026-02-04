@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -22,6 +24,8 @@ class CardFront extends StatelessWidget {
     final label = card.cardLabel;
     final icon = card.suitIcon;
 
+    final isWideUi = MediaQuery.sizeOf(context).width > compactLayoutMaxWidth;
+
     return Container(
       height: height,
       width: width,
@@ -39,38 +43,123 @@ class CardFront extends StatelessWidget {
           ),
         ],
       ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: 2,
-            left: 4,
-            child: CardLabel(
+      child: isWideUi
+          ? WideCardFace(
               label: label,
               color: color,
+              icon: icon,
+              width: width,
+            )
+          : Stack(
+              children: [
+                Positioned(
+                  top: 2,
+                  left: 4,
+                  child: CardLabel(
+                    label: label,
+                    color: color,
+                  ),
+                ),
+                Positioned(
+                  top: 6,
+                  right: 4,
+                  child: ClipRect(
+                    child: PhosphorIcon(
+                      icon,
+                      color: color,
+                      size: 16,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: -8,
+                  left: 0,
+                  right: -24,
+                  child: ClipRect(
+                    child: PhosphorIcon(
+                      icon,
+                      color: color,
+                      size: 56,
+                    ),
+                  ),
+                ),
+              ],
             ),
+    );
+  }
+}
+
+class WideCardFace extends StatelessWidget {
+  final String label;
+  final Color color;
+  final IconData icon;
+  final double width;
+
+  const WideCardFace({
+    required this.label,
+    required this.color,
+    required this.icon,
+    required this.width,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final smallIconSize = width * 0.2;
+    final centerIconSize = width * 0.5;
+
+    final labelStyle = TextStyle(
+      color: color,
+      fontSize: width * 0.25,
+      fontWeight: FontWeight.w700,
+      height: 1,
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 6,
+        vertical: 4,
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                label,
+                style: labelStyle,
+              ),
+              PhosphorIcon(
+                icon,
+                color: color,
+                size: smallIconSize,
+              ),
+            ],
           ),
-          Positioned(
-            top: 6,
-            right: 4,
-            child: ClipRect(
+          Expanded(
+            child: Center(
               child: PhosphorIcon(
                 icon,
                 color: color,
-                size: 16,
+                size: centerIconSize,
               ),
             ),
           ),
-          Positioned(
-            bottom: -8,
-            left: 0,
-            right: -24,
-            child: ClipRect(
-              child: PhosphorIcon(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              PhosphorIcon(
                 icon,
                 color: color,
-                size: 56,
+                size: smallIconSize,
               ),
-            ),
+              Transform.rotate(
+                angle: math.pi,
+                child: Text(
+                  label,
+                  style: labelStyle,
+                ),
+              ),
+            ],
           ),
         ],
       ),
