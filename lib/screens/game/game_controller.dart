@@ -136,7 +136,6 @@ class GameController
     final drawingUnopened = List<SolitaireCard>.from(value.drawingUnopenedCards);
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
     var didDrawCard = false;
-    var didExhaustDrawPile = false;
     var didResetDrawPile = false;
 
     /// Move one card from drawing unopened to drawing opened
@@ -144,7 +143,6 @@ class GameController
       final card = drawingUnopened.removeLast()..faceUp = true;
       drawingOpened.add(card);
       didDrawCard = true;
-      didExhaustDrawPile = drawingUnopened.isEmpty;
     }
     /// Recycle drawing opened back to drawing unopened, flipping face-down
     else if (drawingOpened.isNotEmpty) {
@@ -164,10 +162,6 @@ class GameController
 
     if (didDrawCard) {
       unawaited(sound.playCardDraw());
-    }
-
-    if (didExhaustDrawPile) {
-      unawaited(sound.playDrawPileExhausted());
     }
 
     if (didResetDrawPile) {

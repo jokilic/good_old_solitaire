@@ -25,14 +25,9 @@ class SoundService {
     assetPath: 'sounds/card_draw.ogg',
   );
 
-  Future<void> playDrawPileExhausted() => play(
-    sound: GameSound.drawPileExhausted,
-    assetPath: 'sounds/draw_pile_exhausted.ogg',
-  );
-
   Future<void> playDrawPileReset() => play(
     sound: GameSound.drawPileReset,
-    assetPath: 'sounds/draw_pile_reset.ogg',
+    assetPath: 'sounds/card_draw_pile_reset.ogg',
   );
 
   Future<void> play({
