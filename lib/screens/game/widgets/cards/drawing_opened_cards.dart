@@ -111,7 +111,7 @@ class DrawingOpenedCards extends WatchingWidget {
   }
 }
 
-class DraggableOpenedCard extends StatelessWidget {
+class DraggableOpenedCard extends StatefulWidget {
   final SolitaireCard topCard;
   final SolitaireCard? cardUnderTop;
   final DragPayload dragPayload;
@@ -129,29 +129,56 @@ class DraggableOpenedCard extends StatelessWidget {
   });
 
   @override
+  State<DraggableOpenedCard> createState() => _DraggableOpenedCardState();
+}
+
+class _DraggableOpenedCardState extends State<DraggableOpenedCard> {
+  bool isPressed = false;
+
+  void setPressed(bool value) {
+    if (isPressed == value) {
+      return;
+    }
+
+    setState(() {
+      isPressed = value;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) => AnimatedReturnDraggable<DragPayload>(
-    data: dragPayload,
+    data: widget.dragPayload,
     feedback: DragFeedback(
-      card: topCard,
-      height: cardHeight,
-      width: cardWidth,
+      card: widget.topCard,
+      height: widget.cardHeight,
+      width: widget.cardWidth,
     ),
-    childWhenDragging: cardUnderTop != null
+    onDragStarted: () => setPressed(true),
+    onDragEnd: (_) => setPressed(false),
+    onDragCompleted: () => setPressed(false),
+    onReturnAnimationCompleted: () => setPressed(false),
+    childWhenDragging: widget.cardUnderTop != null
         ? CardWidget(
-            card: cardUnderTop!,
-            width: cardWidth,
-            height: cardHeight,
+            card: widget.cardUnderTop!,
+            width: widget.cardWidth,
+            height: widget.cardHeight,
             isSelected: false,
           )
         : CardEmpty(
-            height: cardHeight,
-            width: cardWidth,
+            height: widget.cardHeight,
+            width: widget.cardWidth,
           ),
-    child: CardWidget(
-      card: topCard,
-      width: cardWidth,
-      height: cardHeight,
-      isSelected: isSelected,
+    child: Listener(
+      onPointerDown: (_) => setPressed(true),
+      onPointerUp: (_) => setPressed(false),
+      onPointerCancel: (_) => setPressed(false),
+      child: CardWidget(
+        card: widget.topCard,
+        width: widget.cardWidth,
+        height: widget.cardHeight,
+        isSelected: widget.isSelected,
+        isLifted: isPressed,
+      ),
     ),
   );
 }

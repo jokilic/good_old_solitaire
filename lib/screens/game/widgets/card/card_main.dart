@@ -9,7 +9,7 @@ import '../animated_return_draggable.dart';
 import '../stack_drag_feedback.dart';
 import 'card_widget.dart';
 
-class CardMain extends StatelessWidget {
+class CardMain extends StatefulWidget {
   final SolitaireCard card;
   final int column;
   final int cardIndex;
@@ -31,49 +31,80 @@ class CardMain extends StatelessWidget {
   });
 
   @override
+  State<CardMain> createState() => _CardMainState();
+}
+
+class _CardMainState extends State<CardMain> {
+  bool isPressed = false;
+
+  void setPressed(bool value) {
+    if (isPressed == value) {
+      return;
+    }
+
+    setState(() {
+      isPressed = value;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final controller = getIt.get<GameController>();
 
     final body = CardWidget(
-      card: card,
-      height: height,
-      width: width,
-      isSelected: isSelected,
+      card: widget.card,
+      height: widget.height,
+      width: widget.width,
+      isSelected: widget.isSelected,
+      isLifted: isPressed,
     );
 
-    final tappableBody = onTap == null
+    final tappableBody = widget.onTap == null
         ? body
         : GestureDetector(
             behavior: HitTestBehavior.opaque,
-            onTap: onTap,
+            onTapDown: (_) => setPressed(true),
+            onTapUp: (_) => setPressed(false),
+            onTapCancel: () => setPressed(false),
+            onTap: widget.onTap,
             child: body,
           );
 
-    if (!card.faceUp) {
+    if (!widget.card.faceUp) {
       return tappableBody;
     }
 
     final payload = DragPayload(
       source: PileType.mainCards,
-      pileIndex: column,
-      cardIndex: cardIndex,
+      pileIndex: widget.column,
+      cardIndex: widget.cardIndex,
     );
 
     return AnimatedReturnDraggable<DragPayload>(
       data: payload,
       feedback: StackDragFeedback(
-        cards: stack,
-        height: height,
-        width: width,
+        cards: widget.stack,
+        height: widget.height,
+        width: widget.width,
       ),
-      onDragStarted: () => controller.setDraggingPayload(payload),
+      onDragStarted: () {
+        setPressed(true);
+        controller.setDraggingPayload(payload);
+      },
       onDragEnd: (details) {
+        setPressed(false);
         if (details.wasAccepted) {
           controller.setDraggingPayload(null);
         }
       },
-      onDragCompleted: () => controller.setDraggingPayload(null),
-      onReturnAnimationCompleted: () => controller.setDraggingPayload(null),
+      onDragCompleted: () {
+        setPressed(false);
+        controller.setDraggingPayload(null);
+      },
+      onReturnAnimationCompleted: () {
+        setPressed(false);
+        controller.setDraggingPayload(null);
+      },
       childWhenDragging: tappableBody,
       child: tappableBody,
     );

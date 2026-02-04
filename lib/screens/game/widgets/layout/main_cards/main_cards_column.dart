@@ -61,21 +61,39 @@ class MainCardsColumn extends WatchingWidget {
         return;
       }
 
-      if (state.selectedCard != null && !(state.selectedCard!.source == PileType.mainCards && state.selectedCard!.pileIndex == column)) {
-        if (onTapMoveSelected != null) {
-          await onTapMoveSelected!(column);
-        } else {
-          controller.tryMoveSelectedToMain(column);
+      final latestState = controller.value;
+      final selectedCard = latestState.selectedCard;
+      final columnCards = latestState.mainCards[column];
+      final isSameColumnSelected =
+          selectedCard?.source == PileType.mainCards &&
+          selectedCard?.pileIndex == column;
+
+      if (selectedCard != null && !isSameColumnSelected) {
+        final selectedStack = controller.selectedStackFrom(
+          selectedCard,
+          drawingOpenedCards: latestState.drawingOpenedCards,
+          mainCards: latestState.mainCards,
+        );
+        final canMoveSelected =
+            selectedStack.isNotEmpty &&
+            controller.canMoveToMain(selectedStack.first, columnCards);
+
+        if (canMoveSelected) {
+          if (onTapMoveSelected != null) {
+            await onTapMoveSelected!(column);
+          } else {
+            controller.tryMoveSelectedToMain(column);
+          }
+          return;
         }
-        return;
       }
 
-      if (mainCards.isEmpty) {
+      if (columnCards.isEmpty) {
         controller.tryMoveSelectedToMain(column);
         return;
       }
 
-      final top = mainCards.last;
+      final top = columnCards.last;
       if (!top.faceUp) {
         controller.flipMainCardsTop(column);
         return;

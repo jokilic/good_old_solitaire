@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../constants/constants.dart';
 import '../../../models/solitaire_card.dart';
 import '../../../util/main_stack_layout.dart';
 import 'card/card_widget.dart';
@@ -22,10 +21,12 @@ class StackDragFeedback extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final stackHeight = height + mainStackTotalOffset(
-      cards,
-      cardWidth: width,
-    );
+    final stackHeight =
+        height +
+        mainStackTotalOffset(
+          cards,
+          cardWidth: width,
+        );
 
     return Material(
       color: Colors.transparent,
@@ -41,28 +42,12 @@ class StackDragFeedback extends StatelessWidget {
                   i,
                   cardWidth: width,
                 ),
-                child: Stack(
-                  children: [
-                    CardWidget(
-                      card: cards[i],
-                      height: height,
-                      width: width,
-                      isSelected: false,
-                    ),
-                    Positioned.fill(
-                      child: IgnorePointer(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(borderRadius),
-                            border: Border.all(
-                              color: Colors.amber,
-                              width: borderWidth,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                child: CardWidget(
+                  card: cards[i],
+                  height: height,
+                  width: width,
+                  isSelected: true,
+                  isLifted: true,
                 ),
               ),
           ],

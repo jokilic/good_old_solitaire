@@ -814,8 +814,11 @@ class GameController
       return;
     }
 
+    final shouldClearSelection = payload != null && value.selectedCard != null;
+
     updateState(
       newDraggingPayload: payload,
+      newSelectedCard: shouldClearSelection ? null : noSelectedCard,
     );
   }
 
@@ -868,14 +871,16 @@ class GameController
     }
 
     final cards = value.mainCards[column];
-    final topLeft = base.topLeft + Offset(
-      0,
-      mainStackTopOffset(
-        cards,
-        cardIndex,
-        cardWidth: base.width,
-      ),
-    );
+    final topLeft =
+        base.topLeft +
+        Offset(
+          0,
+          mainStackTopOffset(
+            cards,
+            cardIndex,
+            cardWidth: base.width,
+          ),
+        );
 
     return Rect.fromLTWH(
       topLeft.dx,
