@@ -107,10 +107,6 @@ class _DraggableFinishedCardState extends State<DraggableFinishedCard> {
       return;
     }
 
-    if (value) {
-      unawaited(getIt.get<SoundService>().playCardLift());
-    }
-
     setState(() {
       isPressed = value;
     });
@@ -127,7 +123,10 @@ class _DraggableFinishedCardState extends State<DraggableFinishedCard> {
       height: widget.cardHeight,
       width: widget.cardWidth,
     ),
-    onDragStarted: () => setPressed(true),
+    onDragStarted: () {
+      setPressed(true);
+      unawaited(getIt.get<SoundService>().playCardLift());
+    },
     onDragEnd: (_) => setPressed(false),
     onDragCompleted: () => setPressed(false),
     onReturnAnimationCompleted: () {

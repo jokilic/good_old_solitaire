@@ -143,10 +143,6 @@ class _DraggableOpenedCardState extends State<DraggableOpenedCard> {
       return;
     }
 
-    if (value) {
-      unawaited(getIt.get<SoundService>().playCardLift());
-    }
-
     setState(() {
       isPressed = value;
     });
@@ -160,7 +156,10 @@ class _DraggableOpenedCardState extends State<DraggableOpenedCard> {
       height: widget.cardHeight,
       width: widget.cardWidth,
     ),
-    onDragStarted: () => setPressed(true),
+    onDragStarted: () {
+      setPressed(true);
+      unawaited(getIt.get<SoundService>().playCardLift());
+    },
     onDragEnd: (_) => setPressed(false),
     onDragCompleted: () => setPressed(false),
     onReturnAnimationCompleted: () {

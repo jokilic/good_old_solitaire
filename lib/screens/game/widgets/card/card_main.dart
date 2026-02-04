@@ -45,10 +45,6 @@ class _CardMainState extends State<CardMain> {
       return;
     }
 
-    if (value) {
-      unawaited(getIt.get<SoundService>().playCardLift());
-    }
-
     setState(() {
       isPressed = value;
     });
@@ -96,6 +92,7 @@ class _CardMainState extends State<CardMain> {
       ),
       onDragStarted: () {
         setPressed(true);
+        unawaited(getIt.get<SoundService>().playCardLift());
         controller.setDraggingPayload(payload);
       },
       onDragEnd: (details) {
