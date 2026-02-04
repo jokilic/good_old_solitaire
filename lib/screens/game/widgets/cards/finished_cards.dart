@@ -6,7 +6,7 @@ import 'package:watch_it/watch_it.dart';
 import '../../../../constants/enums.dart';
 import '../../../../models/drag_payload.dart';
 import '../../../../models/solitaire_card.dart';
-import '../../../../services/game_sound_service.dart';
+import '../../../../services/sound_service.dart';
 import '../../../../util/dependencies.dart';
 import '../../game_controller.dart';
 import '../animated_return_draggable.dart';
@@ -108,7 +108,7 @@ class _DraggableFinishedCardState extends State<DraggableFinishedCard> {
     }
 
     if (value) {
-      unawaited(getIt.get<GameSoundService>().playCardLift());
+      unawaited(getIt.get<SoundService>().playCardLift());
     }
 
     setState(() {
@@ -130,7 +130,10 @@ class _DraggableFinishedCardState extends State<DraggableFinishedCard> {
     onDragStarted: () => setPressed(true),
     onDragEnd: (_) => setPressed(false),
     onDragCompleted: () => setPressed(false),
-    onReturnAnimationCompleted: () => setPressed(false),
+    onReturnAnimationCompleted: () {
+      setPressed(false);
+      unawaited(getIt.get<SoundService>().playCardPlace());
+    },
     childWhenDragging: widget.cardUnderTop != null
         ? CardWidget(
             card: widget.cardUnderTop!,

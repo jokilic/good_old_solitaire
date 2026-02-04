@@ -1,6 +1,6 @@
 import 'package:get_it/get_it.dart';
 
-import '../services/game_sound_service.dart';
+import '../services/sound_service.dart';
 
 final getIt = GetIt.instance;
 final getItBackground = GetIt.asNewInstance();
@@ -38,9 +38,9 @@ void unRegisterIfNotDisposed<T extends Object>({
 }
 
 Future<void> initializeServices() async {
-  if (!getIt.isRegistered<GameSoundService>()) {
+  if (!getIt.isRegistered<SoundService>()) {
     getIt.registerSingletonAsync(
-      () async => GameSoundService(),
+      () async => SoundService(),
     );
   }
 

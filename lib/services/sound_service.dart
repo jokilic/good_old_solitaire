@@ -2,37 +2,37 @@ import 'package:audioplayers/audioplayers.dart';
 
 import '../constants/enums.dart';
 
-class GameSoundService {
+class SoundService {
   final Map<GameSound, Future<AudioPlayer>> players = {};
 
   Future<void> playCardLift() => play(
     sound: GameSound.cardLift,
-    assetPath: 'sounds/card_lift.mp3',
+    assetPath: 'sounds/card_lift.ogg',
   );
 
   Future<void> playCardPlace() => play(
     sound: GameSound.cardPlace,
-    assetPath: 'sounds/card_place.mp3',
+    assetPath: 'sounds/card_place.ogg',
   );
 
   Future<void> playCardFlip() => play(
     sound: GameSound.cardFlip,
-    assetPath: 'sounds/card_flip.mp3',
+    assetPath: 'sounds/card_flip.ogg',
   );
 
   Future<void> playCardDraw() => play(
     sound: GameSound.cardDraw,
-    assetPath: 'sounds/card_draw.mp3',
+    assetPath: 'sounds/card_draw.ogg',
   );
 
   Future<void> playDrawPileExhausted() => play(
     sound: GameSound.drawPileExhausted,
-    assetPath: 'sounds/draw_pile_exhausted.mp3',
+    assetPath: 'sounds/draw_pile_exhausted.ogg',
   );
 
   Future<void> playDrawPileReset() => play(
     sound: GameSound.drawPileReset,
-    assetPath: 'sounds/draw_pile_reset.mp3',
+    assetPath: 'sounds/draw_pile_reset.ogg',
   );
 
   Future<void> play({

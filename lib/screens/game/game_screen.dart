@@ -5,7 +5,7 @@ import '../../constants/durations.dart';
 import '../../constants/enums.dart';
 import '../../models/selected_card.dart';
 import '../../models/solitaire_card.dart';
-import '../../util/card_size.dart';
+import '../../services/sound_service.dart';
 import '../../util/dependencies.dart';
 import '../../util/main_stack_layout.dart';
 import 'game_controller.dart';
@@ -40,7 +40,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     super.initState();
 
     registerIfNotInitialized<GameController>(
-      GameController.new,
+      () => GameController(
+        sound: getIt.get<SoundService>(),
+      ),
       afterRegister: (controller) => controller.init(),
     );
   }
@@ -87,14 +89,17 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           );
         },
         child: IgnorePointer(
-          child: SizedBox(
-            width: cardWidth,
-            height: cardHeight,
-            child: CardWidget(
-              card: card,
-              height: cardHeight,
+          child: Material(
+            type: MaterialType.transparency,
+            child: SizedBox(
               width: cardWidth,
-              isSelected: false,
+              height: cardHeight,
+              child: CardWidget(
+                card: card,
+                height: cardHeight,
+                width: cardWidth,
+                isSelected: false,
+              ),
             ),
           ),
         ),
@@ -159,26 +164,29 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           );
         },
         child: IgnorePointer(
-          child: SizedBox(
-            width: cardWidth,
-            height: cardHeight + mainStackTotalOffset(cards, cardWidth: cardWidth),
-            child: Stack(
-              children: [
-                for (var i = 0; i < cards.length; i += 1)
-                  Positioned(
-                    top: mainStackTopOffset(
-                      cards,
-                      i,
-                      cardWidth: cardWidth,
+          child: Material(
+            type: MaterialType.transparency,
+            child: SizedBox(
+              width: cardWidth,
+              height: cardHeight + mainStackTotalOffset(cards, cardWidth: cardWidth),
+              child: Stack(
+                children: [
+                  for (var i = 0; i < cards.length; i += 1)
+                    Positioned(
+                      top: mainStackTopOffset(
+                        cards,
+                        i,
+                        cardWidth: cardWidth,
+                      ),
+                      child: CardWidget(
+                        card: cards[i],
+                        height: cardHeight,
+                        width: cardWidth,
+                        isSelected: false,
+                      ),
                     ),
-                    child: CardWidget(
-                      card: cards[i],
-                      height: cardHeight,
-                      width: cardWidth,
-                      isSelected: false,
-                    ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -257,8 +265,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
       if (sourceRect != null) {
         cardWidth = sourceRect.width;
-        final computedHeight = sourceRect.height - (maxMainStackCards - 1) * mainStackOffsetFromCardWidth(sourceRect.width);
-        cardHeight = computedHeight > 0 ? computedHeight : sourceRect.width * cardAspectRatio;
+        cardHeight = sourceRect.width * cardAspectRatio;
       }
     } else {
       return;
@@ -362,10 +369,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
       if (sourceRect != null) {
         cardWidth = sourceRect.width;
-
-        final computedHeight = sourceRect.height - (maxMainStackCards - 1) * mainStackOffsetFromCardWidth(sourceRect.width);
-
-        cardHeight = computedHeight > 0 ? computedHeight : sourceRect.width * cardAspectRatio;
+        cardHeight = sourceRect.width * cardAspectRatio;
       }
     } else {
       return;

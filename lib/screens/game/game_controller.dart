@@ -6,8 +6,7 @@ import '../../constants/enums.dart';
 import '../../models/drag_payload.dart';
 import '../../models/selected_card.dart';
 import '../../models/solitaire_card.dart';
-import '../../services/game_sound_service.dart';
-import '../../util/dependencies.dart';
+import '../../services/sound_service.dart';
 import '../../util/main_stack_layout.dart';
 import '../../util/nullable_objects.dart';
 
@@ -29,7 +28,7 @@ class GameController
   /// CONSTRUCTOR
   ///
 
-  final GameSoundService sound;
+  final SoundService sound;
 
   GameController({
     required this.sound,

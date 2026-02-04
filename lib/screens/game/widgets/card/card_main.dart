@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import '../../../../constants/enums.dart';
 import '../../../../models/drag_payload.dart';
 import '../../../../models/solitaire_card.dart';
-import '../../../../services/game_sound_service.dart';
+import '../../../../services/sound_service.dart';
 import '../../../../util/dependencies.dart';
 import '../../game_controller.dart';
 import '../animated_return_draggable.dart';
@@ -46,7 +46,7 @@ class _CardMainState extends State<CardMain> {
     }
 
     if (value) {
-      unawaited(getIt.get<GameSoundService>().playCardLift());
+      unawaited(getIt.get<SoundService>().playCardLift());
     }
 
     setState(() {
@@ -111,6 +111,7 @@ class _CardMainState extends State<CardMain> {
       onReturnAnimationCompleted: () {
         setPressed(false);
         controller.setDraggingPayload(null);
+        unawaited(getIt.get<SoundService>().playCardPlace());
       },
       childWhenDragging: tappableBody,
       child: tappableBody,

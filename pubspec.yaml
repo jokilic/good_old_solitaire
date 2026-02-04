@@ -50,6 +50,7 @@ flutter:
 
   assets:
     - assets/
+    - assets/sounds/
 
 # Run code generation - `flutter pub run build_runner build -d`
 
