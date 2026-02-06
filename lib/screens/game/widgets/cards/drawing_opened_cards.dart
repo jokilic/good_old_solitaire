@@ -151,7 +151,7 @@ class DrawingOpenedCards extends WatchingWidget {
           isSelected: isSelected,
           shouldAnimateReveal: shouldAnimateReveal,
           revealVersion: revealVersion,
-          revealShiftX: cardWidth + padding,
+          revealShiftX: cardWidth + SolitaireConstants.padding,
         ),
       ),
     );

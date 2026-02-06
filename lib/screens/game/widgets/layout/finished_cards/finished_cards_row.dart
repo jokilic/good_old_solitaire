@@ -23,9 +23,9 @@ class FinishedCardsRow extends WatchingWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final slotWidth = (constraints.maxWidth - padding * (finishedCards.length - 1)) / finishedCards.length;
+        final slotWidth = (constraints.maxWidth - SolitaireConstants.padding * (finishedCards.length - 1)) / finishedCards.length;
         final cardWidth = slotWidth > 0 ? slotWidth : 0.0;
-        final cardHeight = cardWidth * cardAspectRatio;
+        final cardHeight = cardWidth * SolitaireConstants.cardAspectRatio;
 
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,7 +33,7 @@ class FinishedCardsRow extends WatchingWidget {
             finishedCards.length,
             (index) => Padding(
               padding: EdgeInsets.only(
-                right: index == finishedCards.length - 1 ? 0 : padding,
+                right: index == finishedCards.length - 1 ? 0 : SolitaireConstants.padding,
               ),
               child: SizedBox(
                 width: cardWidth,

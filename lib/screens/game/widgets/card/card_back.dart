@@ -18,9 +18,9 @@ class CardBack extends StatelessWidget {
     width: width,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(borderRadius),
+      borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
       border: Border.all(
-        width: borderWidth,
+        width: SolitaireConstants.borderWidth,
       ),
       boxShadow: const [
         BoxShadow(
@@ -31,7 +31,7 @@ class CardBack extends StatelessWidget {
       ],
     ),
     child: ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
+      borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
       child: Image.asset(
         SolitaireImages.cardBack,
         height: height,

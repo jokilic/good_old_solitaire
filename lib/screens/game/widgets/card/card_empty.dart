@@ -19,10 +19,10 @@ class CardEmpty extends StatelessWidget {
     width: width,
     alignment: Alignment.center,
     decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(borderRadius),
+      borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
       border: Border.all(
         color: Colors.white30,
-        width: borderWidth,
+        width: SolitaireConstants.borderWidth,
       ),
       color: Colors.white10,
     ),

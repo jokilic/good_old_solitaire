@@ -30,11 +30,11 @@ class MainCardsRow extends WatchingWidget {
         mainCards.length,
         (index) => Expanded(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: padding / 2),
+            padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final cardWidth = constraints.maxWidth;
-                final cardHeight = cardWidth * cardAspectRatio;
+                final cardHeight = cardWidth * SolitaireConstants.cardAspectRatio;
 
                 return MainCardsColumn(
                   column: index,

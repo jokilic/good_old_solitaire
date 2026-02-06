@@ -79,7 +79,7 @@ class _PressableUnopenedCardState extends State<PressableUnopenedCard> {
         curve: Curves.easeIn,
         transform: Matrix4.translationValues(0, isPressed && widget.hasCards ? -4 : 0, 0),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(borderRadius),
+          borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
           boxShadow: isPressed && widget.hasCards
               ? const [
                   BoxShadow(

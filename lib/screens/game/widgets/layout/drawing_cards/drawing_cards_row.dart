@@ -16,8 +16,8 @@ class DrawingCardsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
-      final cardWidth = (constraints.maxWidth - padding) / 2;
-      final cardHeight = cardWidth * cardAspectRatio;
+      final cardWidth = (constraints.maxWidth - SolitaireConstants.padding) / 2;
+      final cardHeight = cardWidth * SolitaireConstants.cardAspectRatio;
 
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,7 +28,7 @@ class DrawingCardsRow extends StatelessWidget {
               cardWidth: cardWidth,
             ),
           ),
-          const SizedBox(width: padding),
+          const SizedBox(width: SolitaireConstants.padding),
           Expanded(
             child: DrawingOpenedCards(
               cardHeight: cardHeight,

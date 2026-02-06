@@ -45,10 +45,10 @@ class CardWidget extends StatelessWidget {
                 child: IgnorePointer(
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(borderRadius),
+                      borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
                       border: Border.all(
                         color: Colors.amber,
-                        width: borderWidth,
+                        width: SolitaireConstants.borderWidth,
                       ),
                     ),
                   ),
@@ -62,7 +62,7 @@ class CardWidget extends StatelessWidget {
       curve: Curves.easeIn,
       transform: Matrix4.translationValues(0, shouldLift ? -4 : 0, 0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
         boxShadow: shouldLift
             ? const [
                 BoxShadow(

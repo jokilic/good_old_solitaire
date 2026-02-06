@@ -24,15 +24,15 @@ class CardFront extends StatelessWidget {
     final label = card.cardLabel;
     final icon = card.suitIcon;
 
-    final isWideUi = MediaQuery.sizeOf(context).width > compactLayoutMaxWidth;
+    final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
 
     return Container(
       height: height,
       width: width,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(borderRadius),
+        borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
         border: Border.all(
-          width: borderWidth,
+          width: SolitaireConstants.borderWidth,
         ),
         color: Colors.white,
         boxShadow: const [

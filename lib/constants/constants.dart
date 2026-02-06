@@ -1,10 +1,15 @@
-// TODO
-const compactLayoutMaxWidth = 560;
+class SolitaireConstants {
+  static const compactLayoutMaxWidth = 560;
 
-const cardAspectRatio = 1.65;
-const padding = 6.0;
-const borderRadius = 6.0;
-const borderWidth = 2.0;
-const mainStackOffsetFactor = 0.4;
-const mainStackFaceDownOffsetFactor = 0.2;
-const maxMainStackCards = 13;
+  static const cardAspectRatio = 1.65;
+
+  static const padding = 8.0;
+  static const borderRadius = 5.0;
+  static const borderWidth = 0.0;
+
+  // TODO: If portrait mode, use 0.45, if landscape mode, use 0.225
+  static const mainStackOffsetFactor = 0.3;
+  static const mainStackFaceDownOffsetFactor = 0.225;
+
+  static const maxMainStackCards = 13;
+}

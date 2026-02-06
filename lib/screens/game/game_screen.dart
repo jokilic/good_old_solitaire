@@ -265,7 +265,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
       if (sourceRect != null) {
         cardWidth = sourceRect.width;
-        cardHeight = sourceRect.width * cardAspectRatio;
+        cardHeight = sourceRect.width * SolitaireConstants.cardAspectRatio;
       }
     } else {
       return;
@@ -369,7 +369,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
       if (sourceRect != null) {
         cardWidth = sourceRect.width;
-        cardHeight = sourceRect.width * cardAspectRatio;
+        cardHeight = sourceRect.width * SolitaireConstants.cardAspectRatio;
       }
     } else {
       return;
@@ -429,13 +429,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.all(padding),
+            padding: const EdgeInsets.all(SolitaireConstants.padding),
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 800),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    final useWideLayout = constraints.maxWidth > compactLayoutMaxWidth;
+                    final useWideLayout = constraints.maxWidth > SolitaireConstants.compactLayoutMaxWidth;
 
                     final hiddenTopCardColumn = tapMoveSource?.source == PileType.mainCards ? tapMoveSource!.pileIndex : null;
                     final hideOpenedTopCard = tapMoveSource?.source == PileType.drawingOpenedCards;
@@ -445,7 +445,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     ) => LayoutBuilder(
                       builder: (context, slotConstraints) {
                         final cardWidth = slotConstraints.maxWidth;
-                        final cardHeight = cardWidth * cardAspectRatio;
+                        final cardHeight = cardWidth * SolitaireConstants.cardAspectRatio;
 
                         return childBuilder(
                           cardWidth,
@@ -461,14 +461,14 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                               children: [
                                 Builder(
                                   builder: (context) => Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: padding / 2),
+                                    padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
                                     child: LayoutBuilder(
                                       builder: (context, topConstraints) {
-                                        final slotWidth = (topConstraints.maxWidth - padding * 6) / 7;
+                                        final slotWidth = (topConstraints.maxWidth - SolitaireConstants.padding * 6) / 7;
                                         final clampedSlotWidth = slotWidth > 0 ? slotWidth : 0.0;
-                                        final drawingSectionWidth = clampedSlotWidth * 2 + padding;
+                                        final drawingSectionWidth = clampedSlotWidth * 2 + SolitaireConstants.padding;
                                         final emptySectionWidth = clampedSlotWidth;
-                                        final finishedSectionWidth = clampedSlotWidth * 4 + padding * 3;
+                                        final finishedSectionWidth = clampedSlotWidth * 4 + SolitaireConstants.padding * 3;
 
                                         return Row(
                                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,7 +480,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                                 hideOpenedTopCard: hideOpenedTopCard,
                                               ),
                                             ),
-                                            const SizedBox(width: padding),
+                                            const SizedBox(width: SolitaireConstants.padding),
                                             SizedBox(
                                               width: emptySectionWidth,
                                               child: buildCardSlot(
@@ -490,7 +490,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                                 ),
                                               ),
                                             ),
-                                            const SizedBox(width: padding),
+                                            const SizedBox(width: SolitaireConstants.padding),
                                             SizedBox(
                                               width: finishedSectionWidth,
                                               child: FinishedCardsRow(
@@ -505,7 +505,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: padding),
+                                const SizedBox(height: SolitaireConstants.padding),
                                 Expanded(
                                   child: MainCardsRow(
                                     columnKeys: controller.mainColumnKeys,
@@ -525,7 +525,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                       controller.finishedPileKeys.length,
                                       (index) => Expanded(
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: padding / 2),
+                                          padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
                                           child: buildCardSlot(
                                             (cardWidth, cardHeight) => FinishedCards(
                                               index: index,
@@ -541,7 +541,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                     ),
                                     Expanded(
                                       child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: padding / 2),
+                                        padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
                                         child: buildCardSlot(
                                           (cardWidth, cardHeight) => SizedBox(
                                             width: cardWidth,
@@ -552,7 +552,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                     ),
                                     Expanded(
                                       child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: padding / 2),
+                                        padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
                                         child: buildCardSlot(
                                           (cardWidth, cardHeight) => DrawingOpenedCards(
                                             cardHeight: cardHeight,
@@ -566,7 +566,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                     ),
                                     Expanded(
                                       child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: padding / 2),
+                                        padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
                                         child: buildCardSlot(
                                           (cardWidth, cardHeight) => DrawingUnopenedCards(
                                             cardHeight: cardHeight,
@@ -578,7 +578,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                   ],
                                 ),
 
-                                const SizedBox(height: padding),
+                                const SizedBox(height: SolitaireConstants.padding),
                                 Expanded(
                                   child: MainCardsRow(
                                     columnKeys: controller.mainColumnKeys,
