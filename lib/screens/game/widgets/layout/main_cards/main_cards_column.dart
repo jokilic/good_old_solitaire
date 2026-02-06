@@ -17,6 +17,7 @@ class MainCardsColumn extends WatchingWidget {
   final int column;
   final double cardHeight;
   final double cardWidth;
+  final bool isWideUi;
   final double stackHeightMultiplier;
   final GlobalKey columnKey;
   final bool hideTopCard;
@@ -27,6 +28,7 @@ class MainCardsColumn extends WatchingWidget {
     required this.column,
     required this.cardHeight,
     required this.cardWidth,
+    required this.isWideUi,
     required this.stackHeightMultiplier,
     required this.columnKey,
     required this.hideTopCard,
@@ -133,6 +135,7 @@ class MainCardsColumn extends WatchingWidget {
                     mainCards,
                     i,
                     cardWidth: cardWidth,
+                    isWideUi: isWideUi,
                   ),
                   child: Opacity(
                     opacity: () {
@@ -181,12 +184,20 @@ class MainCardsColumn extends WatchingWidget {
                         return child;
                       }
 
-                      final toRect = controller.mainCardRect(column, i);
+                      final toRect = controller.mainCardRect(
+                        column,
+                        i,
+                        isWideUi: isWideUi,
+                      );
                       final fromTopLeft =
                           state.dropSettleFromOffset! +
                           Offset(
                             0,
-                            dropSettleIndex * mainStackOffsetFromCardWidth(cardWidth),
+                            dropSettleIndex *
+                                mainStackOffsetFromCardWidth(
+                                  cardWidth,
+                                  isWideUi: isWideUi,
+                                ),
                           );
                       final dropDelta = toRect == null ? Offset.zero : fromTopLeft - toRect.topLeft;
                       final shouldUseDropSettle = toRect != null && dropDelta.distance > 0.5;

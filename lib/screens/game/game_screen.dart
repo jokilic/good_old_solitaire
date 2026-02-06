@@ -119,6 +119,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     required List<SolitaireCard> cards,
     required double cardHeight,
     required double cardWidth,
+    required bool isWideUi,
   }) async {
     if (cards.isEmpty) {
       return;
@@ -168,7 +169,13 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
             type: MaterialType.transparency,
             child: SizedBox(
               width: cardWidth,
-              height: cardHeight + mainStackTotalOffset(cards, cardWidth: cardWidth),
+              height:
+                  cardHeight +
+                  mainStackTotalOffset(
+                    cards,
+                    cardWidth: cardWidth,
+                    isWideUi: isWideUi,
+                  ),
               child: Stack(
                 children: [
                   for (var i = 0; i < cards.length; i += 1)
@@ -177,6 +184,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                         cards,
                         i,
                         cardWidth: cardWidth,
+                        isWideUi: isWideUi,
                       ),
                       child: CardWidget(
                         card: cards[i],
@@ -210,6 +218,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final controller = getIt.get<GameController>();
     final state = controller.value;
     final selected = state.selectedCard;
+    final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
 
     if (selected == null) {
       return;
@@ -257,6 +266,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       fromRect = controller.mainCardRect(
         selected.pileIndex,
         startIndex,
+        isWideUi: isWideUi,
       );
 
       final sourceRect = controller.rectFromKey(
@@ -274,6 +284,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final toRect = controller.mainCardRect(
       column,
       state.mainCards[column].length,
+      isWideUi: isWideUi,
     );
 
     if (fromRect == null || toRect == null || cardHeight == null || cardWidth == null) {
@@ -292,6 +303,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       cards: stack,
       cardHeight: cardHeight,
       cardWidth: cardWidth,
+      isWideUi: isWideUi,
     );
 
     if (!mounted) {
@@ -316,6 +328,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
     final controller = getIt.get<GameController>();
     final state = controller.value;
     final selected = state.selectedCard;
+    final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
 
     if (selected == null) {
       return;
@@ -361,6 +374,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       fromRect = controller.mainCardRect(
         selected.pileIndex,
         selected.cardIndex,
+        isWideUi: isWideUi,
       );
 
       final sourceRect = controller.rectFromKey(

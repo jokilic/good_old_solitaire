@@ -23,6 +23,7 @@ class MainCardsRow extends WatchingWidget {
   Widget build(BuildContext context) {
     final state = watchIt<GameController>().value;
     final mainCards = state.mainCards;
+    final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,9 +41,11 @@ class MainCardsRow extends WatchingWidget {
                   column: index,
                   cardHeight: cardHeight,
                   cardWidth: cardWidth,
+                  isWideUi: isWideUi,
                   stackHeightMultiplier: mainStackHeightMultiplier(
                     cardHeight: cardHeight,
                     cardWidth: cardWidth,
+                    isWideUi: isWideUi,
                   ),
                   columnKey: columnKeys[index],
                   hideTopCard: hiddenTopCardColumn == index,

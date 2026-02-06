@@ -938,7 +938,11 @@ class GameController
     return offset & box.size;
   }
 
-  Rect? mainCardRect(int column, int cardIndex) {
+  Rect? mainCardRect(
+    int column,
+    int cardIndex, {
+    required bool isWideUi,
+  }) {
     final base = rectFromKey(mainColumnKeys[column]);
 
     if (base == null) {
@@ -955,6 +959,7 @@ class GameController
         cards,
         cardIndex,
         cardWidth: base.width,
+        isWideUi: isWideUi,
       );
     } else {
       // For insertion at the end, place after the current top card.
@@ -963,10 +968,12 @@ class GameController
             cards,
             cards.length - 1,
             cardWidth: base.width,
+            isWideUi: isWideUi,
           ) +
           mainStackOffsetForCard(
             cards.last,
             cardWidth: base.width,
+            isWideUi: isWideUi,
           );
     }
 

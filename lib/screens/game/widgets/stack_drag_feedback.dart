@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../constants/constants.dart';
 import '../../../models/solitaire_card.dart';
 import '../../../util/main_stack_layout.dart';
 import 'card/card_widget.dart';
@@ -20,12 +21,14 @@ class StackDragFeedback extends StatelessWidget {
     if (cards.isEmpty) {
       return const SizedBox.shrink();
     }
+    final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
 
     final stackHeight =
         height +
         mainStackTotalOffset(
           cards,
           cardWidth: width,
+          isWideUi: isWideUi,
         );
 
     return Material(
@@ -41,6 +44,7 @@ class StackDragFeedback extends StatelessWidget {
                   cards,
                   i,
                   cardWidth: width,
+                  isWideUi: isWideUi,
                 ),
                 child: CardWidget(
                   card: cards[i],

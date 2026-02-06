@@ -7,9 +7,13 @@ class SolitaireConstants {
   static const borderRadius = 5.0;
   static const borderWidth = 0.0;
 
-  // TODO: If portrait mode, use 0.45, if landscape mode, use 0.225
-  static const mainStackOffsetFactor = 0.3;
+  static const mainStackOffsetFactorPortrait = 0.45;
+  static const mainStackOffsetFactorLandscape = 0.225;
   static const mainStackFaceDownOffsetFactor = 0.225;
 
   static const maxMainStackCards = 13;
+
+  static double mainStackOffsetFactor({
+    required bool isWideUi,
+  }) => isWideUi ? mainStackOffsetFactorLandscape : mainStackOffsetFactorPortrait;
 }

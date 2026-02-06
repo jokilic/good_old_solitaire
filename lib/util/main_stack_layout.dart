@@ -4,12 +4,20 @@ import 'card_size.dart';
 double mainStackOffsetForCard(
   SolitaireCard card, {
   required double cardWidth,
-}) => card.faceUp ? mainStackOffsetFromCardWidth(cardWidth) : mainStackFaceDownOffsetFromCardWidth(cardWidth);
+  required bool isWideUi,
+}) =>
+    card.faceUp
+        ? mainStackOffsetFromCardWidth(
+            cardWidth,
+            isWideUi: isWideUi,
+          )
+        : mainStackFaceDownOffsetFromCardWidth(cardWidth);
 
 double mainStackTopOffset(
   List<SolitaireCard> cards,
   int index, {
   required double cardWidth,
+  required bool isWideUi,
 }) {
   var top = 0.0;
 
@@ -17,6 +25,7 @@ double mainStackTopOffset(
     top += mainStackOffsetForCard(
       cards[i - 1],
       cardWidth: cardWidth,
+      isWideUi: isWideUi,
     );
   }
 
@@ -26,6 +35,7 @@ double mainStackTopOffset(
 double mainStackTotalOffset(
   List<SolitaireCard> cards, {
   required double cardWidth,
+  required bool isWideUi,
 }) {
   var total = 0.0;
 
@@ -33,6 +43,7 @@ double mainStackTotalOffset(
     total += mainStackOffsetForCard(
       cards[i - 1],
       cardWidth: cardWidth,
+      isWideUi: isWideUi,
     );
   }
 
