@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../constants/constants.dart';
@@ -33,7 +35,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   final GlobalKey drawingOpenedKey = GlobalKey();
 
   bool isAnimatingMove = false;
+  bool isInitialDealAnimating = true;
+  int initialDealAnimationVersion = 0;
   SelectedCard? tapMoveSource;
+  Timer? initialDealTimer;
 
   @override
   void initState() {
@@ -45,11 +50,38 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       ),
       afterRegister: (controller) => controller.init(),
     );
+
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) {
+        if (!mounted) {
+          return;
+        }
+
+        setState(
+          () => initialDealAnimationVersion = 1,
+        );
+
+        initialDealTimer = Timer(
+          SolitaireDurations.initialDealTotalDuration,
+          () {
+            if (!mounted) {
+              return;
+            }
+
+            setState(
+              () => isInitialDealAnimating = false,
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
   void dispose() {
+    initialDealTimer?.cancel();
     unRegisterIfNotDisposed<GameController>();
+
     super.dispose();
   }
 
@@ -469,7 +501,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                     );
 
                     return IgnorePointer(
-                      ignoring: isAnimatingMove,
+                      ignoring: isAnimatingMove || isInitialDealAnimating,
                       child: useWideLayout
                           ? Column(
                               children: [
@@ -524,6 +556,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                   child: MainCardsRow(
                                     columnKeys: controller.mainColumnKeys,
                                     isAnimatingMove: isAnimatingMove,
+                                    isInitialDealAnimating: isInitialDealAnimating,
+                                    initialDealAnimationVersion: initialDealAnimationVersion,
                                     hiddenTopCardColumn: hiddenTopCardColumn,
                                     onTapMoveSelected: animateSelectedToMain,
                                   ),
@@ -597,6 +631,8 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                   child: MainCardsRow(
                                     columnKeys: controller.mainColumnKeys,
                                     isAnimatingMove: isAnimatingMove,
+                                    isInitialDealAnimating: isInitialDealAnimating,
+                                    initialDealAnimationVersion: initialDealAnimationVersion,
                                     hiddenTopCardColumn: hiddenTopCardColumn,
                                     onTapMoveSelected: animateSelectedToMain,
                                   ),

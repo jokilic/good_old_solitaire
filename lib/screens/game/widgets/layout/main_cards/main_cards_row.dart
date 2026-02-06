@@ -9,12 +9,16 @@ import 'main_cards_column.dart';
 class MainCardsRow extends WatchingWidget {
   final List<GlobalKey> columnKeys;
   final bool isAnimatingMove;
+  final bool isInitialDealAnimating;
+  final int initialDealAnimationVersion;
   final int? hiddenTopCardColumn;
   final Future<void> Function(int column) onTapMoveSelected;
 
   const MainCardsRow({
     required this.columnKeys,
     required this.isAnimatingMove,
+    required this.isInitialDealAnimating,
+    required this.initialDealAnimationVersion,
     required this.hiddenTopCardColumn,
     required this.onTapMoveSelected,
   });
@@ -50,6 +54,8 @@ class MainCardsRow extends WatchingWidget {
                   columnKey: columnKeys[index],
                   hideTopCard: hiddenTopCardColumn == index,
                   isAnimatingMove: isAnimatingMove,
+                  isInitialDealAnimating: isInitialDealAnimating,
+                  initialDealAnimationVersion: initialDealAnimationVersion,
                   onTapMoveSelected: onTapMoveSelected,
                 );
               },

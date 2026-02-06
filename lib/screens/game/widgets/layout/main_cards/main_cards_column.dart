@@ -22,6 +22,8 @@ class MainCardsColumn extends WatchingWidget {
   final GlobalKey columnKey;
   final bool hideTopCard;
   final bool isAnimatingMove;
+  final bool isInitialDealAnimating;
+  final int initialDealAnimationVersion;
   final Future<void> Function(int column)? onTapMoveSelected;
 
   const MainCardsColumn({
@@ -33,8 +35,22 @@ class MainCardsColumn extends WatchingWidget {
     required this.columnKey,
     required this.hideTopCard,
     required this.isAnimatingMove,
+    required this.isInitialDealAnimating,
+    required this.initialDealAnimationVersion,
     required this.onTapMoveSelected,
   });
+
+  int getDealOrder({
+    required int column,
+    required int row,
+  }) {
+    if (row > column) {
+      return 0;
+    }
+
+    final cardsBeforeRow = row * 7 - ((row * (row - 1)) ~/ 2);
+    return cardsBeforeRow + (column - row);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -181,7 +197,47 @@ class MainCardsColumn extends WatchingWidget {
                       }
 
                       if (!shouldAnimateDropSettle) {
-                        return child;
+                        if (!isInitialDealAnimating || initialDealAnimationVersion == 0) {
+                          return child;
+                        }
+
+                        final cardRect = controller.mainCardRect(
+                          column,
+                          i,
+                          isWideUi: isWideUi,
+                        );
+                        final mediaSize = MediaQuery.sizeOf(context);
+                        final sourceTopLeft = Offset(
+                          (mediaSize.width - cardWidth) / 2,
+                          mediaSize.height + cardHeight,
+                        );
+                        final fromDelta = cardRect == null ? Offset.zero : sourceTopLeft - cardRect.topLeft;
+                        final shouldAnimateDeal = cardRect != null && fromDelta.distance > 0.5;
+
+                        if (!shouldAnimateDeal) {
+                          return child;
+                        }
+
+                        final dealOrder = getDealOrder(
+                          column: column,
+                          row: i,
+                        );
+
+                        return Animate(
+                          key: ValueKey(
+                            'main-initial-deal-$initialDealAnimationVersion-$column-$i-${card.revealKey}',
+                          ),
+                          effects: [
+                            MoveEffect(
+                              begin: fromDelta,
+                              end: Offset.zero,
+                              delay: SolitaireDurations.initialDealStaggerDuration * dealOrder,
+                              duration: SolitaireDurations.initialDealMoveDuration,
+                              curve: Curves.easeOutCubic,
+                            ),
+                          ],
+                          child: child,
+                        );
                       }
 
                       final toRect = controller.mainCardRect(
