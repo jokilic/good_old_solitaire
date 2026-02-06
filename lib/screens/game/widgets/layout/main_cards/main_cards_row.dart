@@ -7,6 +7,7 @@ import '../../../game_controller.dart';
 import 'main_cards_column.dart';
 
 class MainCardsRow extends WatchingWidget {
+  final String instanceId;
   final List<GlobalKey> columnKeys;
   final bool isAnimatingMove;
   final bool isInitialDealAnimating;
@@ -15,6 +16,7 @@ class MainCardsRow extends WatchingWidget {
   final Future<void> Function(int column) onTapMoveSelected;
 
   const MainCardsRow({
+    required this.instanceId,
     required this.columnKeys,
     required this.isAnimatingMove,
     required this.isInitialDealAnimating,
@@ -25,7 +27,9 @@ class MainCardsRow extends WatchingWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = watchIt<GameController>().value;
+    final state = watchIt<GameController>(
+      instanceName: instanceId,
+    ).value;
     final mainCards = state.mainCards;
     final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
 
@@ -42,6 +46,7 @@ class MainCardsRow extends WatchingWidget {
                 final cardHeight = cardWidth * SolitaireConstants.cardAspectRatio;
 
                 return MainCardsColumn(
+                  instanceId: instanceId,
                   column: index,
                   cardHeight: cardHeight,
                   cardWidth: cardWidth,

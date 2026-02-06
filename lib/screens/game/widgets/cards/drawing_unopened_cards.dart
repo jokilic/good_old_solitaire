@@ -10,18 +10,24 @@ import '../card/card_empty.dart';
 import '../card/card_frame.dart';
 
 class DrawingUnopenedCards extends WatchingWidget {
+  final String instanceId;
   final double cardHeight;
   final double cardWidth;
 
   const DrawingUnopenedCards({
+    required this.instanceId,
     required this.cardHeight,
     required this.cardWidth,
   });
 
   @override
   Widget build(BuildContext context) {
-    final controller = getIt.get<GameController>();
-    final state = watchIt<GameController>().value;
+    final controller = getIt.get<GameController>(
+      instanceName: instanceId,
+    );
+    final state = watchIt<GameController>(
+      instanceName: instanceId,
+    ).value;
 
     final hasCards = state.drawingUnopenedCards.isNotEmpty;
 

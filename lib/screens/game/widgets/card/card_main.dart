@@ -13,6 +13,7 @@ import '../stack_drag_feedback.dart';
 import 'card_widget.dart';
 
 class CardMain extends StatefulWidget {
+  final String instanceId;
   final SolitaireCard card;
   final int column;
   final int cardIndex;
@@ -23,6 +24,7 @@ class CardMain extends StatefulWidget {
   final VoidCallback? onTap;
 
   const CardMain({
+    required this.instanceId,
     required this.card,
     required this.column,
     required this.cardIndex,
@@ -52,7 +54,9 @@ class _CardMainState extends State<CardMain> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = getIt.get<GameController>();
+    final controller = getIt.get<GameController>(
+      instanceName: widget.instanceId,
+    );
 
     final body = CardWidget(
       card: widget.card,

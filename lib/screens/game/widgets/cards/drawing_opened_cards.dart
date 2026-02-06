@@ -19,6 +19,7 @@ import '../card/card_widget.dart';
 import '../drag_feedback.dart';
 
 class DrawingOpenedCards extends WatchingWidget {
+  final String instanceId;
   final double cardHeight;
   final double cardWidth;
   final GlobalKey pileKey;
@@ -26,6 +27,7 @@ class DrawingOpenedCards extends WatchingWidget {
   final bool revealFromRight;
 
   const DrawingOpenedCards({
+    required this.instanceId,
     required this.cardHeight,
     required this.cardWidth,
     required this.pileKey,
@@ -115,8 +117,12 @@ class DrawingOpenedCards extends WatchingWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = getIt.get<GameController>();
-    final state = watchIt<GameController>().value;
+    final controller = getIt.get<GameController>(
+      instanceName: instanceId,
+    );
+    final state = watchIt<GameController>(
+      instanceName: instanceId,
+    ).value;
     final effectiveCardHeight = cardHeight - 2;
 
     final openedCards = state.drawingOpenedCards;

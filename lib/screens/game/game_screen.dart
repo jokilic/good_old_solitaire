@@ -49,6 +49,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
         sound: getIt.get<SoundService>(),
       ),
       afterRegister: (controller) => controller.init(),
+      instanceName: widget.instanceId,
     );
 
     WidgetsBinding.instance.addPostFrameCallback(
@@ -84,7 +85,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
   @override
   void dispose() {
     initialDealTimer?.cancel();
-    unRegisterIfNotDisposed<GameController>();
+    unRegisterIfNotDisposed<GameController>(
+      instanceName: widget.instanceId,
+    );
 
     super.dispose();
   }
@@ -251,7 +254,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       return;
     }
 
-    final controller = getIt.get<GameController>();
+    final controller = getIt.get<GameController>(
+      instanceName: widget.instanceId,
+    );
+
     final state = controller.value;
     final selected = state.selectedCard;
     final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
@@ -361,7 +367,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       return;
     }
 
-    final controller = getIt.get<GameController>();
+    final controller = getIt.get<GameController>(
+      instanceName: widget.instanceId,
+    );
+
     final state = controller.value;
     final selected = state.selectedCard;
     final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
@@ -463,7 +472,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final controller = getIt.get<GameController>();
+    final controller = getIt.get<GameController>(
+      instanceName: widget.instanceId,
+    );
 
     return Scaffold(
       body: Container(
@@ -526,6 +537,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                             SizedBox(
                                               width: drawingSectionWidth,
                                               child: DrawingCardsRow(
+                                                instanceId: widget.instanceId,
                                                 drawingOpenedKey: drawingOpenedKey,
                                                 hideOpenedTopCard: hideOpenedTopCard,
                                               ),
@@ -544,6 +556,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                             SizedBox(
                                               width: finishedSectionWidth,
                                               child: FinishedCardsRow(
+                                                instanceId: widget.instanceId,
                                                 pileKeys: controller.finishedPileKeys,
                                                 isAnimatingMove: isAnimatingMove,
                                                 onTapMoveSelected: animateSelectedToFinished,
@@ -558,6 +571,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                 const SizedBox(height: SolitaireConstants.padding),
                                 Expanded(
                                   child: MainCardsRow(
+                                    instanceId: widget.instanceId,
                                     columnKeys: controller.mainColumnKeys,
                                     isAnimatingMove: isAnimatingMove,
                                     isInitialDealAnimating: isInitialDealAnimating,
@@ -580,6 +594,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                           padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
                                           child: buildCardSlot(
                                             (cardWidth, cardHeight) => FinishedCards(
+                                              instanceId: widget.instanceId,
                                               index: index,
                                               cardHeight: cardHeight,
                                               cardWidth: cardWidth,
@@ -607,6 +622,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                         padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
                                         child: buildCardSlot(
                                           (cardWidth, cardHeight) => DrawingOpenedCards(
+                                            instanceId: widget.instanceId,
                                             cardHeight: cardHeight,
                                             cardWidth: cardWidth,
                                             pileKey: drawingOpenedKey,
@@ -621,6 +637,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                         padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
                                         child: buildCardSlot(
                                           (cardWidth, cardHeight) => DrawingUnopenedCards(
+                                            instanceId: widget.instanceId,
                                             cardHeight: cardHeight,
                                             cardWidth: cardWidth,
                                           ),
@@ -633,6 +650,7 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                 const SizedBox(height: SolitaireConstants.padding),
                                 Expanded(
                                   child: MainCardsRow(
+                                    instanceId: widget.instanceId,
                                     columnKeys: controller.mainColumnKeys,
                                     isAnimatingMove: isAnimatingMove,
                                     isInitialDealAnimating: isInitialDealAnimating,

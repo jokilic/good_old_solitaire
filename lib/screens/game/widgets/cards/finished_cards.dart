@@ -18,6 +18,7 @@ import '../card/card_widget.dart';
 import '../drag_feedback.dart';
 
 class FinishedCards extends WatchingWidget {
+  final String instanceId;
   final int index;
   final double cardHeight;
   final double cardWidth;
@@ -26,6 +27,7 @@ class FinishedCards extends WatchingWidget {
   final Future<void> Function(int index)? onTapMoveSelected;
 
   const FinishedCards({
+    required this.instanceId,
     required this.index,
     required this.cardHeight,
     required this.cardWidth,
@@ -36,8 +38,12 @@ class FinishedCards extends WatchingWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = getIt.get<GameController>();
-    final state = watchIt<GameController>().value;
+    final controller = getIt.get<GameController>(
+      instanceName: instanceId,
+    );
+    final state = watchIt<GameController>(
+      instanceName: instanceId,
+    ).value;
     final effectiveCardHeight = cardHeight - 2;
 
     final finishedCards = state.finishedCards[index];

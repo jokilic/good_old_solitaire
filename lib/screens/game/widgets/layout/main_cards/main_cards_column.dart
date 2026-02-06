@@ -14,6 +14,7 @@ import '../../card/card_frame.dart';
 import '../../card/card_main.dart';
 
 class MainCardsColumn extends WatchingWidget {
+  final String instanceId;
   final int column;
   final double cardHeight;
   final double cardWidth;
@@ -27,6 +28,7 @@ class MainCardsColumn extends WatchingWidget {
   final Future<void> Function(int column)? onTapMoveSelected;
 
   const MainCardsColumn({
+    required this.instanceId,
     required this.column,
     required this.cardHeight,
     required this.cardWidth,
@@ -54,8 +56,12 @@ class MainCardsColumn extends WatchingWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = getIt.get<GameController>();
-    final state = watchIt<GameController>().value;
+    final controller = getIt.get<GameController>(
+      instanceName: instanceId,
+    );
+    final state = watchIt<GameController>(
+      instanceName: instanceId,
+    ).value;
 
     final mainCards = state.mainCards[column];
     final revealVersion = state.mainRevealVersions[column];
@@ -170,6 +176,7 @@ class MainCardsColumn extends WatchingWidget {
                       final shouldAnimateDropSettle = dropSettleIndex >= 0;
 
                       final cardMain = CardMain(
+                        instanceId: instanceId,
                         card: card,
                         column: column,
                         cardIndex: i,

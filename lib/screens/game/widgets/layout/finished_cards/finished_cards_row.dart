@@ -6,11 +6,13 @@ import '../../../game_controller.dart';
 import '../../cards/finished_cards.dart';
 
 class FinishedCardsRow extends WatchingWidget {
+  final String instanceId;
   final List<GlobalKey> pileKeys;
   final bool isAnimatingMove;
   final Future<void> Function(int index) onTapMoveSelected;
 
   const FinishedCardsRow({
+    required this.instanceId,
     required this.pileKeys,
     required this.isAnimatingMove,
     required this.onTapMoveSelected,
@@ -18,7 +20,9 @@ class FinishedCardsRow extends WatchingWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = watchIt<GameController>().value;
+    final state = watchIt<GameController>(
+      instanceName: instanceId,
+    ).value;
     final finishedCards = state.finishedCards;
 
     return LayoutBuilder(
@@ -38,6 +42,7 @@ class FinishedCardsRow extends WatchingWidget {
               child: SizedBox(
                 width: cardWidth,
                 child: FinishedCards(
+                  instanceId: instanceId,
                   index: index,
                   cardHeight: cardHeight,
                   cardWidth: cardWidth,

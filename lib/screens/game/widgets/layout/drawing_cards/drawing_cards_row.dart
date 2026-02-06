@@ -5,10 +5,12 @@ import '../../cards/drawing_opened_cards.dart';
 import '../../cards/drawing_unopened_cards.dart';
 
 class DrawingCardsRow extends StatelessWidget {
+  final String instanceId;
   final GlobalKey drawingOpenedKey;
   final bool hideOpenedTopCard;
 
   const DrawingCardsRow({
+    required this.instanceId,
     required this.drawingOpenedKey,
     required this.hideOpenedTopCard,
   });
@@ -24,6 +26,7 @@ class DrawingCardsRow extends StatelessWidget {
         children: [
           Expanded(
             child: DrawingUnopenedCards(
+              instanceId: instanceId,
               cardHeight: cardHeight,
               cardWidth: cardWidth,
             ),
@@ -31,6 +34,7 @@ class DrawingCardsRow extends StatelessWidget {
           const SizedBox(width: SolitaireConstants.padding),
           Expanded(
             child: DrawingOpenedCards(
+              instanceId: instanceId,
               cardHeight: cardHeight,
               cardWidth: cardWidth,
               pileKey: drawingOpenedKey,
