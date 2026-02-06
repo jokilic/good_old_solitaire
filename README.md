@@ -5,11 +5,33 @@
 🃏 **Good old Solitaire** is a simple card game made in **Flutter**. 👨‍💻
 
 ### To-Do
-
 - [ ] Test and remove .ogg if .m4a is working on all platforms
+- [ ] Initial animation when game starts, cards are dealt in a staggered animation
+
+### Menu
+- [ ] New game
+- [ ] Reset game
+- [ ] Undo moves
+- [ ] Hint
+
+### Backend (Supabase database)
+- [ ] Username (random username if not provided),
+- [ ] Some unique device ID
+- [ ] Game time & number of moves when game ends
+
+### Themes
+- [ ] Backgrounds
+- [ ] Card backs
+- [ ] Card faces
+
+### Options
+- [ ] Draw 1 card at a time
+- [ ] Draw 3 cards at a time
+- [ ] Layout direction - left / right
+- [ ] Mute sounds
+- [ ] Fast animations
 
 ### Sounds
-
 - [ ] Sound of undoing move (when it reverses)
 - [ ] Sound of completing game (when all cards are in foundation)
 - [ ] Sound of restarting game (when it resets)
