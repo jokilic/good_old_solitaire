@@ -30,6 +30,11 @@ class SoundService {
     assetPath: 'sounds/card_draw_pile_reset.m4a',
   );
 
+  Future<void> playShuffle() => play(
+    sound: GameSound.shuffle,
+    assetPath: 'sounds/card_shuffle.m4a',
+  );
+
   Future<void> play({
     required GameSound sound,
     required String assetPath,

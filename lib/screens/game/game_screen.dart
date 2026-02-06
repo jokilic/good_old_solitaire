@@ -61,6 +61,10 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
           () => initialDealAnimationVersion = 1,
         );
 
+        unawaited(
+          getIt.get<SoundService>().playShuffle(),
+        );
+
         initialDealTimer = Timer(
           SolitaireDurations.initialDealTotalDuration,
           () {

@@ -26,4 +26,5 @@ enum GameSound {
   cardDraw,
   drawPileExhausted,
   drawPileReset,
+  shuffle,
 }
