@@ -52,6 +52,9 @@ class CardFront extends StatelessWidget {
             )
           : Stack(
               children: [
+                ///
+                /// LABEL
+                ///
                 Positioned(
                   top: 2,
                   left: 4,
@@ -60,17 +63,10 @@ class CardFront extends StatelessWidget {
                     color: color,
                   ),
                 ),
-                Positioned(
-                  top: 6,
-                  right: 4,
-                  child: ClipRect(
-                    child: PhosphorIcon(
-                      icon,
-                      color: color,
-                      size: 16,
-                    ),
-                  ),
-                ),
+
+                ///
+                /// ICON
+                ///
                 Positioned(
                   bottom: -8,
                   left: 0,
@@ -124,6 +120,9 @@ class WideCardFace extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              ///
+              /// LABEL & ICON
+              ///
               Text(
                 label,
                 style: labelStyle,
@@ -135,6 +134,10 @@ class WideCardFace extends StatelessWidget {
               ),
             ],
           ),
+
+          ///
+          /// CENTER ICON
+          ///
           Expanded(
             child: Center(
               child: PhosphorIcon(
@@ -144,6 +147,10 @@ class WideCardFace extends StatelessWidget {
               ),
             ),
           ),
+
+          ///
+          /// ICON & LABEL
+          ///
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

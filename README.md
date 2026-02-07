@@ -5,7 +5,7 @@
 🃏 **Good old Solitaire** is a simple card game made in **Flutter**. 👨‍💻
 
 ### To-Do
-- [ ]
+- [ ] Think about using keyboard shortcuts for some actions
 
 ### Menu
 - [ ] New game
