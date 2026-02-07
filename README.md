@@ -7,7 +7,7 @@
 ### To-Do
 - [ ] Think about using keyboard shortcuts for some actions
 
-### Menu
+### Menu -> https://m3.material.io/components/toolbars/overview or https://m3.material.io/components/button-groups/overview
 - [ ] New game
 - [ ] Reset game
 - [ ] Undo moves
@@ -24,11 +24,10 @@
 - [ ] Card faces
 
 ### Options
-- [ ] Draw 1 card at a time
-- [ ] Draw 3 cards at a time
-- [ ] Layout direction - left / right
-- [ ] Mute sounds
-- [ ] Fast animations
+- [ ] Draw 1 or 3 cards at a time -> https://m3.material.io/components/segmented-buttons/overview
+- [ ] Layout direction - left / right -> https://m3.material.io/components/segmented-buttons/overview
+- [ ] Slider for sounds (50% initial) -> https://m3.material.io/components/sliders/overview
+- [ ] Fast animations -> https://m3.material.io/components/switch/overview
 
 ### Sounds
 - [ ] Sound of undoing move (when it reverses)

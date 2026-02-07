@@ -32,7 +32,6 @@ class FinishedCardsRow extends WatchingWidget {
         final cardHeight = cardWidth * SolitaireConstants.cardAspectRatio;
 
         return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: List.generate(
             finishedCards.length,
             (index) => Padding(

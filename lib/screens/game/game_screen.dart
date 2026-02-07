@@ -532,7 +532,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                                         final finishedSectionWidth = clampedSlotWidth * 4 + SolitaireConstants.padding * 3;
 
                                         return Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             SizedBox(
                                               width: drawingSectionWidth,
@@ -585,7 +584,6 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
                           : Column(
                               children: [
                                 Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     ...List.generate(
                                       controller.finishedPileKeys.length,

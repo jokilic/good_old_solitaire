@@ -22,7 +22,6 @@ class DrawingCardsRow extends StatelessWidget {
       final cardHeight = cardWidth * SolitaireConstants.cardAspectRatio;
 
       return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: DrawingUnopenedCards(
