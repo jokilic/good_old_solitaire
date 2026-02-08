@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../constants/colors.dart';
 import '../../constants/constants.dart';
 import '../../constants/durations.dart';
 import '../../constants/enums.dart';
@@ -480,12 +481,9 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF374147),
-              Color(0xFF191B1F),
-            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: SolitaireColors.greenGradientColors,
           ),
         ),
         child: SafeArea(
