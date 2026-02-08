@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:watch_it/watch_it.dart';
 
 import '../../../../constants/constants.dart';
@@ -89,7 +90,7 @@ class _PressableUnopenedCardState extends State<PressableUnopenedCard> {
           boxShadow: isPressed && widget.hasCards
               ? const [
                   BoxShadow(
-                    color: Colors.black45,
+                    color: Colors.black38,
                     blurRadius: 12,
                     offset: Offset(0, 8),
                   ),
@@ -104,6 +105,9 @@ class _PressableUnopenedCardState extends State<PressableUnopenedCard> {
             : CardEmpty(
                 height: widget.cardHeight,
                 width: widget.cardWidth,
+                icon: PhosphorIcons.handTap(
+                  PhosphorIconsStyle.thin,
+                ),
               ),
       ),
     ),

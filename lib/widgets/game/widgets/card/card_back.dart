@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../../../../constants/constants.dart';
+import '../../../../constants/images.dart';
 
-class CardEmpty extends StatelessWidget {
+class CardBack extends StatelessWidget {
   final double height;
   final double width;
-  final String? label;
 
-  const CardEmpty({
+  const CardBack({
     required this.height,
     required this.width,
-    this.label,
   });
 
   @override
@@ -21,20 +20,17 @@ class CardEmpty extends StatelessWidget {
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
       border: Border.all(
-        color: Colors.white30,
         width: SolitaireConstants.borderWidth,
       ),
-      color: Colors.white10,
     ),
-    child: label != null
-        ? Text(
-            label!,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white54,
-              fontWeight: FontWeight.w600,
-            ),
-          )
-        : null,
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
+      child: Image.asset(
+        SolitaireImages.cardBack,
+        height: height,
+        width: width,
+        fit: BoxFit.cover,
+      ),
+    ),
   );
 }

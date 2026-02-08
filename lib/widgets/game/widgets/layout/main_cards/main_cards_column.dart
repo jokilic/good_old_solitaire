@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:watch_it/watch_it.dart';
 
 import '../../../../../constants/durations.dart';
@@ -150,6 +151,9 @@ class MainCardsColumn extends WatchingWidget {
                 CardEmpty(
                   height: cardHeight,
                   width: cardWidth,
+                  icon: PhosphorIcons.crown(
+                    PhosphorIconsStyle.thin,
+                  ),
                 ),
               for (var i = 0; i < mainCards.length; i += 1)
                 Positioned(

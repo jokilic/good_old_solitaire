@@ -66,7 +66,7 @@ class CardWidget extends StatelessWidget {
         boxShadow: shouldLift
             ? const [
                 BoxShadow(
-                  color: Colors.black45,
+                  color: Colors.black38,
                   blurRadius: 12,
                   offset: Offset(0, 8),
                 ),

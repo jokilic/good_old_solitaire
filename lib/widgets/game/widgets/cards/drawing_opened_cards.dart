@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:watch_it/watch_it.dart';
 
 import '../../../../constants/constants.dart';
@@ -48,10 +49,7 @@ class DrawingOpenedCards extends WatchingWidget {
     required int revealVersion,
     required double revealShiftX,
   }) {
-    Widget empty() => CardEmpty(
-      height: cardHeight,
-      width: cardWidth,
-    );
+    Widget empty() => const SizedBox.shrink();
 
     Widget underTopOrEmpty() {
       final card = cardUnderTop;
@@ -223,10 +221,7 @@ class _DraggableOpenedCardState extends State<DraggableOpenedCard> {
             height: widget.cardHeight,
             isSelected: false,
           )
-        : CardEmpty(
-            height: widget.cardHeight,
-            width: widget.cardWidth,
-          ),
+        : const SizedBox.shrink(),
     child: Listener(
       onPointerDown: (_) => setPressed(true),
       onPointerUp: (_) => setPressed(false),

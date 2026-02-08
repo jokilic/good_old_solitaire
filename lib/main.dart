@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'screens/game/game_screen.dart';
+import 'screens/main/main_screen.dart';
 import 'util/dependencies.dart';
 
 Future<void> main() async {
@@ -11,9 +11,9 @@ Future<void> main() async {
 class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const MaterialApp(
-    home: GameScreen(
-      instanceId: 'game',
-      key: ValueKey('game'),
+    home: MainScreen(
+      instanceId: 'main',
+      key: ValueKey('main'),
     ),
   );
 }

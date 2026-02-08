@@ -20,19 +20,19 @@ import 'widgets/layout/drawing_cards/drawing_cards_row.dart';
 import 'widgets/layout/finished_cards/finished_cards_row.dart';
 import 'widgets/layout/main_cards/main_cards_row.dart';
 
-class GameScreen extends StatefulWidget {
+class GameWidget extends StatefulWidget {
   final String instanceId;
 
-  const GameScreen({
+  const GameWidget({
     required this.instanceId,
     required super.key,
   });
 
   @override
-  State<GameScreen> createState() => _GameScreenState();
+  State<GameWidget> createState() => _GameWidgetState();
 }
 
-class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
+class _GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
   final GlobalKey drawingOpenedKey = GlobalKey();
 
   bool isAnimatingMove = false;
@@ -477,189 +477,187 @@ class _GameScreenState extends State<GameScreen> with TickerProviderStateMixin {
       instanceName: widget.instanceId,
     );
 
-    return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: SolitaireColors.greenGradientColors,
-          ),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: SolitaireColors.greenGradientColors,
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(SolitaireConstants.padding),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 800),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final useWideLayout = constraints.maxWidth > SolitaireConstants.compactLayoutMaxWidth;
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(SolitaireConstants.padding),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final useWideLayout = constraints.maxWidth > SolitaireConstants.compactLayoutMaxWidth;
 
-                    final hiddenTopCardColumn = tapMoveSource?.source == PileType.mainCards ? tapMoveSource!.pileIndex : null;
-                    final hideOpenedTopCard = tapMoveSource?.source == PileType.drawingOpenedCards;
+                  final hiddenTopCardColumn = tapMoveSource?.source == PileType.mainCards ? tapMoveSource!.pileIndex : null;
+                  final hideOpenedTopCard = tapMoveSource?.source == PileType.drawingOpenedCards;
 
-                    Widget buildCardSlot(
-                      Widget Function(double cardWidth, double cardHeight) childBuilder,
-                    ) => LayoutBuilder(
-                      builder: (context, slotConstraints) {
-                        final cardWidth = slotConstraints.maxWidth;
-                        final cardHeight = cardWidth * SolitaireConstants.cardAspectRatio;
+                  Widget buildCardSlot(
+                    Widget Function(double cardWidth, double cardHeight) childBuilder,
+                  ) => LayoutBuilder(
+                    builder: (context, slotConstraints) {
+                      final cardWidth = slotConstraints.maxWidth;
+                      final cardHeight = cardWidth * SolitaireConstants.cardAspectRatio;
 
-                        return childBuilder(
-                          cardWidth,
-                          cardHeight,
-                        );
-                      },
-                    );
+                      return childBuilder(
+                        cardWidth,
+                        cardHeight,
+                      );
+                    },
+                  );
 
-                    return IgnorePointer(
-                      ignoring: isAnimatingMove || isInitialDealAnimating,
-                      child: useWideLayout
-                          ? Column(
-                              children: [
-                                Builder(
-                                  builder: (context) => Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
-                                    child: LayoutBuilder(
-                                      builder: (context, topConstraints) {
-                                        final slotWidth = (topConstraints.maxWidth - SolitaireConstants.padding * 6) / 7;
-                                        final clampedSlotWidth = slotWidth > 0 ? slotWidth : 0.0;
-                                        final drawingSectionWidth = clampedSlotWidth * 2 + SolitaireConstants.padding;
-                                        final emptySectionWidth = clampedSlotWidth;
-                                        final finishedSectionWidth = clampedSlotWidth * 4 + SolitaireConstants.padding * 3;
+                  return IgnorePointer(
+                    ignoring: isAnimatingMove || isInitialDealAnimating,
+                    child: useWideLayout
+                        ? Column(
+                            children: [
+                              Builder(
+                                builder: (context) => Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
+                                  child: LayoutBuilder(
+                                    builder: (context, topConstraints) {
+                                      final slotWidth = (topConstraints.maxWidth - SolitaireConstants.padding * 6) / 7;
+                                      final clampedSlotWidth = slotWidth > 0 ? slotWidth : 0.0;
+                                      final drawingSectionWidth = clampedSlotWidth * 2 + SolitaireConstants.padding;
+                                      final emptySectionWidth = clampedSlotWidth;
+                                      final finishedSectionWidth = clampedSlotWidth * 4 + SolitaireConstants.padding * 3;
 
-                                        return Row(
-                                          children: [
-                                            SizedBox(
-                                              width: drawingSectionWidth,
-                                              child: DrawingCardsRow(
-                                                instanceId: widget.instanceId,
-                                                drawingOpenedKey: drawingOpenedKey,
-                                                hideOpenedTopCard: hideOpenedTopCard,
-                                              ),
-                                            ),
-                                            const SizedBox(width: SolitaireConstants.padding),
-                                            SizedBox(
-                                              width: emptySectionWidth,
-                                              child: buildCardSlot(
-                                                (cardWidth, cardHeight) => SizedBox(
-                                                  width: cardWidth,
-                                                  height: cardHeight,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: SolitaireConstants.padding),
-                                            SizedBox(
-                                              width: finishedSectionWidth,
-                                              child: FinishedCardsRow(
-                                                instanceId: widget.instanceId,
-                                                pileKeys: controller.finishedPileKeys,
-                                                isAnimatingMove: isAnimatingMove,
-                                                onTapMoveSelected: animateSelectedToFinished,
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: SolitaireConstants.padding),
-                                Expanded(
-                                  child: MainCardsRow(
-                                    instanceId: widget.instanceId,
-                                    columnKeys: controller.mainColumnKeys,
-                                    isAnimatingMove: isAnimatingMove,
-                                    isInitialDealAnimating: isInitialDealAnimating,
-                                    initialDealAnimationVersion: initialDealAnimationVersion,
-                                    hiddenTopCardColumn: hiddenTopCardColumn,
-                                    onTapMoveSelected: animateSelectedToMain,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    ...List.generate(
-                                      controller.finishedPileKeys.length,
-                                      (index) => Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
-                                          child: buildCardSlot(
-                                            (cardWidth, cardHeight) => FinishedCards(
+                                      return Row(
+                                        children: [
+                                          SizedBox(
+                                            width: drawingSectionWidth,
+                                            child: DrawingCardsRow(
                                               instanceId: widget.instanceId,
-                                              index: index,
-                                              cardHeight: cardHeight,
-                                              cardWidth: cardWidth,
-                                              pileKey: controller.finishedPileKeys[index],
+                                              drawingOpenedKey: drawingOpenedKey,
+                                              hideOpenedTopCard: hideOpenedTopCard,
+                                            ),
+                                          ),
+                                          const SizedBox(width: SolitaireConstants.padding),
+                                          SizedBox(
+                                            width: emptySectionWidth,
+                                            child: buildCardSlot(
+                                              (cardWidth, cardHeight) => SizedBox(
+                                                width: cardWidth,
+                                                height: cardHeight,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: SolitaireConstants.padding),
+                                          SizedBox(
+                                            width: finishedSectionWidth,
+                                            child: FinishedCardsRow(
+                                              instanceId: widget.instanceId,
+                                              pileKeys: controller.finishedPileKeys,
                                               isAnimatingMove: isAnimatingMove,
                                               onTapMoveSelected: animateSelectedToFinished,
                                             ),
                                           ),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
-                                        child: buildCardSlot(
-                                          (cardWidth, cardHeight) => SizedBox(
-                                            width: cardWidth,
-                                            height: cardHeight,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
-                                        child: buildCardSlot(
-                                          (cardWidth, cardHeight) => DrawingOpenedCards(
-                                            instanceId: widget.instanceId,
-                                            cardHeight: cardHeight,
-                                            cardWidth: cardWidth,
-                                            pileKey: drawingOpenedKey,
-                                            hideTopCard: hideOpenedTopCard,
-                                            revealFromRight: true,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
-                                        child: buildCardSlot(
-                                          (cardWidth, cardHeight) => DrawingUnopenedCards(
-                                            instanceId: widget.instanceId,
-                                            cardHeight: cardHeight,
-                                            cardWidth: cardWidth,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: SolitaireConstants.padding),
-                                Expanded(
-                                  child: MainCardsRow(
-                                    instanceId: widget.instanceId,
-                                    columnKeys: controller.mainColumnKeys,
-                                    isAnimatingMove: isAnimatingMove,
-                                    isInitialDealAnimating: isInitialDealAnimating,
-                                    initialDealAnimationVersion: initialDealAnimationVersion,
-                                    hiddenTopCardColumn: hiddenTopCardColumn,
-                                    onTapMoveSelected: animateSelectedToMain,
+                                        ],
+                                      );
+                                    },
                                   ),
                                 ),
-                              ],
-                            ),
-                    );
-                  },
-                ),
+                              ),
+                              const SizedBox(height: SolitaireConstants.padding),
+                              Expanded(
+                                child: MainCardsRow(
+                                  instanceId: widget.instanceId,
+                                  columnKeys: controller.mainColumnKeys,
+                                  isAnimatingMove: isAnimatingMove,
+                                  isInitialDealAnimating: isInitialDealAnimating,
+                                  initialDealAnimationVersion: initialDealAnimationVersion,
+                                  hiddenTopCardColumn: hiddenTopCardColumn,
+                                  onTapMoveSelected: animateSelectedToMain,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            children: [
+                              Row(
+                                children: [
+                                  ...List.generate(
+                                    controller.finishedPileKeys.length,
+                                    (index) => Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
+                                        child: buildCardSlot(
+                                          (cardWidth, cardHeight) => FinishedCards(
+                                            instanceId: widget.instanceId,
+                                            index: index,
+                                            cardHeight: cardHeight,
+                                            cardWidth: cardWidth,
+                                            pileKey: controller.finishedPileKeys[index],
+                                            isAnimatingMove: isAnimatingMove,
+                                            onTapMoveSelected: animateSelectedToFinished,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
+                                      child: buildCardSlot(
+                                        (cardWidth, cardHeight) => SizedBox(
+                                          width: cardWidth,
+                                          height: cardHeight,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
+                                      child: buildCardSlot(
+                                        (cardWidth, cardHeight) => DrawingOpenedCards(
+                                          instanceId: widget.instanceId,
+                                          cardHeight: cardHeight,
+                                          cardWidth: cardWidth,
+                                          pileKey: drawingOpenedKey,
+                                          hideTopCard: hideOpenedTopCard,
+                                          revealFromRight: true,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
+                                      child: buildCardSlot(
+                                        (cardWidth, cardHeight) => DrawingUnopenedCards(
+                                          instanceId: widget.instanceId,
+                                          cardHeight: cardHeight,
+                                          cardWidth: cardWidth,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: SolitaireConstants.padding),
+                              Expanded(
+                                child: MainCardsRow(
+                                  instanceId: widget.instanceId,
+                                  columnKeys: controller.mainColumnKeys,
+                                  isAnimatingMove: isAnimatingMove,
+                                  isInitialDealAnimating: isInitialDealAnimating,
+                                  initialDealAnimationVersion: initialDealAnimationVersion,
+                                  hiddenTopCardColumn: hiddenTopCardColumn,
+                                  onTapMoveSelected: animateSelectedToMain,
+                                ),
+                              ),
+                            ],
+                          ),
+                  );
+                },
               ),
             ),
           ),

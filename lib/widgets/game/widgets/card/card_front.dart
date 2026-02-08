@@ -20,7 +20,7 @@ class CardFront extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = card.isRed ? Colors.red : Colors.black;
+    final color = card.isRed ? Colors.redAccent : Colors.black87;
     final label = card.cardLabel;
     final icon = card.suitIcon;
 
@@ -35,13 +35,6 @@ class CardFront extends StatelessWidget {
           width: SolitaireConstants.borderWidth,
         ),
         color: Colors.white,
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 6,
-            offset: Offset(0, 2),
-          ),
-        ],
       ),
       child: isWideUi
           ? WideCardFace(

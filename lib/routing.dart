@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'screens/game/game_screen.dart';
+import 'screens/main/main_screen.dart';
 import 'util/navigation.dart';
 
-/// Opens [GameScreen]
-void openGame(
+/// Opens [MainScreen]
+void openMain(
   BuildContext context, {
   required String instanceId,
 }) => pushScreen(
-  GameScreen(
+  MainScreen(
     instanceId: instanceId,
     key: ValueKey(instanceId),
   ),
