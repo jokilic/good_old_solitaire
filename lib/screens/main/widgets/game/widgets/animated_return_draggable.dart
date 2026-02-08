@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../constants/durations.dart';
+import '../../../../../constants/durations.dart';
 
 class AnimatedReturnDraggable<T extends Object> extends StatefulWidget {
   final T data;

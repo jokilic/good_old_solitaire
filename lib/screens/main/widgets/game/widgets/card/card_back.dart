@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-import '../../../../constants/constants.dart';
+import '../../../../../../constants/constants.dart';
+import '../../../../../../constants/images.dart';
 
-class CardEmpty extends StatelessWidget {
+class CardBack extends StatelessWidget {
   final double height;
   final double width;
-  final PhosphorIconData? icon;
 
-  const CardEmpty({
+  const CardBack({
     required this.height,
     required this.width,
-    this.icon,
   });
 
   @override
@@ -22,17 +20,17 @@ class CardEmpty extends StatelessWidget {
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
       border: Border.all(
-        color: Colors.white12,
         width: SolitaireConstants.borderWidth,
       ),
-      color: Colors.white12,
     ),
-    child: icon != null
-        ? PhosphorIcon(
-            icon!,
-            color: Colors.white12,
-            size: 24,
-          )
-        : null,
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
+      child: Image.asset(
+        SolitaireImages.cardBack,
+        height: height,
+        width: width,
+        fit: BoxFit.cover,
+      ),
+    ),
   );
 }

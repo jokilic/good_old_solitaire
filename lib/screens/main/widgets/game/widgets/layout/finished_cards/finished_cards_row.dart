@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:watch_it/watch_it.dart';
 
-import '../../../../../constants/constants.dart';
+import '../../../../../../../constants/constants.dart';
 import '../../../game_controller.dart';
 import '../../cards/finished_cards.dart';
 

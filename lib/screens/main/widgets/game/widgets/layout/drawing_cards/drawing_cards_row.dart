@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../../constants/constants.dart';
+import '../../../../../../../constants/constants.dart';
 import '../../cards/drawing_opened_cards.dart';
 import '../../cards/drawing_unopened_cards.dart';
 

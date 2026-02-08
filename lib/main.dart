@@ -11,9 +11,10 @@ Future<void> main() async {
 class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
+    debugShowCheckedModeBanner: false,
     theme: ThemeData(
       useMaterial3: true,
-      colorSchemeSeed: const Color(0xFF2E7D32),
+      colorSchemeSeed: Colors.red,
     ),
     home: const MainScreen(
       instanceId: 'main',

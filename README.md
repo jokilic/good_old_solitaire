@@ -5,7 +5,12 @@
 🃏 **Good old Solitaire** is a simple card game made in **Flutter**. 👨‍💻
 
 ### To-Do
+- [ ] Implement moves
+- [ ] Implement timer
+- [ ] Implement score - https://solitaired.com/how-is-solitaire-scored
+
 - [ ] Think about using keyboard shortcuts for some actions
+
 - [ ] Refactor Colors.someColor
 - [ ] Refactor text styles
 - [ ] Refactor BoxShadow - currently only when lifting cards
@@ -13,9 +18,10 @@
 
 ### Menu -> https://m3.material.io/components/toolbars/overview or https://m3.material.io/components/button-groups/overview
 - [ ] New game
-- [ ] Reset game
-- [ ] Undo moves
-- [ ] Hint
+- [ ] Undo move - Big button with text
+- [ ] Hint - Big button with text
+- [ ] Theme
+- [ ] Options
 
 ### Backend (Supabase database)
 - [ ] Username (random username if not provided)

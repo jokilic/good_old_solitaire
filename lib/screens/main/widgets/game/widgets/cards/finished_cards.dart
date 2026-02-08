@@ -5,12 +5,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:watch_it/watch_it.dart';
 
-import '../../../../constants/durations.dart';
-import '../../../../constants/enums.dart';
-import '../../../../models/drag_payload.dart';
-import '../../../../models/solitaire_card.dart';
-import '../../../../services/sound_service.dart';
-import '../../../../util/dependencies.dart';
+import '../../../../../../constants/durations.dart';
+import '../../../../../../constants/enums.dart';
+import '../../../../../../models/drag_payload.dart';
+import '../../../../../../models/solitaire_card.dart';
+import '../../../../../../services/sound_service.dart';
+import '../../../../../../util/dependencies.dart';
 import '../../game_controller.dart';
 import '../animated_return_draggable.dart';
 import '../card/card_empty.dart';

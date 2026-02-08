@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:watch_it/watch_it.dart';
 
-import '../../../../constants/constants.dart';
-import '../../../../constants/durations.dart';
-import '../../../../util/dependencies.dart';
+import '../../../../../../constants/constants.dart';
+import '../../../../../../constants/durations.dart';
+import '../../../../../../util/dependencies.dart';
 import '../../game_controller.dart';
 import '../card/card_back.dart';
 import '../card/card_empty.dart';

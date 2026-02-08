@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../constants/enums.dart';
-import '../../models/drag_payload.dart';
-import '../../models/selected_card.dart';
-import '../../models/solitaire_card.dart';
-import '../../services/sound_service.dart';
-import '../../util/main_stack_layout.dart';
-import '../../util/nullable_objects.dart';
+import '../../../../constants/enums.dart';
+import '../../../../models/drag_payload.dart';
+import '../../../../models/selected_card.dart';
+import '../../../../models/solitaire_card.dart';
+import '../../../../services/sound_service.dart';
+import '../../../../util/main_stack_layout.dart';
+import '../../../../util/nullable_objects.dart';
 
 class GameController
     extends

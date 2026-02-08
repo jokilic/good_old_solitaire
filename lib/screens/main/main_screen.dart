@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../widgets/game/game_widget.dart';
+import '../../constants/colors.dart';
+import '../../services/sound_service.dart';
+import '../../util/dependencies.dart';
+import 'widgets/game/game_controller.dart';
+import 'widgets/game/game_widget.dart';
+import 'widgets/main_buttons_new_reset.dart';
+import 'widgets/main_buttons_theme_settings.dart';
+import 'widgets/main_buttons_undo_hint.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   final String instanceId;
 
   const MainScreen({
@@ -10,67 +17,98 @@ class MainScreen extends StatelessWidget {
     required super.key,
   });
 
-  void showToolbarMessage(
-    String message, {
-    required BuildContext context,
-  }) => ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(message),
-    ),
-  );
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    registerIfNotInitialized<GameController>(
+      () => GameController(
+        sound: getIt.get<SoundService>(),
+      ),
+      afterRegister: (controller) => controller.init(),
+      instanceName: widget.instanceId,
+    );
+  }
+
+  @override
+  void dispose() {
+    unRegisterIfNotDisposed<GameController>(
+      instanceName: widget.instanceId,
+    );
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: const Text('Good old Solitaire'),
-    ),
-    bottomNavigationBar: SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-        child: Container(
-          decoration: ShapeDecoration(
-            color: Theme.of(context).colorScheme.surfaceContainerHigh,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
+    body: Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: SolitaireColors.greenGradientColors,
+        ),
+      ),
+      child: Column(
+        children: [
+          ///
+          /// SCORE
+          ///
+          Row(
+            children: [
+              Text('Score'),
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 8,
-              runSpacing: 8,
+
+          ///
+          /// GAME & BUTTONS
+          ///
+          Expanded(
+            child: Stack(
               children: [
-                FilledButton.tonalIcon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.casino_outlined),
-                  label: const Text('New game'),
+                ///
+                /// GAME
+                ///
+                GameWidget(
+                  instanceId: widget.instanceId,
+                  key: ValueKey(widget.instanceId),
                 ),
-                FilledButton.tonalIcon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.restart_alt_outlined),
-                  label: const Text('Reset game'),
-                ),
-                FilledButton.tonalIcon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.undo_outlined),
-                  label: const Text('Undo moves'),
-                ),
-                FilledButton.tonalIcon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.lightbulb_outline),
-                  label: const Text('Hint'),
+
+                ///
+                /// BOTTOM BUTTONS
+                ///
+                Positioned(
+                  bottom: 40,
+                  left: 0,
+                  right: 0,
+                  child: Column(
+                    children: [
+                      ///
+                      /// NEW & RESET
+                      ///
+                      MainButtonsNewReset(),
+
+                      ///
+                      /// UNDO & HINT
+                      ///
+                      MainButtonsUndoHint(),
+
+                      ///
+                      /// THEME & SETTINGS
+                      ///
+                      MainButtonsThemeSettings(),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-        ),
+        ],
       ),
-    ),
-    body: GameWidget(
-      instanceId: instanceId,
-      key: key,
     ),
   );
 }

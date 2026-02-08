@@ -3,12 +3,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:watch_it/watch_it.dart';
 
-import '../../../../../constants/durations.dart';
-import '../../../../../constants/enums.dart';
-import '../../../../../models/drag_payload.dart';
-import '../../../../../util/card_size.dart';
-import '../../../../../util/dependencies.dart';
-import '../../../../../util/main_stack_layout.dart';
+import '../../../../../../../constants/durations.dart';
+import '../../../../../../../constants/enums.dart';
+import '../../../../../../../models/drag_payload.dart';
+import '../../../../../../../util/card_size.dart';
+import '../../../../../../../util/dependencies.dart';
+import '../../../../../../../util/main_stack_layout.dart';
 import '../../../game_controller.dart';
 import '../../card/card_empty.dart';
 import '../../card/card_frame.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/solitaire_card.dart';
+import '../../../../../models/solitaire_card.dart';
 import 'card/card_widget.dart';
 
 class DragFeedback extends StatelessWidget {

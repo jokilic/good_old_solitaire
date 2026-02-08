@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../constants/constants.dart';
-import '../../../models/solitaire_card.dart';
-import '../../../util/main_stack_layout.dart';
+import '../../../../../constants/constants.dart';
+import '../../../../../models/solitaire_card.dart';
+import '../../../../../util/main_stack_layout.dart';
 import 'card/card_widget.dart';
 
 class StackDragFeedback extends StatelessWidget {

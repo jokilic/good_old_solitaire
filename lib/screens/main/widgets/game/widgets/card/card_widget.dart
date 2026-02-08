@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../constants/constants.dart';
-import '../../../../constants/durations.dart';
-import '../../../../models/solitaire_card.dart';
+import '../../../../../../constants/constants.dart';
+import '../../../../../../constants/durations.dart';
+import '../../../../../../models/solitaire_card.dart';
 import 'card_back.dart';
 import 'card_front.dart';
 

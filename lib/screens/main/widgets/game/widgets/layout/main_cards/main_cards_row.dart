@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:watch_it/watch_it.dart';
 
-import '../../../../../constants/constants.dart';
-import '../../../../../util/card_size.dart';
+import '../../../../../../../constants/constants.dart';
+import '../../../../../../../util/card_size.dart';
 import '../../../game_controller.dart';
 import 'main_cards_column.dart';
 
