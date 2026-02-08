@@ -18,7 +18,6 @@ class MainApp extends StatelessWidget {
     ),
     home: const MainScreen(
       instanceId: 'main',
-      key: ValueKey('main'),
     ),
   );
 }
