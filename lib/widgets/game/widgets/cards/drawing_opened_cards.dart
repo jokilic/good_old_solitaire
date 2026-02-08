@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:watch_it/watch_it.dart';
 
 import '../../../../constants/constants.dart';
@@ -14,7 +13,6 @@ import '../../../../services/sound_service.dart';
 import '../../../../util/dependencies.dart';
 import '../../game_controller.dart';
 import '../animated_return_draggable.dart';
-import '../card/card_empty.dart';
 import '../card/card_frame.dart';
 import '../card/card_widget.dart';
 import '../drag_feedback.dart';

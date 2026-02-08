@@ -10,8 +10,12 @@ Future<void> main() async {
 
 class MainApp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => const MaterialApp(
-    home: MainScreen(
+  Widget build(BuildContext context) => MaterialApp(
+    theme: ThemeData(
+      useMaterial3: true,
+      colorSchemeSeed: const Color(0xFF2E7D32),
+    ),
+    home: const MainScreen(
       instanceId: 'main',
       key: ValueKey('main'),
     ),
