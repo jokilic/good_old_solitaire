@@ -4,11 +4,13 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../constants/durations.dart';
 
 class SolitaireTextButton extends StatelessWidget {
+  final Function() onPressed;
   final String label;
   final IconData iconData;
   final bool isWideUi;
 
   const SolitaireTextButton({
+    required this.onPressed,
     required this.label,
     required this.iconData,
     required this.isWideUi,
@@ -16,7 +18,7 @@ class SolitaireTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => TextButton(
-    onPressed: () {},
+    onPressed: onPressed,
     style: TextButton.styleFrom(
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(

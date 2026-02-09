@@ -4,17 +4,19 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../constants/durations.dart';
 
 class SolitaireIconButton extends StatelessWidget {
+  final Function() onPressed;
   final IconData iconData;
   final bool isWideUi;
 
   const SolitaireIconButton({
+    required this.onPressed,
     required this.iconData,
     required this.isWideUi,
   });
 
   @override
   Widget build(BuildContext context) => IconButton(
-    onPressed: () {},
+    onPressed: onPressed,
     style: IconButton.styleFrom(
       alignment: Alignment.center,
       padding: EdgeInsets.symmetric(

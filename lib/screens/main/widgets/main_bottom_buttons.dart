@@ -7,9 +7,11 @@ import '../../../widgets/solitaire_text_button.dart';
 
 class MainBottomButtons extends StatelessWidget {
   final String instanceId;
+  final Function() newGamePressed;
 
   const MainBottomButtons({
     required this.instanceId,
+    required this.newGamePressed,
   });
 
   @override
@@ -29,6 +31,7 @@ class MainBottomButtons extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SolitaireIconButton(
+                  onPressed: newGamePressed,
                   iconData: PhosphorIcons.plus(
                     PhosphorIconsStyle.bold,
                   ),
@@ -36,6 +39,9 @@ class MainBottomButtons extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 SolitaireIconButton(
+                  onPressed: () {
+                    // TODO: Reset game
+                  },
                   iconData: PhosphorIcons.arrowCounterClockwise(
                     PhosphorIconsStyle.bold,
                   ),
@@ -47,6 +53,9 @@ class MainBottomButtons extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SolitaireTextButton(
+                  onPressed: () {
+                    // TODO: Undo
+                  },
                   label: 'Undo',
                   iconData: PhosphorIcons.eraser(
                     PhosphorIconsStyle.bold,
@@ -55,6 +64,9 @@ class MainBottomButtons extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 SolitaireTextButton(
+                  onPressed: () {
+                    // TODO: Hint
+                  },
                   label: 'Hint',
                   iconData: PhosphorIcons.lifebuoy(
                     PhosphorIconsStyle.bold,
@@ -67,6 +79,9 @@ class MainBottomButtons extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SolitaireIconButton(
+                  onPressed: () {
+                    // TODO: Theme
+                  },
                   iconData: PhosphorIcons.palette(
                     PhosphorIconsStyle.bold,
                   ),
@@ -74,6 +89,9 @@ class MainBottomButtons extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
                 SolitaireIconButton(
+                  onPressed: () {
+                    // TODO: Settings
+                  },
                   iconData: PhosphorIcons.gearSix(
                     PhosphorIconsStyle.bold,
                   ),
