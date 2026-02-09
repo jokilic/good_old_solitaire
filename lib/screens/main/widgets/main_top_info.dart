@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:watch_it/watch_it.dart';
 
+import '../../../util/time.dart';
 import 'game/game_controller.dart';
 
 class MainTopInfo extends WatchingWidget {
@@ -12,11 +13,14 @@ class MainTopInfo extends WatchingWidget {
 
   @override
   Widget build(BuildContext context) {
-    final gameState = watchIt<GameController>(
+    final moveCounter = watchPropertyValue<GameController, int>(
+      (x) => x.value.moveCounter,
       instanceName: instanceId,
-    ).value;
-
-    final moveCounter = gameState.moveCounter;
+    );
+    final elapsedSeconds = watchPropertyValue<GameController, int>(
+      (x) => x.value.elapsedSeconds,
+      instanceName: instanceId,
+    );
 
     return Center(
       child: Container(
@@ -39,10 +43,10 @@ class MainTopInfo extends WatchingWidget {
                     color: Colors.white12,
                   ),
                 ),
-                Text(
+                const Text(
                   '--',
                   // TODO
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -68,10 +72,10 @@ class MainTopInfo extends WatchingWidget {
                     color: Colors.white12,
                   ),
                 ),
-                const Text(
-                  '--:--',
+                Text(
+                  formatElapsedTime(elapsedSeconds),
                   // TODO
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,

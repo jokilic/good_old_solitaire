@@ -116,17 +116,25 @@ class DrawingOpenedCards extends WatchingWidget {
     final controller = getIt.get<GameController>(
       instanceName: instanceId,
     );
-    final state = watchIt<GameController>(
+    final openedCards = watchPropertyValue<GameController, List<SolitaireCard>>(
+      (x) => x.value.drawingOpenedCards,
       instanceName: instanceId,
-    ).value;
+    );
+    final revealVersion = watchPropertyValue<GameController, int>(
+      (x) => x.value.drawingRevealVersion,
+      instanceName: instanceId,
+    );
+    final revealCardKey = watchPropertyValue<GameController, String?>(
+      (x) => x.value.drawingRevealCardKey,
+      instanceName: instanceId,
+    );
+    final isSelected = watchPropertyValue<GameController, bool>(
+      (x) => x.value.selectedCard?.source == PileType.drawingOpenedCards,
+      instanceName: instanceId,
+    );
     final effectiveCardHeight = cardHeight - 2;
 
-    final openedCards = state.drawingOpenedCards;
     final hasCards = openedCards.isNotEmpty;
-    final revealVersion = state.drawingRevealVersion;
-    final revealCardKey = state.drawingRevealCardKey;
-
-    final isSelected = state.selectedCard?.source == PileType.drawingOpenedCards;
 
     const dragPayload = DragPayload(
       source: PileType.drawingOpenedCards,

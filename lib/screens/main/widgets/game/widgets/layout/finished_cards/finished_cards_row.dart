@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:watch_it/watch_it.dart';
 
 import '../../../../../../../constants/constants.dart';
-import '../../../game_controller.dart';
 import '../../cards/finished_cards.dart';
 
-class FinishedCardsRow extends WatchingWidget {
+class FinishedCardsRow extends StatelessWidget {
   final String instanceId;
   final List<GlobalKey> pileKeys;
   final bool isAnimatingMove;
@@ -19,24 +17,19 @@ class FinishedCardsRow extends WatchingWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final state = watchIt<GameController>(
-      instanceName: instanceId,
-    ).value;
-    final finishedCards = state.finishedCards;
-
-    return LayoutBuilder(
+  Widget build(BuildContext context) => LayoutBuilder(
       builder: (context, constraints) {
-        final slotWidth = (constraints.maxWidth - SolitaireConstants.padding * (finishedCards.length - 1)) / finishedCards.length;
+        final slotCount = pileKeys.length;
+        final slotWidth = (constraints.maxWidth - SolitaireConstants.padding * (slotCount - 1)) / slotCount;
         final cardWidth = slotWidth > 0 ? slotWidth : 0.0;
         final cardHeight = cardWidth * SolitaireConstants.cardAspectRatio;
 
         return Row(
           children: List.generate(
-            finishedCards.length,
+            slotCount,
             (index) => Padding(
               padding: EdgeInsets.only(
-                right: index == finishedCards.length - 1 ? 0 : SolitaireConstants.padding,
+                right: index == slotCount - 1 ? 0 : SolitaireConstants.padding,
               ),
               child: SizedBox(
                 width: cardWidth,
@@ -55,5 +48,4 @@ class FinishedCardsRow extends WatchingWidget {
         );
       },
     );
-  }
 }

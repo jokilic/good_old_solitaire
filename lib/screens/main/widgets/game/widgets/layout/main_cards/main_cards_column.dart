@@ -6,6 +6,8 @@ import 'package:watch_it/watch_it.dart';
 import '../../../../../../../constants/durations.dart';
 import '../../../../../../../constants/enums.dart';
 import '../../../../../../../models/drag_payload.dart';
+import '../../../../../../../models/selected_card.dart';
+import '../../../../../../../models/solitaire_card.dart';
 import '../../../../../../../util/card_size.dart';
 import '../../../../../../../util/dependencies.dart';
 import '../../../../../../../util/main_stack_layout.dart';
@@ -60,20 +62,50 @@ class MainCardsColumn extends WatchingWidget {
     final controller = getIt.get<GameController>(
       instanceName: instanceId,
     );
-    final state = watchIt<GameController>(
+    final mainCards = watchPropertyValue<GameController, List<SolitaireCard>>(
+      (x) => x.value.mainCards[column],
       instanceName: instanceId,
-    ).value;
+    );
+    final revealVersion = watchPropertyValue<GameController, int>(
+      (x) => x.value.mainRevealVersions[column],
+      instanceName: instanceId,
+    );
+    final revealCardKey = watchPropertyValue<GameController, String?>(
+      (x) => x.value.mainRevealCardKeys[column],
+      instanceName: instanceId,
+    );
+    final selectedCard = watchPropertyValue<GameController, SelectedCard?>(
+      (x) => x.value.selectedCard,
+      instanceName: instanceId,
+    );
+    final draggingPayload = watchPropertyValue<GameController, DragPayload?>(
+      (x) => x.value.draggingPayload,
+      instanceName: instanceId,
+    );
+    final dropSettleTarget = watchPropertyValue<GameController, PileType?>(
+      (x) => x.value.dropSettleTarget,
+      instanceName: instanceId,
+    );
+    final dropSettlePileIndex = watchPropertyValue<GameController, int?>(
+      (x) => x.value.dropSettlePileIndex,
+      instanceName: instanceId,
+    );
+    final dropSettleCardKeys = watchPropertyValue<GameController, List<String>>(
+      (x) => x.value.dropSettleCardKeys,
+      instanceName: instanceId,
+    );
+    final dropSettleFromOffset = watchPropertyValue<GameController, Offset?>(
+      (x) => x.value.dropSettleFromOffset,
+      instanceName: instanceId,
+    );
+    final dropSettleVersion = watchPropertyValue<GameController, int>(
+      (x) => x.value.dropSettleVersion,
+      instanceName: instanceId,
+    );
+    final shouldApplyDropSettle = dropSettleTarget == PileType.mainCards && dropSettlePileIndex == column && dropSettleCardKeys.isNotEmpty && dropSettleFromOffset != null;
 
-    final mainCards = state.mainCards[column];
-    final revealVersion = state.mainRevealVersions[column];
-    final revealCardKey = state.mainRevealCardKeys[column];
-    final shouldApplyDropSettle =
-        state.dropSettleTarget == PileType.mainCards && state.dropSettlePileIndex == column && state.dropSettleCardKeys.isNotEmpty && state.dropSettleFromOffset != null;
-
-    final selectedCard = state.selectedCard;
     final isSelected = selectedCard?.source == PileType.mainCards && selectedCard?.pileIndex == column;
 
-    final draggingPayload = state.draggingPayload;
     final isDraggingStack = draggingPayload?.source == PileType.mainCards && draggingPayload?.pileIndex == column;
     final isDraggingAllFromColumn = isDraggingStack && draggingPayload!.cardIndex == 0;
 
@@ -176,7 +208,7 @@ class MainCardsColumn extends WatchingWidget {
                       final card = mainCards[i];
                       final isTopCard = i == mainCards.length - 1;
                       final shouldAnimateReveal = isTopCard && card.faceUp && revealVersion > 0 && revealCardKey == card.revealKey;
-                      final dropSettleIndex = shouldApplyDropSettle ? state.dropSettleCardKeys.indexOf(card.revealKey) : -1;
+                      final dropSettleIndex = shouldApplyDropSettle ? dropSettleCardKeys.indexOf(card.revealKey) : -1;
                       final shouldAnimateDropSettle = dropSettleIndex >= 0;
 
                       final cardMain = CardMain(
@@ -257,7 +289,7 @@ class MainCardsColumn extends WatchingWidget {
                         isWideUi: isWideUi,
                       );
                       final fromTopLeft =
-                          state.dropSettleFromOffset! +
+                          dropSettleFromOffset! +
                           Offset(
                             0,
                             dropSettleIndex *
@@ -274,7 +306,7 @@ class MainCardsColumn extends WatchingWidget {
                       }
 
                       return Animate(
-                        key: ValueKey('main-drop-settle-$column-${state.dropSettleVersion}-${card.revealKey}'),
+                        key: ValueKey('main-drop-settle-$column-$dropSettleVersion-${card.revealKey}'),
                         effects: [
                           MoveEffect(
                             begin: dropDelta,

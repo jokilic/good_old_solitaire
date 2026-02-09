@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import '../../../../constants/enums.dart';
 import '../../../../models/drag_payload.dart';
@@ -18,6 +19,7 @@ class GameController
             List<SolitaireCard> drawingOpenedCards,
             int drawingRevealVersion,
             String? drawingRevealCardKey,
+            int elapsedSeconds,
             int moveCounter,
             List<List<SolitaireCard>> mainCards,
             List<List<SolitaireCard>> finishedCards,
@@ -31,7 +33,8 @@ class GameController
             List<String> dropSettleCardKeys,
             Offset? dropSettleFromOffset,
           })
-        > {
+        >
+    with Disposable {
   ///
   /// CONSTRUCTOR
   ///
@@ -46,6 +49,7 @@ class GameController
            drawingOpenedCards: [],
            drawingRevealVersion: 0,
            drawingRevealCardKey: null,
+           elapsedSeconds: 0,
            moveCounter: 0,
            mainCards: List.generate(7, (_) => []),
            finishedCards: List.generate(4, (_) => []),
@@ -74,6 +78,9 @@ class GameController
     (_) => GlobalKey(),
   );
 
+  Timer? gameTimer;
+  DateTime? gameTimerStartedAt;
+
   ///
   /// INIT
   ///
@@ -83,11 +90,22 @@ class GameController
   }
 
   ///
+  /// DISPOSE
+  ///
+
+  @override
+  void onDispose() {
+    gameTimer?.cancel();
+  }
+
+  ///
   /// METHODS
   ///
 
   /// Builds and deals a fresh game
   void newGame() {
+    resetAndStartTimer();
+
     final deck = <SolitaireCard>[];
 
     /// Generate a full 52-card deck (all suits, ranks 1-13)
@@ -140,6 +158,36 @@ class GameController
       newDropSettlePileIndex: null,
       newDropSettleCardKeys: const [],
       newDropSettleFromOffset: null,
+    );
+  }
+
+  void resetAndStartTimer() {
+    gameTimer?.cancel();
+    gameTimerStartedAt = DateTime.now();
+
+    updateState(
+      newElapsedSeconds: 0,
+    );
+
+    gameTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) {
+        final startedAt = gameTimerStartedAt;
+
+        if (startedAt == null) {
+          return;
+        }
+
+        final nextSeconds = DateTime.now().difference(startedAt).inSeconds;
+
+        if (value.elapsedSeconds == nextSeconds) {
+          return;
+        }
+
+        updateState(
+          newElapsedSeconds: nextSeconds,
+        );
+      },
     );
   }
 
@@ -1000,6 +1048,7 @@ class GameController
     List<SolitaireCard>? newDrawingOpenedCards,
     int? newDrawingRevealVersion,
     Object? newDrawingRevealCardKey = noDrawingRevealCardKey,
+    int? newElapsedSeconds,
     int? newMoveCounter,
     List<List<SolitaireCard>>? newMainCards,
     List<List<SolitaireCard>>? newFinishedCards,
@@ -1018,6 +1067,7 @@ class GameController
       drawingOpenedCards: newDrawingOpenedCards ?? value.drawingOpenedCards,
       drawingRevealVersion: newDrawingRevealVersion ?? value.drawingRevealVersion,
       drawingRevealCardKey: newDrawingRevealCardKey == noDrawingRevealCardKey ? value.drawingRevealCardKey : newDrawingRevealCardKey as String?,
+      elapsedSeconds: newElapsedSeconds ?? value.elapsedSeconds,
       moveCounter: newMoveCounter ?? value.moveCounter,
       mainCards: newMainCards ?? value.mainCards,
       finishedCards: newFinishedCards ?? value.finishedCards,

@@ -42,19 +42,42 @@ class FinishedCards extends WatchingWidget {
     final controller = getIt.get<GameController>(
       instanceName: instanceId,
     );
-    final state = watchIt<GameController>(
+    final finishedCards = watchPropertyValue<GameController, List<SolitaireCard>>(
+      (x) => x.value.finishedCards[index],
       instanceName: instanceId,
-    ).value;
+    );
+    final hasSelectedCard = watchPropertyValue<GameController, bool>(
+      (x) => x.value.selectedCard != null,
+      instanceName: instanceId,
+    );
+    final dropSettleTarget = watchPropertyValue<GameController, PileType?>(
+      (x) => x.value.dropSettleTarget,
+      instanceName: instanceId,
+    );
+    final dropSettlePileIndex = watchPropertyValue<GameController, int?>(
+      (x) => x.value.dropSettlePileIndex,
+      instanceName: instanceId,
+    );
+    final dropSettleFromOffset = watchPropertyValue<GameController, Offset?>(
+      (x) => x.value.dropSettleFromOffset,
+      instanceName: instanceId,
+    );
+    final dropSettleCardKeys = watchPropertyValue<GameController, List<String>>(
+      (x) => x.value.dropSettleCardKeys,
+      instanceName: instanceId,
+    );
+    final dropSettleVersion = watchPropertyValue<GameController, int>(
+      (x) => x.value.dropSettleVersion,
+      instanceName: instanceId,
+    );
     final effectiveCardHeight = cardHeight - 2;
-
-    final finishedCards = state.finishedCards[index];
     final hasCards = finishedCards.isNotEmpty;
     final shouldApplyDropSettle =
         hasCards &&
-        state.dropSettleTarget == PileType.finishedCards &&
-        state.dropSettlePileIndex == index &&
-        state.dropSettleFromOffset != null &&
-        state.dropSettleCardKeys.contains(finishedCards.last.revealKey);
+        dropSettleTarget == PileType.finishedCards &&
+        dropSettlePileIndex == index &&
+        dropSettleFromOffset != null &&
+        dropSettleCardKeys.contains(finishedCards.last.revealKey);
 
     final cardUnderTop = finishedCards.length > 1 ? finishedCards[finishedCards.length - 2] : null;
 
@@ -71,7 +94,7 @@ class FinishedCards extends WatchingWidget {
             return;
           }
 
-          if (state.selectedCard != null && onTapMoveSelected != null) {
+          if (hasSelectedCard && onTapMoveSelected != null) {
             await onTapMoveSelected!(index);
             return;
           }
@@ -106,7 +129,7 @@ class FinishedCards extends WatchingWidget {
             }
 
             final toRect = controller.rectFromKey(pileKey);
-            final dropDelta = toRect == null ? Offset.zero : state.dropSettleFromOffset! - toRect.topLeft;
+            final dropDelta = toRect == null ? Offset.zero : dropSettleFromOffset - toRect.topLeft;
             final shouldUseDropSettle = toRect != null && dropDelta.distance > 0.5;
 
             if (!shouldUseDropSettle) {
@@ -114,7 +137,7 @@ class FinishedCards extends WatchingWidget {
             }
 
             return Animate(
-              key: ValueKey('finished-drop-settle-$index-${state.dropSettleVersion}'),
+              key: ValueKey('finished-drop-settle-$index-$dropSettleVersion'),
               effects: [
                 MoveEffect(
                   begin: dropDelta,

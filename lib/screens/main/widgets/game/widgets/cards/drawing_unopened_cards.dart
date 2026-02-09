@@ -27,11 +27,10 @@ class DrawingUnopenedCards extends WatchingWidget {
     final controller = getIt.get<GameController>(
       instanceName: instanceId,
     );
-    final state = watchIt<GameController>(
+    final hasCards = watchPropertyValue<GameController, bool>(
+      (x) => x.value.drawingUnopenedCards.isNotEmpty,
       instanceName: instanceId,
-    ).value;
-
-    final hasCards = state.drawingUnopenedCards.isNotEmpty;
+    );
 
     return PressableUnopenedCard(
       hasCards: hasCards,

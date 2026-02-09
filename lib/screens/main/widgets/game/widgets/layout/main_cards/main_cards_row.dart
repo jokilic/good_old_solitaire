@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:watch_it/watch_it.dart';
 
 import '../../../../../../../constants/constants.dart';
 import '../../../../../../../util/card_size.dart';
-import '../../../game_controller.dart';
 import 'main_cards_column.dart';
 
-class MainCardsRow extends WatchingWidget {
+class MainCardsRow extends StatelessWidget {
   final String instanceId;
   final List<GlobalKey> columnKeys;
   final bool isAnimatingMove;
@@ -27,16 +25,12 @@ class MainCardsRow extends WatchingWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = watchIt<GameController>(
-      instanceName: instanceId,
-    ).value;
-    final mainCards = state.mainCards;
     final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(
-        mainCards.length,
+        columnKeys.length,
         (index) => Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
