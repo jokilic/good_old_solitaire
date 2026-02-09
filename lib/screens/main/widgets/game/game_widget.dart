@@ -24,6 +24,7 @@ class GameWidget extends StatefulWidget {
 
   const GameWidget({
     required this.instanceId,
+    required super.key,
   });
 
   @override

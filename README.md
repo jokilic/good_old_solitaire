@@ -9,7 +9,7 @@
 
 - [ ] Think about using keyboard shortcuts for some actions
 
-- [ ] Refactor SolitaireConstants
+- [ ] Refactor constants.dart
 - [ ] Refactor Colors.someColor
 - [ ] Refactor text styles - TODOs in code
 
