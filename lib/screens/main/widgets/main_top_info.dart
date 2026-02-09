@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:watch_it/watch_it.dart';
 
-import '../../../constants/constants.dart';
 import 'game/game_controller.dart';
 
 class MainTopInfo extends WatchingWidget {
@@ -22,7 +21,6 @@ class MainTopInfo extends WatchingWidget {
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 800),
-        padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding),
         child: Row(
           children: [
             ///
@@ -34,14 +32,16 @@ class MainTopInfo extends WatchingWidget {
               children: [
                 Text(
                   'Score'.toUpperCase(),
+                  // TODO
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey,
+                    color: Colors.white12,
                   ),
                 ),
                 Text(
-                  '$moveCounter',
+                  '--',
+                  // TODO
                   style: const TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -61,14 +61,16 @@ class MainTopInfo extends WatchingWidget {
               children: [
                 Text(
                   'Time'.toUpperCase(),
+                  // TODO
                   style: const TextStyle(
                     fontSize: 8,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey,
+                    color: Colors.white12,
                   ),
                 ),
                 const Text(
-                  '00:12',
+                  '--:--',
+                  // TODO
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -88,14 +90,16 @@ class MainTopInfo extends WatchingWidget {
               children: [
                 Text(
                   'Moves'.toUpperCase(),
+                  // TODO
                   style: const TextStyle(
                     fontSize: 8,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey,
+                    color: Colors.white12,
                   ),
                 ),
                 Text(
                   '$moveCounter',
+                  // TODO
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,

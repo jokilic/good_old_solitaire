@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:watch_it/watch_it.dart';
 
+import '../../../../../../constants/colors.dart';
 import '../../../../../../constants/constants.dart';
 import '../../../../../../constants/durations.dart';
 import '../../../../../../util/dependencies.dart';
@@ -89,11 +90,7 @@ class _PressableUnopenedCardState extends State<PressableUnopenedCard> {
           borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
           boxShadow: isPressed && widget.hasCards
               ? const [
-                  BoxShadow(
-                    color: Colors.black38,
-                    blurRadius: 12,
-                    offset: Offset(0, 8),
-                  ),
+                  SolitaireBoxShadows.lift,
                 ]
               : const [],
         ),

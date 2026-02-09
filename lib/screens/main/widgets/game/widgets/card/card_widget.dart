@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../../constants/colors.dart';
 import '../../../../../../constants/constants.dart';
 import '../../../../../../constants/durations.dart';
 import '../../../../../../models/solitaire_card.dart';
@@ -65,11 +66,7 @@ class CardWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
         boxShadow: shouldLift
             ? const [
-                BoxShadow(
-                  color: Colors.black38,
-                  blurRadius: 12,
-                  offset: Offset(0, 8),
-                ),
+                SolitaireBoxShadows.lift,
               ]
             : const [],
       ),

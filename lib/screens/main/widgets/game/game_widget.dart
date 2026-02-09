@@ -463,14 +463,13 @@ class _GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
       instanceName: widget.instanceId,
     );
 
+    final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
+
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 800),
-        padding: const EdgeInsets.all(SolitaireConstants.padding),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final useWideLayout = constraints.maxWidth > SolitaireConstants.compactLayoutMaxWidth;
-
+        child: Builder(
+          builder: (context) {
             final hiddenTopCardColumn = tapMoveSource?.source == PileType.mainCards ? tapMoveSource!.pileIndex : null;
             final hideOpenedTopCard = tapMoveSource?.source == PileType.drawingOpenedCards;
 
@@ -490,7 +489,7 @@ class _GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
 
             return IgnorePointer(
               ignoring: isAnimatingMove || isInitialDealAnimating,
-              child: useWideLayout
+              child: isWideUi
                   ? Column(
                       children: [
                         Builder(
@@ -514,7 +513,9 @@ class _GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                                         hideOpenedTopCard: hideOpenedTopCard,
                                       ),
                                     ),
-                                    const SizedBox(width: SolitaireConstants.padding),
+                                    const SizedBox(
+                                      width: SolitaireConstants.padding,
+                                    ),
                                     SizedBox(
                                       width: emptySectionWidth,
                                       child: buildCardSlot(
@@ -524,7 +525,9 @@ class _GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: SolitaireConstants.padding),
+                                    const SizedBox(
+                                      width: SolitaireConstants.padding,
+                                    ),
                                     SizedBox(
                                       width: finishedSectionWidth,
                                       child: FinishedCardsRow(
@@ -540,7 +543,9 @@ class _GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                             ),
                           ),
                         ),
-                        const SizedBox(height: SolitaireConstants.padding),
+                        const SizedBox(
+                          height: SolitaireConstants.padding,
+                        ),
                         Expanded(
                           child: MainCardsRow(
                             instanceId: widget.instanceId,
@@ -618,7 +623,9 @@ class _GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                           ],
                         ),
 
-                        const SizedBox(height: SolitaireConstants.padding),
+                        const SizedBox(
+                          height: SolitaireConstants.padding,
+                        ),
                         Expanded(
                           child: MainCardsRow(
                             instanceId: widget.instanceId,

@@ -43,36 +43,11 @@ class CardFront extends StatelessWidget {
               icon: icon,
               width: width,
             )
-          : Stack(
-              children: [
-                ///
-                /// LABEL
-                ///
-                Positioned(
-                  top: 2,
-                  left: 4,
-                  child: CardLabel(
-                    label: label,
-                    color: color,
-                  ),
-                ),
-
-                ///
-                /// ICON
-                ///
-                Positioned(
-                  bottom: -8,
-                  left: 0,
-                  right: -24,
-                  child: ClipRect(
-                    child: PhosphorIcon(
-                      icon,
-                      color: color,
-                      size: 56,
-                    ),
-                  ),
-                ),
-              ],
+          : NonWideCardFace(
+              label: label,
+              color: color,
+              icon: icon,
+              width: width,
             ),
     );
   }
@@ -81,7 +56,7 @@ class CardFront extends StatelessWidget {
 class WideCardFace extends StatelessWidget {
   final String label;
   final Color color;
-  final IconData icon;
+  final PhosphorIconData icon;
   final double width;
 
   const WideCardFace({
@@ -96,6 +71,7 @@ class WideCardFace extends StatelessWidget {
     final smallIconSize = width * 0.2;
     final centerIconSize = width * 0.5;
 
+    // TODO
     final labelStyle = TextStyle(
       color: color,
       fontSize: width * 0.25,
@@ -165,4 +141,52 @@ class WideCardFace extends StatelessWidget {
       ),
     );
   }
+}
+
+class NonWideCardFace extends StatelessWidget {
+  final String label;
+  final Color color;
+  final PhosphorIconData icon;
+  final double width;
+
+  const NonWideCardFace({
+    required this.label,
+    required this.color,
+    required this.icon,
+    required this.width,
+  });
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    children: [
+      ///
+      /// LABEL
+      ///
+      Positioned(
+        top: 2,
+        left: 4,
+        child: CardLabel(
+          label: label,
+          color: color,
+          width: width,
+        ),
+      ),
+
+      ///
+      /// ICON
+      ///
+      Positioned(
+        bottom: -8,
+        left: 0,
+        right: -24,
+        child: ClipRect(
+          child: PhosphorIcon(
+            icon,
+            color: color,
+            size: width,
+          ),
+        ),
+      ),
+    ],
+  );
 }

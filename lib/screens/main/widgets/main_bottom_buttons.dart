@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../constants/constants.dart';
-import '../../../constants/durations.dart';
+import '../../../widgets/solitaire_icon_button.dart';
+import '../../../widgets/solitaire_text_button.dart';
 
 class MainBottomButtons extends StatelessWidget {
   final String instanceId;
@@ -12,204 +13,77 @@ class MainBottomButtons extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Center(
-    child: Container(
-      constraints: const BoxConstraints(maxWidth: 800),
-      padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ///
-          /// NEW GAME
-          ///
-          IconButton(
-            onPressed: () {},
-            style: IconButton.styleFrom(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 18,
-                vertical: 28,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(100),
-              ),
-              elevation: 0,
-              iconSize: 20,
-              animationDuration: SolitaireDurations.animationLong,
-              highlightColor: Colors.green,
-              backgroundColor: Colors.indigo,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: Colors.yellow,
-              disabledForegroundColor: Colors.blue,
-            ),
-            icon: PhosphorIcon(
-              PhosphorIcons.plus(
-                PhosphorIconsStyle.bold,
-              ),
-            ),
-          ),
+  Widget build(BuildContext context) {
+    final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
 
-          const SizedBox(width: 6),
-
-          ///
-          /// RESET GAME
-          ///
-          IconButton(
-            onPressed: () {},
-            style: IconButton.styleFrom(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 18,
-                vertical: 28,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(100),
-              ),
-              elevation: 0,
-              iconSize: 20,
-              animationDuration: SolitaireDurations.animationLong,
-              highlightColor: Colors.green,
-              backgroundColor: Colors.indigo,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: Colors.yellow,
-              disabledForegroundColor: Colors.blue,
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 800),
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SolitaireIconButton(
+                  iconData: PhosphorIcons.plus(
+                    PhosphorIconsStyle.bold,
+                  ),
+                  isWideUi: isWideUi,
+                ),
+                const SizedBox(width: 6),
+                SolitaireIconButton(
+                  iconData: PhosphorIcons.arrowCounterClockwise(
+                    PhosphorIconsStyle.bold,
+                  ),
+                  isWideUi: isWideUi,
+                ),
+              ],
             ),
-            icon: PhosphorIcon(
-              PhosphorIcons.arrowCounterClockwise(
-                PhosphorIconsStyle.bold,
-              ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SolitaireTextButton(
+                  label: 'Undo',
+                  iconData: PhosphorIcons.eraser(
+                    PhosphorIconsStyle.bold,
+                  ),
+                  isWideUi: isWideUi,
+                ),
+                const SizedBox(width: 6),
+                SolitaireTextButton(
+                  label: 'Hint',
+                  iconData: PhosphorIcons.lifebuoy(
+                    PhosphorIconsStyle.bold,
+                  ),
+                  isWideUi: isWideUi,
+                ),
+              ],
             ),
-          ),
-
-          const SizedBox(width: 6),
-
-          ///
-          /// UNDO
-          ///
-          TextButton.icon(
-            onPressed: () {},
-            style: TextButton.styleFrom(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 34,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              elevation: 0,
-              iconSize: 24,
-              animationDuration: SolitaireDurations.animationLong,
-              backgroundColor: Colors.indigo,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: Colors.yellow,
-              disabledForegroundColor: Colors.blue,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SolitaireIconButton(
+                  iconData: PhosphorIcons.palette(
+                    PhosphorIconsStyle.bold,
+                  ),
+                  isWideUi: isWideUi,
+                ),
+                const SizedBox(width: 6),
+                SolitaireIconButton(
+                  iconData: PhosphorIcons.gearSix(
+                    PhosphorIconsStyle.bold,
+                  ),
+                  isWideUi: isWideUi,
+                ),
+              ],
             ),
-            label: const Text('Undo'),
-            icon: PhosphorIcon(
-              PhosphorIcons.eraser(
-                PhosphorIconsStyle.bold,
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 6),
-
-          ///
-          /// HINT
-          ///
-          TextButton.icon(
-            onPressed: () {},
-            style: TextButton.styleFrom(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 34,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              elevation: 0,
-              iconSize: 24,
-              animationDuration: SolitaireDurations.animationLong,
-              backgroundColor: Colors.indigo,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: Colors.yellow,
-              disabledForegroundColor: Colors.blue,
-            ),
-            label: const Text('Hint'),
-            icon: PhosphorIcon(
-              PhosphorIcons.lifebuoy(
-                PhosphorIconsStyle.bold,
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 6),
-
-          ///
-          /// THEME
-          ///
-          IconButton(
-            onPressed: () {},
-            style: IconButton.styleFrom(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 18,
-                vertical: 28,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(100),
-              ),
-              elevation: 0,
-              iconSize: 20,
-              animationDuration: SolitaireDurations.animationLong,
-              highlightColor: Colors.green,
-              backgroundColor: Colors.indigo,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: Colors.yellow,
-              disabledForegroundColor: Colors.blue,
-            ),
-            icon: PhosphorIcon(
-              PhosphorIcons.palette(
-                PhosphorIconsStyle.bold,
-              ),
-            ),
-          ),
-
-          const SizedBox(width: 6),
-
-          ///
-          /// SETTINGS
-          ///
-          IconButton(
-            onPressed: () {},
-            style: IconButton.styleFrom(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 18,
-                vertical: 28,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(100),
-              ),
-              elevation: 0,
-              iconSize: 20,
-              animationDuration: SolitaireDurations.animationLong,
-              highlightColor: Colors.green,
-              backgroundColor: Colors.indigo,
-              foregroundColor: Colors.white,
-              disabledBackgroundColor: Colors.yellow,
-              disabledForegroundColor: Colors.blue,
-            ),
-            icon: PhosphorIcon(
-              PhosphorIcons.gearSix(
-                PhosphorIconsStyle.bold,
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }

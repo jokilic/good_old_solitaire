@@ -46,43 +46,46 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) => Scaffold(
     body: SafeArea(
       child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: SolitaireColors.greenGradientColors,
-          ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: SolitaireConstants.padding,
+          vertical: SolitaireConstants.padding * 2,
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: SolitaireConstants.padding * 2),
-          child: Column(
-            children: [
-              ///
-              /// TOP INFO
-              ///
-              MainTopInfo(
+        decoration: const BoxDecoration(
+          gradient: SolitaireGradients.greenGradient,
+        ),
+        child: Column(
+          children: [
+            ///
+            /// TOP INFO
+            ///
+            MainTopInfo(
+              instanceId: widget.instanceId,
+            ),
+
+            const SizedBox(
+              height: SolitaireConstants.padding,
+            ),
+
+            ///
+            /// GAME
+            ///
+            Expanded(
+              child: GameWidget(
                 instanceId: widget.instanceId,
               ),
+            ),
 
-              const SizedBox(height: SolitaireConstants.padding),
+            const SizedBox(
+              height: SolitaireConstants.padding,
+            ),
 
-              ///
-              /// GAME
-              ///
-              Expanded(
-                child: GameWidget(
-                  instanceId: widget.instanceId,
-                ),
-              ),
-
-              ///
-              /// BOTTOM BUTTONS
-              ///
-              MainBottomButtons(
-                instanceId: widget.instanceId,
-              ),
-            ],
-          ),
+            ///
+            /// BOTTOM BUTTONS
+            ///
+            MainBottomButtons(
+              instanceId: widget.instanceId,
+            ),
+          ],
         ),
       ),
     ),

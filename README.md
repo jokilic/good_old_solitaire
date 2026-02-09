@@ -10,10 +10,9 @@
 
 - [ ] Think about using keyboard shortcuts for some actions
 
+- [ ] Refactor SolitaireConstants
 - [ ] Refactor Colors.someColor
-- [ ] Refactor text styles
-- [ ] Refactor BoxShadow - currently only when lifting cards
-- [ ] Refactor Gradient - currently only in [GameWidget]
+- [ ] Refactor text styles - TODOs in code
 
 ### Menu -> https://m3.material.io/components/toolbars/overview or https://m3.material.io/components/button-groups/overview
 - [ ] New game
