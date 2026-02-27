@@ -15,23 +15,22 @@ class SolitaireIconButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => IconButton(
-    onPressed: onPressed,
-    style: IconButton.styleFrom(
-      alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(
-        horizontal: isWideUi ? 14 : 12,
-        vertical: isWideUi ? 26 : 20,
+  Widget build(BuildContext context) => SizedBox(
+    height: isWideUi ? 72 : 60,
+    width: isWideUi ? 72 : 60,
+    child: IconButton(
+      onPressed: onPressed,
+      style: IconButton.styleFrom(
+        alignment: Alignment.center,
+        padding: EdgeInsets.zero,
+        shape: const StadiumBorder(),
+        elevation: 0,
+        iconSize: isWideUi ? 24 : 20,
+        animationDuration: SolitaireDurations.animationLong,
+        backgroundColor: Colors.white12,
+        foregroundColor: Colors.white,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(100),
-      ),
-      elevation: 0,
-      iconSize: isWideUi ? 24 : 20,
-      animationDuration: SolitaireDurations.animationLong,
-      backgroundColor: Colors.white12,
-      foregroundColor: Colors.white,
+      icon: PhosphorIcon(iconData),
     ),
-    icon: PhosphorIcon(iconData),
   );
 }

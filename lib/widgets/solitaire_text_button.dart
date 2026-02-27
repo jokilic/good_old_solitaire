@@ -17,29 +17,35 @@ class SolitaireTextButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => TextButton(
-    onPressed: onPressed,
-    style: TextButton.styleFrom(
-      alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(
-        horizontal: isWideUi ? 20 : 18,
-        vertical: isWideUi ? 34 : 28,
+  Widget build(BuildContext context) => SizedBox(
+    width: double.infinity,
+    height: isWideUi ? 72 : 60,
+    child: TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        textStyle: TextStyle(
+          fontSize: isWideUi ? 16 : 14,
+          fontWeight: FontWeight.bold,
+        ),
+        alignment: Alignment.center,
+        padding: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        elevation: 0,
+        iconSize: isWideUi ? 24 : 20,
+        animationDuration: SolitaireDurations.animationLong,
+        backgroundColor: Colors.white12,
+        foregroundColor: Colors.white,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          PhosphorIcon(iconData),
+          SizedBox(width: isWideUi ? 12 : 10),
+          Text(label),
+        ],
       ),
-      elevation: 0,
-      iconSize: isWideUi ? 24 : 20,
-      animationDuration: SolitaireDurations.animationLong,
-      backgroundColor: Colors.white12,
-      foregroundColor: Colors.white,
-    ),
-    child: Row(
-      children: [
-        PhosphorIcon(iconData),
-        SizedBox(width: isWideUi ? 12 : 10),
-        Text(label),
-      ],
     ),
   );
 }

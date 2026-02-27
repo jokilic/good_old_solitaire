@@ -83,53 +83,63 @@ class _MainScreenState extends State<MainScreen> {
     );
 
     return Scaffold(
-      body: SafeArea(
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: SolitaireConstants.padding,
-            vertical: SolitaireConstants.padding * 2,
-          ),
-          decoration: const BoxDecoration(
-            gradient: SolitaireGradients.greenGradient,
-          ),
-          child: Column(
-            children: [
-              ///
-              /// TOP INFO
-              ///
-              MainTopInfo(
-                instanceId: widget.instanceId,
-              ),
+      body: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: SolitaireConstants.padding,
+          vertical: SolitaireConstants.padding * 2,
+        ),
+        decoration: const BoxDecoration(
+          gradient: SolitaireGradients.greenGradient,
+        ),
+        child: Column(
+          children: [
+            ///
+            /// TOP SPACING
+            ///
+            SizedBox(
+              height: MediaQuery.paddingOf(context).top,
+            ),
 
-              const SizedBox(
-                height: SolitaireConstants.padding,
-              ),
+            ///
+            /// TOP INFO
+            ///
+            MainTopInfo(
+              instanceId: widget.instanceId,
+            ),
 
-              ///
-              /// GAME
-              ///
-              Expanded(
-                child: GameWidget(
-                  key: ValueKey(
-                    '${widget.instanceId}-$gameNumber',
-                  ),
-                  instanceId: widget.instanceId,
+            const SizedBox(
+              height: SolitaireConstants.padding,
+            ),
+
+            ///
+            /// GAME
+            ///
+            Expanded(
+              child: GameWidget(
+                key: ValueKey(
+                  '${widget.instanceId}-$gameNumber',
                 ),
-              ),
-
-              const SizedBox(
-                height: SolitaireConstants.padding,
-              ),
-
-              ///
-              /// BOTTOM BUTTONS
-              ///
-              MainBottomButtons(
                 instanceId: widget.instanceId,
-                newGamePressed: () => controller.newGamePressed(context),
               ),
-            ],
-          ),
+            ),
+
+            const SizedBox(
+              height: SolitaireConstants.padding,
+            ),
+
+            ///
+            /// BOTTOM BUTTONS
+            ///
+            MainBottomButtons(
+              instanceId: widget.instanceId,
+              newGamePressed: () => controller.newGamePressed(context),
+            ),
+
+            ///
+            /// BOTTOM SPACING
+            ///
+            const SizedBox(height: 8),
+          ],
         ),
       ),
     );
