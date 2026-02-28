@@ -14,7 +14,6 @@ class CardLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Text(
     label,
-    // TODO
     style: TextStyle(
       color: color,
       fontSize: width * 0.35,

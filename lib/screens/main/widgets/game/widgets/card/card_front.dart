@@ -71,7 +71,6 @@ class WideCardFace extends StatelessWidget {
     final smallIconSize = width * 0.2;
     final centerIconSize = width * 0.5;
 
-    // TODO
     final labelStyle = TextStyle(
       color: color,
       fontSize: width * 0.25,
