@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../constants/durations.dart';
-
 class SolitaireIconButton extends StatelessWidget {
   final Function() onPressed;
   final String icon;
@@ -15,45 +13,45 @@ class SolitaireIconButton extends StatelessWidget {
     required this.isWideUi,
   });
 
+  // TODO: Implement GestureDetector which will do an animated scale on hover and on tap (it scales down on hover and on tap, and scales back up when the hover/tap ends, like the user literally pressed the real button)
+
   @override
   Widget build(BuildContext context) => Column(
     children: [
       ///
       /// ICON
       ///
-      SizedBox(
-        height: isWideUi ? 72 : 60,
-        child: IconButton(
-          onPressed: onPressed,
-          style: IconButton.styleFrom(
-            alignment: Alignment.center,
-            padding: EdgeInsets.zero,
-            shape: const StadiumBorder(),
-            elevation: 0,
-            iconSize: isWideUi ? 24 : 20,
-            animationDuration: SolitaireDurations.animationLong,
-          ),
-          icon: Image.asset(
-            icon,
-            height: isWideUi ? 64 : 48,
-          ),
-        ),
+      Image.asset(
+        icon,
+        height: isWideUi ? 56 : 40,
       ),
-      const SizedBox(height: 4),
+
+      ///
+      /// SPACING
+      ///
+      SizedBox(height: isWideUi ? 8 : 4),
 
       ///
       /// TEXT
       ///
-      // TODO: Make text adaptive and it should always scale to fit the button
-      Text(
-        text,
-        style: TextStyle(
-          fontSize: isWideUi ? 14 : 12,
-          color: Colors.white,
+      LayoutBuilder(
+        builder: (context, constraints) => SizedBox(
+          width: constraints.maxWidth,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              text,
+              style: TextStyle(
+                fontSize: isWideUi ? 12 : 10,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              softWrap: false,
+            ),
+          ),
         ),
-        textAlign: TextAlign.center,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
       ),
     ],
   );

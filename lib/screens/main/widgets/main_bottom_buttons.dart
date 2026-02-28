@@ -60,7 +60,6 @@ class MainBottomButtons extends StatelessWidget {
             /// UNDO
             ///
             Expanded(
-              flex: 2,
               child: SolitaireIconButton(
                 onPressed: () {
                   // TODO: Undo
@@ -75,7 +74,6 @@ class MainBottomButtons extends StatelessWidget {
             /// HINT
             ///
             Expanded(
-              flex: 2,
               child: SolitaireIconButton(
                 onPressed: () {
                   // TODO: Hint
