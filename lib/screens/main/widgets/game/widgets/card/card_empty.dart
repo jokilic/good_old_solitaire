@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -15,24 +17,33 @@ class CardEmpty extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Container(
-    height: height,
-    width: width,
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
-      border: Border.all(
-        color: Colors.white12,
-        width: SolitaireConstants.borderWidth,
+  Widget build(BuildContext context) => ClipRRect(
+    borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
+    child: BackdropFilter(
+      filter: ImageFilter.blur(
+        sigmaX: SolitaireConstants.blurRadius,
+        sigmaY: SolitaireConstants.blurRadius,
       ),
-      color: Colors.white12,
-    ),
-    child: icon != null
-        ? PhosphorIcon(
-            icon!,
+      child: Container(
+        height: height,
+        width: width,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
+          border: Border.all(
             color: Colors.white12,
-            size: 24,
-          )
-        : null,
+            width: SolitaireConstants.borderWidth,
+          ),
+          color: Colors.white12,
+        ),
+        child: icon != null
+            ? PhosphorIcon(
+                icon!,
+                color: Colors.white12,
+                size: 24,
+              )
+            : null,
+      ),
+    ),
   );
 }

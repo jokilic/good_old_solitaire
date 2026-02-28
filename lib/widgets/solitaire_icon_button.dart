@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-class SolitaireIconButton extends StatelessWidget {
+import '../constants/durations.dart';
+
+class SolitaireIconButton extends StatefulWidget {
   final Function() onPressed;
   final String icon;
   final String text;
@@ -13,46 +15,104 @@ class SolitaireIconButton extends StatelessWidget {
     required this.isWideUi,
   });
 
-  // TODO: Implement GestureDetector which will do an animated scale on hover and on tap (it scales down on hover and on tap, and scales back up when the hover/tap ends, like the user literally pressed the real button)
+  @override
+  State<SolitaireIconButton> createState() => _SolitaireIconButtonState();
+}
+
+class _SolitaireIconButtonState extends State<SolitaireIconButton> {
+  var isHovered = false;
+  var isPressed = false;
+
+  double get targetScale {
+    if (isPressed) {
+      return 0.9;
+    }
+
+    if (isHovered) {
+      return 0.95;
+    }
+
+    return 1;
+  }
+
+  void setHovered(bool value) {
+    if (isHovered == value) {
+      return;
+    }
+
+    setState(
+      () => isHovered = value,
+    );
+  }
+
+  void setPressed(bool value) {
+    if (isPressed == value) {
+      return;
+    }
+
+    setState(
+      () => isPressed = value,
+    );
+  }
 
   @override
-  Widget build(BuildContext context) => Column(
-    children: [
-      ///
-      /// ICON
-      ///
-      Image.asset(
-        icon,
-        height: isWideUi ? 56 : 40,
-      ),
-
-      ///
-      /// SPACING
-      ///
-      SizedBox(height: isWideUi ? 8 : 4),
-
-      ///
-      /// TEXT
-      ///
-      LayoutBuilder(
-        builder: (context, constraints) => SizedBox(
-          width: constraints.maxWidth,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: isWideUi ? 12 : 10,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              softWrap: false,
+  Widget build(BuildContext context) => MouseRegion(
+    cursor: SystemMouseCursors.click,
+    onEnter: (_) => setHovered(true),
+    onExit: (_) {
+      setHovered(false);
+      setPressed(false);
+    },
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: widget.onPressed,
+      onTapDown: (_) => setPressed(true),
+      onTapUp: (_) => setPressed(false),
+      onTapCancel: () => setPressed(false),
+      child: AnimatedScale(
+        scale: targetScale,
+        duration: SolitaireDurations.animationLong,
+        curve: Curves.easeIn,
+        child: Column(
+          children: [
+            ///
+            /// ICON
+            ///
+            Image.asset(
+              widget.icon,
+              height: widget.isWideUi ? 56 : 40,
             ),
-          ),
+
+            ///
+            /// SPACING
+            ///
+            SizedBox(height: widget.isWideUi ? 8 : 4),
+
+            ///
+            /// TEXT
+            ///
+            LayoutBuilder(
+              builder: (context, constraints) => SizedBox(
+                width: constraints.maxWidth,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    widget.text,
+                    style: TextStyle(
+                      fontSize: widget.isWideUi ? 12 : 10,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-    ],
+    ),
   );
 }

@@ -5,13 +5,15 @@
 🃏 **Good old Solitaire** is a simple card game made in **Flutter**. 👨‍💻
 
 ### To-Do
+- [ ] Play with different `curve`
+
 - [ ] Implement score - https://solitaired.com/how-is-solitaire-scored
 
 - [ ] Think about using keyboard shortcuts for some actions
 
 - [ ] Refactor constants.dart
 - [ ] Refactor Colors.someColor
-- [ ] Refactor text styles - TODOs in code
+- [ ] Refactor text styles
 
 ### Menu -> https://m3.material.io/components/toolbars/overview or https://m3.material.io/components/button-groups/overview
 - [ ] New game

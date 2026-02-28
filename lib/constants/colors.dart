@@ -8,6 +8,11 @@ class SolitaireColors {
   static const green1 = Color(0xFF32533D);
   static const green2 = Color(0xFF496F5D);
   static const green3 = Color(0xFF758E4F);
+
+  static const green = Color(0xFF96c362);
+  static const blue = Color(0xFF70bfff);
+  static const purple = Color(0xFF9aa2e6);
+  static const orange = Color(0xFFffc571);
 }
 
 class SolitaireGradients {
