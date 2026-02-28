@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../constants/constants.dart';
+import '../../../constants/icons.dart';
 import '../../../widgets/solitaire_icon_button.dart';
-import '../../../widgets/solitaire_text_button.dart';
 
 class MainBottomButtons extends StatelessWidget {
   final String instanceId;
@@ -21,87 +20,100 @@ class MainBottomButtons extends StatelessWidget {
 
     return Center(
       child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(24),
+          color: Colors.white12,
+        ),
         constraints: const BoxConstraints(maxWidth: 800),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            spacing: buttonSpacing.toDouble(),
-            children: [
-              Expanded(
-                child: SolitaireIconButton(
-                  onPressed: newGamePressed,
-                  iconData: PhosphorIcons.plus(
-                    PhosphorIconsStyle.bold,
-                  ),
-                  isWideUi: isWideUi,
-                ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: buttonSpacing.toDouble(),
+          children: [
+            ///
+            /// NEW GAME
+            ///
+            Expanded(
+              child: SolitaireIconButton(
+                onPressed: newGamePressed,
+                icon: SolitaireIcons.newIcon,
+                text: 'New',
+                isWideUi: isWideUi,
               ),
+            ),
 
-              Expanded(
-                child: SolitaireIconButton(
-                  onPressed: () {
-                    // TODO: Reset game
-                  },
-                  iconData: PhosphorIcons.arrowCounterClockwise(
-                    PhosphorIconsStyle.bold,
-                  ),
-                  isWideUi: isWideUi,
-                ),
+            ///
+            /// RESET GAME
+            ///
+            Expanded(
+              child: SolitaireIconButton(
+                onPressed: () {
+                  // TODO: Reset game
+                },
+                icon: SolitaireIcons.reset,
+                text: 'Reset',
+                isWideUi: isWideUi,
               ),
+            ),
 
-              Expanded(
-                flex: 2,
-                child: SolitaireTextButton(
-                  onPressed: () {
-                    // TODO: Undo
-                  },
-                  label: 'Undo',
-                  iconData: PhosphorIcons.eraser(
-                    PhosphorIconsStyle.bold,
-                  ),
-                  isWideUi: isWideUi,
-                ),
+            ///
+            /// UNDO
+            ///
+            Expanded(
+              flex: 2,
+              child: SolitaireIconButton(
+                onPressed: () {
+                  // TODO: Undo
+                },
+                icon: SolitaireIcons.undo,
+                text: 'Undo',
+                isWideUi: isWideUi,
               ),
+            ),
 
-              Expanded(
-                flex: 2,
-                child: SolitaireTextButton(
-                  onPressed: () {
-                    // TODO: Hint
-                  },
-                  label: 'Hint',
-                  iconData: PhosphorIcons.lightbulb(
-                    PhosphorIconsStyle.bold,
-                  ),
-                  isWideUi: isWideUi,
-                ),
+            ///
+            /// HINT
+            ///
+            Expanded(
+              flex: 2,
+              child: SolitaireIconButton(
+                onPressed: () {
+                  // TODO: Hint
+                },
+                icon: SolitaireIcons.hint,
+                text: 'Hint',
+                isWideUi: isWideUi,
               ),
+            ),
 
-              Expanded(
-                child: SolitaireIconButton(
-                  onPressed: () {
-                    // TODO: Theme
-                  },
-                  iconData: PhosphorIcons.palette(
-                    PhosphorIconsStyle.bold,
-                  ),
-                  isWideUi: isWideUi,
-                ),
+            ///
+            /// THEME
+            ///
+            Expanded(
+              child: SolitaireIconButton(
+                onPressed: () {
+                  // TODO: Theme
+                },
+                icon: SolitaireIcons.theme,
+                text: 'Theme',
+                isWideUi: isWideUi,
               ),
+            ),
 
-              Expanded(
-                child: SolitaireIconButton(
-                  onPressed: () {
-                    // TODO: Settings
-                  },
-                  iconData: PhosphorIcons.gearSix(
-                    PhosphorIconsStyle.bold,
-                  ),
-                  isWideUi: isWideUi,
-                ),
+            ///
+            /// SETTINGS
+            ///
+            Expanded(
+              child: SolitaireIconButton(
+                onPressed: () {
+                  // TODO: Settings
+                },
+                icon: SolitaireIcons.settings,
+                text: 'Settings',
+                isWideUi: isWideUi,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
