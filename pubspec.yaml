@@ -51,6 +51,7 @@ flutter:
 
   assets:
     - assets/
+    - assets/icons/
     - assets/sounds/
 
 # Run code generation - `flutter pub run build_runner build -d`
@@ -68,12 +69,12 @@ flutter_launcher_icons:
   adaptive_icon_monochrome: 'assets/monochrome.png'
   min_sdk_android: 21
   remove_alpha_ios: true
-  background_color_ios: '#EDEDF4'
+  background_color_ios: '#32533D'
   web:
     generate: true
     image_path: 'assets/icon.png'
-    background_color: '#EDEDF4'
-    theme_color: '#EDEDF4'
+    background_color: '#32533D'
+    theme_color: '#32533D'
   windows:
     generate: true
     image_path: 'assets/icon.png'
@@ -86,9 +87,9 @@ flutter_launcher_icons:
 # Run splash screen generation with 'flutter pub run flutter_native_splash:create'
 flutter_native_splash:
   background_image: 'assets/splash.png'
-  background_image_dark: 'assets/splash_dark.png'
+  background_image_dark: 'assets/splash.png'
   android_12:
     image: 'assets/splash_icon.png'
-    image_dark: 'assets/monochrome.png'
-    color: '#EDEDF4'
-    color_dark: '#1D2024'
+    image_dark: 'assets/splash_icon.png'
+    color: '#32533D'
+    color_dark: '#32533D'

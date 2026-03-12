@@ -8,7 +8,7 @@
 
 - [ ] Implement score - https://solitaired.com/how-is-solitaire-scored
 - [ ] Think about using keyboard shortcuts for some actions
-- [ ] Implement icon for the app
+- [ ] Icons should be WebP
 
 - [ ] Refactor constants.dart
 - [ ] Refactor Colors.someColor & Color(0x...)
