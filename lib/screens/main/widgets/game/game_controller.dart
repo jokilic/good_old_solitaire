@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../../../constants/enums.dart';
 import '../../../../models/drag_payload.dart';
+import '../../../../models/game_setup_snapshot.dart';
 import '../../../../models/selected_card.dart';
 import '../../../../models/solitaire_card.dart';
 import '../../../../services/sound_service.dart';
@@ -81,6 +82,8 @@ class GameController
   Timer? gameTimer;
   DateTime? gameTimerStartedAt;
 
+  GameSetupSnapshot? initialGameSetup;
+
   ///
   /// INIT
   ///
@@ -142,6 +145,16 @@ class GameController
       newDrawingUnopenedCards.add(card);
     }
 
+    // Keep a stable snapshot of the initial deal so reset can restore it.
+    initialGameSetup = GameSetupSnapshot(
+      drawingUnopenedCards: cloneCards(
+        newDrawingUnopenedCards,
+      ),
+      mainCards: cloneCardColumns(
+        newMainCards,
+      ),
+    );
+
     /// Commit the new game state in one notifier update
     updateState(
       newDrawingUnopenedCards: newDrawingUnopenedCards,
@@ -154,6 +167,44 @@ class GameController
       newMainRevealVersions: List.filled(7, 0),
       newMainRevealCardKeys: List.filled(7, null),
       newSelectedCard: null,
+      newDropSettleTarget: null,
+      newDropSettlePileIndex: null,
+      newDropSettleCardKeys: const [],
+      newDropSettleFromOffset: null,
+    );
+  }
+
+  /// Restores the current game to its original dealt layout
+  void resetGame() {
+    final setup = initialGameSetup;
+
+    if (setup == null) {
+      newGame();
+      return;
+    }
+
+    resetAndStartTimer();
+
+    updateState(
+      newDrawingUnopenedCards: cloneCards(
+        setup.drawingUnopenedCards,
+      ),
+      newDrawingOpenedCards: const [],
+      newDrawingRevealVersion: 0,
+      newDrawingRevealCardKey: null,
+      newMoveCounter: 0,
+      newMainCards: cloneCardColumns(
+        setup.mainCards,
+      ),
+      newFinishedCards: List.generate(
+        4,
+        (_) => <SolitaireCard>[],
+      ),
+      newMainRevealVersions: List.filled(7, 0),
+      newMainRevealCardKeys: List.filled(7, null),
+      newSelectedCard: null,
+      newDraggingPayload: null,
+      newDropSettleVersion: 0,
       newDropSettleTarget: null,
       newDropSettlePileIndex: null,
       newDropSettleCardKeys: const [],
@@ -1041,6 +1092,19 @@ class GameController
       base.height,
     );
   }
+
+  List<SolitaireCard> cloneCards(List<SolitaireCard> cards) => [
+    for (final card in cards)
+      SolitaireCard(
+        suit: card.suit,
+        rank: card.rank,
+        faceUp: card.faceUp,
+      ),
+  ];
+
+  List<List<SolitaireCard>> cloneCardColumns(List<List<SolitaireCard>> columns) => [
+    for (final column in columns) cloneCards(column),
+  ];
 
   /// Updates `state` with any passed value
   void updateState({

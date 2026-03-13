@@ -9,10 +9,12 @@ import '../../../widgets/solitaire_icon_button.dart';
 class MainBottomButtons extends StatelessWidget {
   final String instanceId;
   final Function() newGamePressed;
+  final Function() resetGamePressed;
 
   const MainBottomButtons({
     required this.instanceId,
     required this.newGamePressed,
+    required this.resetGamePressed,
   });
 
   @override
@@ -60,9 +62,7 @@ class MainBottomButtons extends StatelessWidget {
                 ///
                 Expanded(
                   child: SolitaireIconButton(
-                    onPressed: () {
-                      // TODO: Reset game
-                    },
+                    onPressed: resetGamePressed,
                     icon: SolitaireIcons.reset,
                     text: 'Reset',
                     isWideUi: isWideUi,

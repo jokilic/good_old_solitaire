@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import '../../constants/durations.dart';
 
 class MainController {
-  final Function() onRestartGame;
+  final Function() onNewGame;
+  final Function() onResetGame;
 
   MainController({
-    required this.onRestartGame,
+    required this.onNewGame,
+    required this.onResetGame,
   });
 
   ///
@@ -43,6 +45,39 @@ class MainController {
       return;
     }
 
-    onRestartGame();
+    onNewGame();
+  }
+
+  /// Triggered when the user presses `Reset game` button
+  Future<void> resetGamePressed(BuildContext context) async {
+    final shouldResetGame =
+        await showDialog<bool>(
+          context: context,
+          animationStyle: const AnimationStyle(
+            duration: SolitaireDurations.animation,
+            curve: Curves.easeIn,
+          ),
+          builder: (context) => AlertDialog(
+            title: const Text('Reset this game?'),
+            content: const Text('Current game progress will be lost.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Yes'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (!shouldResetGame) {
+      return;
+    }
+
+    onResetGame();
   }
 }

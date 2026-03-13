@@ -24,7 +24,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   var gameNumber = 0;
 
-  void restartGameWithAnimation({
+  void newGameWithAnimation({
     required String instanceId,
   }) {
     if (!mounted) {
@@ -42,13 +42,34 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  void resetGameWithAnimation({
+    required String instanceId,
+  }) {
+    if (!mounted) {
+      return;
+    }
+
+    getIt
+        .get<GameController>(
+          instanceName: instanceId,
+        )
+        .resetGame();
+
+    setState(
+      () => gameNumber += 1,
+    );
+  }
+
   @override
   void initState() {
     super.initState();
 
     registerIfNotInitialized<MainController>(
       () => MainController(
-        onRestartGame: () => restartGameWithAnimation(
+        onNewGame: () => newGameWithAnimation(
+          instanceId: widget.instanceId,
+        ),
+        onResetGame: () => resetGameWithAnimation(
           instanceId: widget.instanceId,
         ),
       ),
@@ -133,6 +154,7 @@ class _MainScreenState extends State<MainScreen> {
             MainBottomButtons(
               instanceId: widget.instanceId,
               newGamePressed: () => controller.newGamePressed(context),
+              resetGamePressed: () => controller.resetGamePressed(context),
             ),
 
             ///
