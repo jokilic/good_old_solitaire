@@ -12,6 +12,7 @@ class GameHistorySnapshot {
   final String? drawingRevealCardKey;
   final int elapsedSeconds;
   final int moveCounter;
+  final int score;
   final List<List<SolitaireCard>> mainCards;
   final List<List<SolitaireCard>> finishedCards;
   final List<int> mainRevealVersions;
@@ -34,6 +35,7 @@ class GameHistorySnapshot {
     required this.drawingRevealCardKey,
     required this.elapsedSeconds,
     required this.moveCounter,
+    required this.score,
     required this.mainCards,
     required this.finishedCards,
     required this.mainRevealVersions,

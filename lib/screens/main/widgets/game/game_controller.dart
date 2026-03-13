@@ -25,6 +25,7 @@ class GameController
             String? drawingRevealCardKey,
             int elapsedSeconds,
             int moveCounter,
+            int score,
             List<List<SolitaireCard>> mainCards,
             List<List<SolitaireCard>> finishedCards,
             List<int> mainRevealVersions,
@@ -57,6 +58,7 @@ class GameController
            drawingRevealCardKey: null,
            elapsedSeconds: 0,
            moveCounter: 0,
+           score: 0,
            mainCards: List.generate(7, (_) => []),
            finishedCards: List.generate(4, (_) => []),
            mainRevealVersions: List.filled(7, 0),
@@ -91,6 +93,13 @@ class GameController
   final moveHistory = <GameHistorySnapshot>[];
 
   GameHistorySnapshot? get lastMoveSnapshot => moveHistory.isEmpty ? null : moveHistory.last;
+
+  static const int scoreForStockToTableau = 5;
+  static const int scoreForMoveToFoundation = 10;
+  static const int scoreForRevealTableauCard = 5;
+  static const int scoreForFoundationToTableau = -15;
+  static const int scorePenaltyForHint = -20;
+  static const int scorePenaltyForUndo = -15;
 
   ///
   /// INIT
@@ -171,6 +180,7 @@ class GameController
       newDrawingRevealVersion: 0,
       newDrawingRevealCardKey: null,
       newMoveCounter: 0,
+      newScore: 0,
       newMainCards: newMainCards,
       newFinishedCards: newFinishedCards,
       newMainRevealVersions: List.filled(7, 0),
@@ -203,6 +213,7 @@ class GameController
       newDrawingRevealVersion: 0,
       newDrawingRevealCardKey: null,
       newMoveCounter: 0,
+      newScore: 0,
       newMainCards: cloneCardColumns(
         setup.mainCards,
       ),
@@ -228,6 +239,7 @@ class GameController
 
     updateState(
       newElapsedSeconds: 0,
+      newScore: value.score,
     );
 
     gameTimer = Timer.periodic(
@@ -406,6 +418,7 @@ class GameController
       newMainCards: List<List<SolitaireCard>>.from(
         value.mainCards,
       ),
+      newScore: value.score + scoreForRevealTableauCard,
     );
 
     unawaited(sound.playCardFlip());
@@ -422,6 +435,7 @@ class GameController
     if (hintSelection != null) {
       updateState(
         newSelectedCard: hintSelection,
+        newScore: value.score + scorePenaltyForHint,
       );
       return;
     }
@@ -431,6 +445,7 @@ class GameController
         source: PileType.drawingUnopenedCards,
         pileIndex: 0,
       ),
+      newScore: value.score + scorePenaltyForHint,
     );
 
     if (value.drawingUnopenedCards.isNotEmpty) {
@@ -443,6 +458,7 @@ class GameController
 
     updateState(
       newSelectedCard: null,
+      newScore: value.score,
     );
   }
 
@@ -501,7 +517,7 @@ class GameController
     final mainRevealCardKeys = List<String?>.from(value.mainRevealCardKeys);
     final finished = List<SolitaireCard>.from(currentFinished);
 
-    removeSelectedCardAndReveal(
+    final scoreDelta = removeSelectedCardAndReveal(
       selectedCard,
       drawingOpenedCards: drawingOpened,
       mainCards: mainCards,
@@ -519,6 +535,7 @@ class GameController
       newMainRevealVersions: mainRevealVersions,
       newMainRevealCardKeys: mainRevealCardKeys,
       newMoveCounter: value.moveCounter + 1,
+      newScore: value.score + scoreForMoveToFoundation + scoreDelta,
       newSelectedCard: null,
     );
 
@@ -738,6 +755,8 @@ class GameController
     final mainRevealCardKeys = List<String?>.from(value.mainRevealCardKeys);
     final pile = List<SolitaireCard>.from(currentPile);
 
+    var scoreDelta = 0;
+
     if (selectedCard.source == PileType.mainCards) {
       final sourcePile = mainCards[selectedCard.pileIndex];
       final startIndex = sourcePile.length - stack.length;
@@ -748,7 +767,7 @@ class GameController
         cardIndex: startIndex,
       );
 
-      removeCardsFromSource(
+      scoreDelta = removeCardsFromSource(
         payload,
         drawingOpenedCards: drawingOpened,
         finishedCards: value.finishedCards,
@@ -757,7 +776,7 @@ class GameController
         mainRevealCardKeys: mainRevealCardKeys,
       );
     } else {
-      removeSelectedCardAndReveal(
+      scoreDelta = removeSelectedCardAndReveal(
         selectedCard,
         drawingOpenedCards: drawingOpened,
         mainCards: mainCards,
@@ -769,12 +788,17 @@ class GameController
     pile.addAll(stack);
     mainCards[column] = pile;
 
+    final moveScore = selectedCard.source == PileType.drawingOpenedCards
+        ? scoreForStockToTableau
+        : 0;
+
     updateState(
       newDrawingOpenedCards: drawingOpened,
       newMainCards: mainCards,
       newMainRevealVersions: mainRevealVersions,
       newMainRevealCardKeys: mainRevealCardKeys,
       newMoveCounter: value.moveCounter + 1,
+      newScore: value.score + moveScore + scoreDelta,
       newSelectedCard: null,
     );
 
@@ -864,7 +888,7 @@ class GameController
     final mainRevealVersions = List<int>.from(value.mainRevealVersions);
     final mainRevealCardKeys = List<String?>.from(value.mainRevealCardKeys);
 
-    removeCardsFromSource(
+    final scoreDelta = removeCardsFromSource(
       payload,
       drawingOpenedCards: drawingOpened,
       finishedCards: finishedCards,
@@ -886,6 +910,7 @@ class GameController
       newMainRevealVersions: mainRevealVersions,
       newMainRevealCardKeys: mainRevealCardKeys,
       newMoveCounter: value.moveCounter + 1,
+      newScore: value.score + scoreForMoveToFoundation + scoreDelta,
       newSelectedCard: null,
       newDropSettleVersion: dropOffset == null ? null : value.dropSettleVersion + 1,
       newDropSettleTarget: dropOffset == null ? noDropSettleTarget : PileType.finishedCards,
@@ -932,7 +957,7 @@ class GameController
     final mainRevealVersions = List<int>.from(value.mainRevealVersions);
     final mainRevealCardKeys = List<String?>.from(value.mainRevealCardKeys);
 
-    removeCardsFromSource(
+    final scoreDelta = removeCardsFromSource(
       payload,
       drawingOpenedCards: drawingOpened,
       finishedCards: finishedCards,
@@ -944,6 +969,12 @@ class GameController
     final pile = List<SolitaireCard>.from(mainCards[column])..addAll(cards);
     mainCards[column] = pile;
 
+    final moveScore = switch (payload.source) {
+      PileType.drawingOpenedCards => scoreForStockToTableau,
+      PileType.finishedCards => scoreForFoundationToTableau,
+      _ => 0,
+    };
+
     updateState(
       newDrawingOpenedCards: drawingOpened,
       newMainCards: mainCards,
@@ -951,6 +982,7 @@ class GameController
       newMainRevealVersions: mainRevealVersions,
       newMainRevealCardKeys: mainRevealCardKeys,
       newMoveCounter: value.moveCounter + 1,
+      newScore: value.score + moveScore + scoreDelta,
       newSelectedCard: null,
       newDropSettleVersion: dropOffset == null ? null : value.dropSettleVersion + 1,
       newDropSettleTarget: dropOffset == null ? noDropSettleTarget : PileType.mainCards,
@@ -1031,19 +1063,21 @@ class GameController
   }
 
   /// Removes the selected card and reveals the next main card if needed
-  void removeSelectedCardAndReveal(
+  int removeSelectedCardAndReveal(
     SelectedCard selectedCard, {
     required List<SolitaireCard> drawingOpenedCards,
     required List<List<SolitaireCard>> mainCards,
     required List<int> mainRevealVersions,
     required List<String?> mainRevealCardKeys,
   }) {
+    var scoreDelta = 0;
+
     switch (selectedCard.source) {
       case PileType.drawingOpenedCards:
         if (drawingOpenedCards.isNotEmpty) {
           drawingOpenedCards.removeLast();
         }
-        break;
+        return scoreDelta;
 
       case PileType.mainCards:
         final pileIndex = selectedCard.pileIndex;
@@ -1057,14 +1091,15 @@ class GameController
           pile.last.faceUp = true;
           mainRevealVersions[pileIndex] += 1;
           mainRevealCardKeys[pileIndex] = pile.last.revealKey;
+          scoreDelta += scoreForRevealTableauCard;
           unawaited(sound.playCardFlip());
         }
 
         mainCards[pileIndex] = pile;
-        break;
+        return scoreDelta;
 
       default:
-        break;
+        return scoreDelta;
     }
   }
 
@@ -1122,7 +1157,7 @@ class GameController
   }
 
   /// Removes cards represented by a drag payload and reveals main if needed
-  void removeCardsFromSource(
+  int removeCardsFromSource(
     DragPayload payload, {
     required List<SolitaireCard> drawingOpenedCards,
     required List<List<SolitaireCard>> finishedCards,
@@ -1130,16 +1165,18 @@ class GameController
     required List<int> mainRevealVersions,
     required List<String?> mainRevealCardKeys,
   }) {
+    var scoreDelta = 0;
+
     switch (payload.source) {
       case PileType.drawingOpenedCards:
         if (drawingOpenedCards.isNotEmpty) {
           drawingOpenedCards.removeLast();
         }
-        break;
+        return scoreDelta;
 
       case PileType.finishedCards:
         if (payload.pileIndex < 0 || payload.pileIndex >= finishedCards.length) {
-          return;
+          return scoreDelta;
         }
 
         final pileIndex = payload.pileIndex;
@@ -1150,24 +1187,24 @@ class GameController
         }
 
         finishedCards[pileIndex] = pile;
-        break;
+        return scoreDelta;
 
       case PileType.mainCards:
         if (payload.pileIndex < 0 || payload.pileIndex >= mainCards.length) {
-          return;
+          return scoreDelta;
         }
 
         final pileIndex = payload.pileIndex;
         final pile = List<SolitaireCard>.from(mainCards[pileIndex]);
 
         if (pile.isEmpty) {
-          return;
+          return scoreDelta;
         }
 
         final start = payload.cardIndex < 0 ? pile.length - 1 : payload.cardIndex;
 
         if (start < 0 || start >= pile.length) {
-          return;
+          return scoreDelta;
         }
 
         pile.removeRange(start, pile.length);
@@ -1176,14 +1213,15 @@ class GameController
           pile.last.faceUp = true;
           mainRevealVersions[pileIndex] += 1;
           mainRevealCardKeys[pileIndex] = pile.last.revealKey;
+          scoreDelta += scoreForRevealTableauCard;
           unawaited(sound.playCardFlip());
         }
 
         mainCards[pileIndex] = pile;
-        break;
+        return scoreDelta;
 
       default:
-        break;
+        return scoreDelta;
     }
   }
 
@@ -1367,6 +1405,7 @@ class GameController
       newDrawingRevealCardKey: snapshot.drawingRevealCardKey,
       newElapsedSeconds: snapshot.elapsedSeconds,
       newMoveCounter: snapshot.moveCounter,
+      newScore: snapshot.score + scorePenaltyForUndo,
       newMainCards: cloneCardColumns(snapshot.mainCards),
       newFinishedCards: cloneCardColumns(snapshot.finishedCards),
       newMainRevealVersions: List<int>.from(snapshot.mainRevealVersions),
@@ -1394,6 +1433,7 @@ class GameController
       drawingRevealCardKey: value.drawingRevealCardKey,
       elapsedSeconds: value.elapsedSeconds,
       moveCounter: value.moveCounter,
+      score: value.score,
       mainCards: cloneCardColumns(value.mainCards),
       finishedCards: cloneCardColumns(value.finishedCards),
       mainRevealVersions: List<int>.from(value.mainRevealVersions),
@@ -1464,6 +1504,7 @@ class GameController
     Object? newDrawingRevealCardKey = noDrawingRevealCardKey,
     int? newElapsedSeconds,
     int? newMoveCounter,
+    int? newScore,
     List<List<SolitaireCard>>? newMainCards,
     List<List<SolitaireCard>>? newFinishedCards,
     List<int>? newMainRevealVersions,
@@ -1478,6 +1519,9 @@ class GameController
   }) {
     final drawingUnopenedCards = newDrawingUnopenedCards ?? value.drawingUnopenedCards;
     final drawingOpenedCards = newDrawingOpenedCards ?? value.drawingOpenedCards;
+    final elapsedSeconds = newElapsedSeconds ?? value.elapsedSeconds;
+    final moveCounter = newMoveCounter ?? value.moveCounter;
+    final score = newScore ?? value.score;
     final mainCards = newMainCards ?? value.mainCards;
     final finishedCards = newFinishedCards ?? value.finishedCards;
 
@@ -1495,8 +1539,9 @@ class GameController
       drawingOpenedCards: drawingOpenedCards,
       drawingRevealVersion: newDrawingRevealVersion ?? value.drawingRevealVersion,
       drawingRevealCardKey: newDrawingRevealCardKey == noDrawingRevealCardKey ? value.drawingRevealCardKey : newDrawingRevealCardKey as String?,
-      elapsedSeconds: newElapsedSeconds ?? value.elapsedSeconds,
-      moveCounter: newMoveCounter ?? value.moveCounter,
+      elapsedSeconds: elapsedSeconds,
+      moveCounter: moveCounter,
+      score: score,
       mainCards: mainCards,
       finishedCards: finishedCards,
       mainRevealVersions: newMainRevealVersions ?? value.mainRevealVersions,

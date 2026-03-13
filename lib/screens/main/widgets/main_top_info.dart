@@ -29,8 +29,13 @@ class MainTopInfo extends WatchingWidget {
       (x) => x.value.elapsedSeconds,
       instanceName: instanceId,
     );
+    final score = watchPropertyValue<GameController, int>(
+      (x) => x.value.score,
+      instanceName: instanceId,
+    );
 
     final formattedMoveCounter = moveCounter.toString().padLeft(2, '0');
+    final formattedScore = score.toString().padLeft(2, '0');
 
     return Center(
       child: ClipRRect(
@@ -80,7 +85,7 @@ class MainTopInfo extends WatchingWidget {
                         strokeColor: Colors.black87,
                         strokeWidth: isWideUi ? 6 : 4,
                         child: Text(
-                          '--',
+                          formattedScore,
                           style: TextStyle(
                             fontSize: isWideUi ? 36 : 28,
                             fontWeight: FontWeight.bold,
