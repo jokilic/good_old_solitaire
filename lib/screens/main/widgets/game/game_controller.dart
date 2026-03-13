@@ -17,6 +17,8 @@ class GameController
     extends
         ValueNotifier<
           ({
+            bool canHint,
+            bool canUndo,
             List<SolitaireCard> drawingUnopenedCards,
             List<SolitaireCard> drawingOpenedCards,
             int drawingRevealVersion,
@@ -47,6 +49,8 @@ class GameController
     required this.sound,
   }) : super(
          (
+           canHint: true,
+           canUndo: false,
            drawingUnopenedCards: [],
            drawingOpenedCards: [],
            drawingRevealVersion: 0,
@@ -408,43 +412,18 @@ class GameController
   }
 
   /// Selects a legal move source so the UI can visually point the player at a hint
-  ///
-  /// Returns a user-facing message only when no board move can be highlighted
-  String? selectHint() {
-    final drawingOpenedSelection = hintFromDrawingOpenedToFinished();
+  void selectHint() {
+    final hintSelection = hintSelectionFromState(
+      drawingOpenedCards: value.drawingOpenedCards,
+      mainCards: value.mainCards,
+      finishedCards: value.finishedCards,
+    );
 
-    if (drawingOpenedSelection != null) {
+    if (hintSelection != null) {
       updateState(
-        newSelectedCard: drawingOpenedSelection,
+        newSelectedCard: hintSelection,
       );
-      return null;
-    }
-
-    final mainToFinishedSelection = hintFromMainToFinished();
-
-    if (mainToFinishedSelection != null) {
-      updateState(
-        newSelectedCard: mainToFinishedSelection,
-      );
-      return null;
-    }
-
-    final drawingOpenedToMainSelection = hintFromDrawingOpenedToMain();
-
-    if (drawingOpenedToMainSelection != null) {
-      updateState(
-        newSelectedCard: drawingOpenedToMainSelection,
-      );
-      return null;
-    }
-
-    final mainToMainSelection = hintFromMainToMain();
-
-    if (mainToMainSelection != null) {
-      updateState(
-        newSelectedCard: mainToMainSelection,
-      );
-      return null;
+      return;
     }
 
     updateState(
@@ -455,18 +434,16 @@ class GameController
     );
 
     if (value.drawingUnopenedCards.isNotEmpty) {
-      return null;
+      return;
     }
 
     if (value.drawingOpenedCards.isNotEmpty) {
-      return null;
+      return;
     }
 
     updateState(
       newSelectedCard: null,
     );
-
-    return 'No moves available.';
   }
 
   /// Attempts to move the selected card to the given finished cards pile
@@ -548,15 +525,61 @@ class GameController
     unawaited(sound.playCardPlace());
   }
 
-  SelectedCard? hintFromDrawingOpenedToFinished() {
-    if (value.drawingOpenedCards.isEmpty) {
+  /// Resolves the next available hint without mutating the board
+  SelectedCard? hintSelectionFromState({
+    required List<SolitaireCard> drawingOpenedCards,
+    required List<List<SolitaireCard>> mainCards,
+    required List<List<SolitaireCard>> finishedCards,
+  }) {
+    final drawingOpenedSelection = hintFromDrawingOpenedToFinishedState(
+      drawingOpenedCards: drawingOpenedCards,
+      finishedCards: finishedCards,
+    );
+
+    if (drawingOpenedSelection != null) {
+      return drawingOpenedSelection;
+    }
+
+    final mainToFinishedSelection = hintFromMainToFinishedState(
+      mainCards: mainCards,
+      finishedCards: finishedCards,
+    );
+
+    if (mainToFinishedSelection != null) {
+      return mainToFinishedSelection;
+    }
+
+    final drawingOpenedToMainSelection = hintFromDrawingOpenedToMainState(
+      drawingOpenedCards: drawingOpenedCards,
+      mainCards: mainCards,
+    );
+
+    if (drawingOpenedToMainSelection != null) {
+      return drawingOpenedToMainSelection;
+    }
+
+    return hintFromMainToMainState(
+      mainCards: mainCards,
+    );
+  }
+
+  SelectedCard? hintFromDrawingOpenedToFinished() => hintFromDrawingOpenedToFinishedState(
+    drawingOpenedCards: value.drawingOpenedCards,
+    finishedCards: value.finishedCards,
+  );
+
+  SelectedCard? hintFromDrawingOpenedToFinishedState({
+    required List<SolitaireCard> drawingOpenedCards,
+    required List<List<SolitaireCard>> finishedCards,
+  }) {
+    if (drawingOpenedCards.isEmpty) {
       return null;
     }
 
-    final card = value.drawingOpenedCards.last;
+    final card = drawingOpenedCards.last;
 
-    for (var finishedIndex = 0; finishedIndex < value.finishedCards.length; finishedIndex += 1) {
-      if (canMoveToFinished(card, value.finishedCards[finishedIndex])) {
+    for (var finishedIndex = 0; finishedIndex < finishedCards.length; finishedIndex += 1) {
+      if (canMoveToFinished(card, finishedCards[finishedIndex])) {
         return const SelectedCard(
           source: PileType.drawingOpenedCards,
           pileIndex: 0,
@@ -567,9 +590,17 @@ class GameController
     return null;
   }
 
-  SelectedCard? hintFromMainToFinished() {
-    for (var column = 0; column < value.mainCards.length; column += 1) {
-      final pile = value.mainCards[column];
+  SelectedCard? hintFromMainToFinished() => hintFromMainToFinishedState(
+    mainCards: value.mainCards,
+    finishedCards: value.finishedCards,
+  );
+
+  SelectedCard? hintFromMainToFinishedState({
+    required List<List<SolitaireCard>> mainCards,
+    required List<List<SolitaireCard>> finishedCards,
+  }) {
+    for (var column = 0; column < mainCards.length; column += 1) {
+      final pile = mainCards[column];
 
       if (pile.isEmpty || !pile.last.faceUp) {
         continue;
@@ -577,8 +608,8 @@ class GameController
 
       final card = pile.last;
 
-      for (var finishedIndex = 0; finishedIndex < value.finishedCards.length; finishedIndex += 1) {
-        if (canMoveToFinished(card, value.finishedCards[finishedIndex])) {
+      for (var finishedIndex = 0; finishedIndex < finishedCards.length; finishedIndex += 1) {
+        if (canMoveToFinished(card, finishedCards[finishedIndex])) {
           return SelectedCard(
             source: PileType.mainCards,
             pileIndex: column,
@@ -591,15 +622,23 @@ class GameController
     return null;
   }
 
-  SelectedCard? hintFromDrawingOpenedToMain() {
-    if (value.drawingOpenedCards.isEmpty) {
+  SelectedCard? hintFromDrawingOpenedToMain() => hintFromDrawingOpenedToMainState(
+    drawingOpenedCards: value.drawingOpenedCards,
+    mainCards: value.mainCards,
+  );
+
+  SelectedCard? hintFromDrawingOpenedToMainState({
+    required List<SolitaireCard> drawingOpenedCards,
+    required List<List<SolitaireCard>> mainCards,
+  }) {
+    if (drawingOpenedCards.isEmpty) {
       return null;
     }
 
-    final card = value.drawingOpenedCards.last;
+    final card = drawingOpenedCards.last;
 
-    for (var column = 0; column < value.mainCards.length; column += 1) {
-      if (canMoveToMain(card, value.mainCards[column])) {
+    for (var column = 0; column < mainCards.length; column += 1) {
+      if (canMoveToMain(card, mainCards[column])) {
         return const SelectedCard(
           source: PileType.drawingOpenedCards,
           pileIndex: 0,
@@ -610,9 +649,15 @@ class GameController
     return null;
   }
 
-  SelectedCard? hintFromMainToMain() {
-    for (var column = 0; column < value.mainCards.length; column += 1) {
-      final pile = value.mainCards[column];
+  SelectedCard? hintFromMainToMain() => hintFromMainToMainState(
+    mainCards: value.mainCards,
+  );
+
+  SelectedCard? hintFromMainToMainState({
+    required List<List<SolitaireCard>> mainCards,
+  }) {
+    for (var column = 0; column < mainCards.length; column += 1) {
+      final pile = mainCards[column];
 
       if (pile.isEmpty) {
         continue;
@@ -631,12 +676,12 @@ class GameController
           continue;
         }
 
-        for (var targetColumn = 0; targetColumn < value.mainCards.length; targetColumn += 1) {
+        for (var targetColumn = 0; targetColumn < mainCards.length; targetColumn += 1) {
           if (targetColumn == column) {
             continue;
           }
 
-          if (canMoveToMain(stack.first, value.mainCards[targetColumn])) {
+          if (canMoveToMain(stack.first, mainCards[targetColumn])) {
             return SelectedCard(
               source: PileType.mainCards,
               pileIndex: column,
@@ -1391,8 +1436,28 @@ class GameController
     for (final column in columns) cloneCards(column),
   ];
 
+  bool canHintFromState({
+    required List<SolitaireCard> drawingUnopenedCards,
+    required List<SolitaireCard> drawingOpenedCards,
+    required List<List<SolitaireCard>> mainCards,
+    required List<List<SolitaireCard>> finishedCards,
+  }) {
+    if (hintSelectionFromState(
+          drawingOpenedCards: drawingOpenedCards,
+          mainCards: mainCards,
+          finishedCards: finishedCards,
+        ) !=
+        null) {
+      return true;
+    }
+
+    return drawingUnopenedCards.isNotEmpty || drawingOpenedCards.isNotEmpty;
+  }
+
   /// Updates `state` with any passed value
   void updateState({
+    bool? newCanHint,
+    bool? newCanUndo,
     List<SolitaireCard>? newDrawingUnopenedCards,
     List<SolitaireCard>? newDrawingOpenedCards,
     int? newDrawingRevealVersion,
@@ -1411,15 +1476,29 @@ class GameController
     List<String>? newDropSettleCardKeys,
     Object? newDropSettleFromOffset = noDropSettleFromOffset,
   }) {
+    final drawingUnopenedCards = newDrawingUnopenedCards ?? value.drawingUnopenedCards;
+    final drawingOpenedCards = newDrawingOpenedCards ?? value.drawingOpenedCards;
+    final mainCards = newMainCards ?? value.mainCards;
+    final finishedCards = newFinishedCards ?? value.finishedCards;
+
     value = (
-      drawingUnopenedCards: newDrawingUnopenedCards ?? value.drawingUnopenedCards,
-      drawingOpenedCards: newDrawingOpenedCards ?? value.drawingOpenedCards,
+      canHint:
+          newCanHint ??
+          canHintFromState(
+            drawingUnopenedCards: drawingUnopenedCards,
+            drawingOpenedCards: drawingOpenedCards,
+            mainCards: mainCards,
+            finishedCards: finishedCards,
+          ),
+      canUndo: newCanUndo ?? moveHistory.isNotEmpty,
+      drawingUnopenedCards: drawingUnopenedCards,
+      drawingOpenedCards: drawingOpenedCards,
       drawingRevealVersion: newDrawingRevealVersion ?? value.drawingRevealVersion,
       drawingRevealCardKey: newDrawingRevealCardKey == noDrawingRevealCardKey ? value.drawingRevealCardKey : newDrawingRevealCardKey as String?,
       elapsedSeconds: newElapsedSeconds ?? value.elapsedSeconds,
       moveCounter: newMoveCounter ?? value.moveCounter,
-      mainCards: newMainCards ?? value.mainCards,
-      finishedCards: newFinishedCards ?? value.finishedCards,
+      mainCards: mainCards,
+      finishedCards: finishedCards,
       mainRevealVersions: newMainRevealVersions ?? value.mainRevealVersions,
       mainRevealCardKeys: newMainRevealCardKeys ?? value.mainRevealCardKeys,
       selectedCard: newSelectedCard == noSelectedCard ? value.selectedCard : newSelectedCard as SelectedCard?,

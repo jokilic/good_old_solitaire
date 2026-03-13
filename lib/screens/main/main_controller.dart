@@ -6,7 +6,7 @@ class MainController {
   final Function() onNewGame;
   final Function() onResetGame;
   final Function() onUndo;
-  final String? Function() onHint;
+  final Function() onHint;
 
   MainController({
     required this.onNewGame,
@@ -91,18 +91,7 @@ class MainController {
   }
 
   /// Triggered when the user presses `Hint` button
-  void hintPressed(BuildContext context) {
-    final hintMessage = onHint();
-
-    if (hintMessage == null) {
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(hintMessage),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
+  void hintPressed() {
+    onHint();
   }
 }

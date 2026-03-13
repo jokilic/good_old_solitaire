@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:watch_it/watch_it.dart';
 
 import '../../constants/colors.dart';
 import '../../constants/constants.dart';
@@ -10,7 +11,7 @@ import 'widgets/game/game_widget.dart';
 import 'widgets/main_bottom_buttons.dart';
 import 'widgets/main_top_info.dart';
 
-class MainScreen extends StatefulWidget {
+class MainScreen extends WatchingStatefulWidget {
   final String instanceId;
 
   const MainScreen({
@@ -80,13 +81,15 @@ class _MainScreenState extends State<MainScreen> {
     gameWidgetState.undoLastMoveWithAnimation();
   }
 
-  String? triggerHint({
+  void triggerHint({
     required String instanceId,
-  }) => getIt
-      .get<GameController>(
-        instanceName: widget.instanceId,
-      )
-      .selectHint();
+  }) {
+    getIt
+        .get<GameController>(
+          instanceName: widget.instanceId,
+        )
+        .selectHint();
+  }
 
   @override
   void initState() {
@@ -134,6 +137,16 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = getIt.get<MainController>(
+      instanceName: widget.instanceId,
+    );
+
+    final canUndo = watchPropertyValue<GameController, bool>(
+      (x) => x.value.canUndo,
+      instanceName: widget.instanceId,
+    );
+
+    final canHint = watchPropertyValue<GameController, bool>(
+      (x) => x.value.canHint,
       instanceName: widget.instanceId,
     );
 
@@ -187,8 +200,8 @@ class _MainScreenState extends State<MainScreen> {
               instanceId: widget.instanceId,
               newGamePressed: () => controller.newGamePressed(context),
               resetGamePressed: () => controller.resetGamePressed(context),
-              undoPressed: controller.undoPressed,
-              hintPressed: () => controller.hintPressed(context),
+              undoPressed: canUndo ? controller.undoPressed : null,
+              hintPressed: canHint ? controller.hintPressed : null,
             ),
 
             ///

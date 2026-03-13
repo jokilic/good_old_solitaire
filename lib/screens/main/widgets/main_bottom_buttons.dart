@@ -10,8 +10,8 @@ class MainBottomButtons extends StatelessWidget {
   final String instanceId;
   final Function() newGamePressed;
   final Function() resetGamePressed;
-  final Function() undoPressed;
-  final Function() hintPressed;
+  final Function()? undoPressed;
+  final Function()? hintPressed;
 
   const MainBottomButtons({
     required this.instanceId,

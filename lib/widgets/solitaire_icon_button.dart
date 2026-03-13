@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../constants/durations.dart';
 
 class SolitaireIconButton extends StatefulWidget {
-  final Function() onPressed;
+  final Function()? onPressed;
   final String icon;
   final String text;
   final bool isWideUi;
@@ -23,7 +23,13 @@ class _SolitaireIconButtonState extends State<SolitaireIconButton> {
   var isHovered = false;
   var isPressed = false;
 
+  bool get isEnabled => widget.onPressed != null;
+
   double get targetScale {
+    if (!isEnabled) {
+      return 1;
+    }
+
     if (isPressed) {
       return 0.9;
     }
@@ -57,8 +63,8 @@ class _SolitaireIconButtonState extends State<SolitaireIconButton> {
 
   @override
   Widget build(BuildContext context) => MouseRegion(
-    cursor: SystemMouseCursors.click,
-    onEnter: (_) => setHovered(true),
+    cursor: isEnabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+    onEnter: (_) => isEnabled ? setHovered(true) : null,
     onExit: (_) {
       setHovered(false);
       setPressed(false);
@@ -66,7 +72,7 @@ class _SolitaireIconButtonState extends State<SolitaireIconButton> {
     child: GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: widget.onPressed,
-      onTapDown: (_) => setPressed(true),
+      onTapDown: (_) => isEnabled ? setPressed(true) : null,
       onTapUp: (_) => setPressed(false),
       onTapCancel: () => setPressed(false),
       child: AnimatedScale(
@@ -81,6 +87,7 @@ class _SolitaireIconButtonState extends State<SolitaireIconButton> {
             Image.asset(
               widget.icon,
               height: widget.isWideUi ? 56 : 40,
+              color: isEnabled ? null : Colors.white54,
             ),
 
             ///
@@ -100,7 +107,7 @@ class _SolitaireIconButtonState extends State<SolitaireIconButton> {
                     widget.text,
                     style: TextStyle(
                       fontSize: widget.isWideUi ? 12 : 10,
-                      color: Colors.white,
+                      color: isEnabled ? Colors.white : Colors.white54,
                     ),
                     textAlign: TextAlign.center,
                     maxLines: 1,
