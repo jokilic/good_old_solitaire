@@ -24,7 +24,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   final gameWidgetKey = GlobalKey<GameWidgetState>();
 
-  void newGameWithAnimation({
+  void triggerNewGame({
     required String instanceId,
   }) {
     if (!mounted) {
@@ -36,6 +36,7 @@ class _MainScreenState extends State<MainScreen> {
           instanceName: instanceId,
         )
         .newGame();
+
     final gameWidgetState = gameWidgetKey.currentState;
 
     if (gameWidgetState == null) {
@@ -45,7 +46,7 @@ class _MainScreenState extends State<MainScreen> {
     gameWidgetState.restartInitialDealAnimation();
   }
 
-  void resetGameWithAnimation({
+  void triggerResetGame({
     required String instanceId,
   }) {
     if (!mounted) {
@@ -57,6 +58,7 @@ class _MainScreenState extends State<MainScreen> {
           instanceName: instanceId,
         )
         .resetGame();
+
     final gameWidgetState = gameWidgetKey.currentState;
 
     if (gameWidgetState == null) {
@@ -66,7 +68,7 @@ class _MainScreenState extends State<MainScreen> {
     gameWidgetState.restartInitialDealAnimation();
   }
 
-  void undoLastMoveWithAnimation({
+  void triggerUndo({
     required String instanceId,
   }) {
     final gameWidgetState = gameWidgetKey.currentState;
@@ -78,19 +80,30 @@ class _MainScreenState extends State<MainScreen> {
     gameWidgetState.undoLastMoveWithAnimation();
   }
 
+  String? triggerHint({
+    required String instanceId,
+  }) => getIt
+      .get<GameController>(
+        instanceName: widget.instanceId,
+      )
+      .selectHint();
+
   @override
   void initState() {
     super.initState();
 
     registerIfNotInitialized<MainController>(
       () => MainController(
-        onNewGame: () => newGameWithAnimation(
+        onNewGame: () => triggerNewGame(
           instanceId: widget.instanceId,
         ),
-        onResetGame: () => resetGameWithAnimation(
+        onResetGame: () => triggerResetGame(
           instanceId: widget.instanceId,
         ),
-        onUndo: () => undoLastMoveWithAnimation(
+        onUndo: () => triggerUndo(
+          instanceId: widget.instanceId,
+        ),
+        onHint: () => triggerHint(
           instanceId: widget.instanceId,
         ),
       ),
@@ -175,6 +188,7 @@ class _MainScreenState extends State<MainScreen> {
               newGamePressed: () => controller.newGamePressed(context),
               resetGamePressed: () => controller.resetGamePressed(context),
               undoPressed: controller.undoPressed,
+              hintPressed: () => controller.hintPressed(context),
             ),
 
             ///

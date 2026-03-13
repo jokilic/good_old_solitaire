@@ -407,6 +407,68 @@ class GameController
     unawaited(sound.playCardFlip());
   }
 
+  /// Selects a legal move source so the UI can visually point the player at a hint
+  ///
+  /// Returns a user-facing message only when no board move can be highlighted
+  String? selectHint() {
+    final drawingOpenedSelection = hintFromDrawingOpenedToFinished();
+
+    if (drawingOpenedSelection != null) {
+      updateState(
+        newSelectedCard: drawingOpenedSelection,
+      );
+      return null;
+    }
+
+    final mainToFinishedSelection = hintFromMainToFinished();
+
+    if (mainToFinishedSelection != null) {
+      updateState(
+        newSelectedCard: mainToFinishedSelection,
+      );
+      return null;
+    }
+
+    final drawingOpenedToMainSelection = hintFromDrawingOpenedToMain();
+
+    if (drawingOpenedToMainSelection != null) {
+      updateState(
+        newSelectedCard: drawingOpenedToMainSelection,
+      );
+      return null;
+    }
+
+    final mainToMainSelection = hintFromMainToMain();
+
+    if (mainToMainSelection != null) {
+      updateState(
+        newSelectedCard: mainToMainSelection,
+      );
+      return null;
+    }
+
+    updateState(
+      newSelectedCard: const SelectedCard(
+        source: PileType.drawingUnopenedCards,
+        pileIndex: 0,
+      ),
+    );
+
+    if (value.drawingUnopenedCards.isNotEmpty) {
+      return null;
+    }
+
+    if (value.drawingOpenedCards.isNotEmpty) {
+      return null;
+    }
+
+    updateState(
+      newSelectedCard: null,
+    );
+
+    return 'No moves available.';
+  }
+
   /// Attempts to move the selected card to the given finished cards pile
   void tryMoveSelectedToFinished(int finishedIndex) {
     if (finishedIndex < 0 || finishedIndex >= value.finishedCards.length) {
@@ -484,6 +546,108 @@ class GameController
     );
 
     unawaited(sound.playCardPlace());
+  }
+
+  SelectedCard? hintFromDrawingOpenedToFinished() {
+    if (value.drawingOpenedCards.isEmpty) {
+      return null;
+    }
+
+    final card = value.drawingOpenedCards.last;
+
+    for (var finishedIndex = 0; finishedIndex < value.finishedCards.length; finishedIndex += 1) {
+      if (canMoveToFinished(card, value.finishedCards[finishedIndex])) {
+        return const SelectedCard(
+          source: PileType.drawingOpenedCards,
+          pileIndex: 0,
+        );
+      }
+    }
+
+    return null;
+  }
+
+  SelectedCard? hintFromMainToFinished() {
+    for (var column = 0; column < value.mainCards.length; column += 1) {
+      final pile = value.mainCards[column];
+
+      if (pile.isEmpty || !pile.last.faceUp) {
+        continue;
+      }
+
+      final card = pile.last;
+
+      for (var finishedIndex = 0; finishedIndex < value.finishedCards.length; finishedIndex += 1) {
+        if (canMoveToFinished(card, value.finishedCards[finishedIndex])) {
+          return SelectedCard(
+            source: PileType.mainCards,
+            pileIndex: column,
+            cardIndex: pile.length - 1,
+          );
+        }
+      }
+    }
+
+    return null;
+  }
+
+  SelectedCard? hintFromDrawingOpenedToMain() {
+    if (value.drawingOpenedCards.isEmpty) {
+      return null;
+    }
+
+    final card = value.drawingOpenedCards.last;
+
+    for (var column = 0; column < value.mainCards.length; column += 1) {
+      if (canMoveToMain(card, value.mainCards[column])) {
+        return const SelectedCard(
+          source: PileType.drawingOpenedCards,
+          pileIndex: 0,
+        );
+      }
+    }
+
+    return null;
+  }
+
+  SelectedCard? hintFromMainToMain() {
+    for (var column = 0; column < value.mainCards.length; column += 1) {
+      final pile = value.mainCards[column];
+
+      if (pile.isEmpty) {
+        continue;
+      }
+
+      for (var cardIndex = 0; cardIndex < pile.length; cardIndex += 1) {
+        final card = pile[cardIndex];
+
+        if (!card.faceUp) {
+          continue;
+        }
+
+        final stack = pile.sublist(cardIndex);
+
+        if (!isValidMainStack(stack)) {
+          continue;
+        }
+
+        for (var targetColumn = 0; targetColumn < value.mainCards.length; targetColumn += 1) {
+          if (targetColumn == column) {
+            continue;
+          }
+
+          if (canMoveToMain(stack.first, value.mainCards[targetColumn])) {
+            return SelectedCard(
+              source: PileType.mainCards,
+              pileIndex: column,
+              cardIndex: cardIndex,
+            );
+          }
+        }
+      }
+    }
+
+    return null;
   }
 
   /// Attempts to move the selected card to main cards column

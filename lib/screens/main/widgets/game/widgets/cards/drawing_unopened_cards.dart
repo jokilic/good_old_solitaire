@@ -5,6 +5,7 @@ import 'package:watch_it/watch_it.dart';
 import '../../../../../../constants/colors.dart';
 import '../../../../../../constants/constants.dart';
 import '../../../../../../constants/durations.dart';
+import '../../../../../../constants/enums.dart';
 import '../../../../../../util/dependencies.dart';
 import '../../game_controller.dart';
 import '../card/card_back.dart';
@@ -33,10 +34,15 @@ class DrawingUnopenedCards extends WatchingWidget {
       (x) => x.value.drawingUnopenedCards.isNotEmpty,
       instanceName: instanceId,
     );
+    final isSelected = watchPropertyValue<GameController, bool>(
+      (x) => x.value.selectedCard?.source == PileType.drawingUnopenedCards,
+      instanceName: instanceId,
+    );
 
     return PressableUnopenedCard(
       pileKey: pileKey,
       hasCards: hasCards,
+      isSelected: isSelected,
       cardHeight: cardHeight,
       cardWidth: cardWidth,
       onTap: controller.drawFromUnopenedSection,
@@ -47,6 +53,7 @@ class DrawingUnopenedCards extends WatchingWidget {
 class PressableUnopenedCard extends StatefulWidget {
   final GlobalKey pileKey;
   final bool hasCards;
+  final bool isSelected;
   final double cardHeight;
   final double cardWidth;
   final VoidCallback onTap;
@@ -54,6 +61,7 @@ class PressableUnopenedCard extends StatefulWidget {
   const PressableUnopenedCard({
     required this.pileKey,
     required this.hasCards,
+    required this.isSelected,
     required this.cardHeight,
     required this.cardWidth,
     required this.onTap,
@@ -90,27 +98,52 @@ class _PressableUnopenedCardState extends State<PressableUnopenedCard> {
       child: AnimatedContainer(
         duration: SolitaireDurations.animationLong,
         curve: Curves.easeIn,
-        transform: Matrix4.translationValues(0, isPressed && widget.hasCards ? -4 : 0, 0),
+        transform: Matrix4.translationValues(
+          0,
+          (isPressed && widget.hasCards) || widget.isSelected ? -4 : 0,
+          0,
+        ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(SolitaireConstants.borderRadius),
-          boxShadow: isPressed && widget.hasCards
+          boxShadow: (isPressed && widget.hasCards) || widget.isSelected
               ? const [
                   SolitaireBoxShadows.lift,
                 ]
               : const [],
         ),
-        child: widget.hasCards
-            ? CardBack(
+        child: Stack(
+          children: [
+            if (widget.hasCards)
+              CardBack(
                 height: widget.cardHeight,
                 width: widget.cardWidth,
               )
-            : CardEmpty(
+            else
+              CardEmpty(
                 height: widget.cardHeight,
                 width: widget.cardWidth,
                 icon: PhosphorIcons.handTap(
                   PhosphorIconsStyle.thin,
                 ),
               ),
+            if (widget.isSelected)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(
+                        SolitaireConstants.borderRadius,
+                      ),
+                      border: Border.all(
+                        color: Colors.amber,
+                        width: SolitaireConstants.borderWidth,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     ),
   );

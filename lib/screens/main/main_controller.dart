@@ -6,11 +6,13 @@ class MainController {
   final Function() onNewGame;
   final Function() onResetGame;
   final Function() onUndo;
+  final String? Function() onHint;
 
   MainController({
     required this.onNewGame,
     required this.onResetGame,
     required this.onUndo,
+    required this.onHint,
   });
 
   ///
@@ -86,5 +88,21 @@ class MainController {
   /// Triggered when the user presses `Undo` button
   void undoPressed() {
     onUndo();
+  }
+
+  /// Triggered when the user presses `Hint` button
+  void hintPressed(BuildContext context) {
+    final hintMessage = onHint();
+
+    if (hintMessage == null) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(hintMessage),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 }
