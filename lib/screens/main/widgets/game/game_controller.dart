@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 
 import '../../../../constants/enums.dart';
 import '../../../../models/drag_payload.dart';
+import '../../../../models/game_history_snapshot.dart';
 import '../../../../models/game_setup_snapshot.dart';
 import '../../../../models/selected_card.dart';
 import '../../../../models/solitaire_card.dart';
@@ -83,6 +84,7 @@ class GameController
   DateTime? gameTimerStartedAt;
 
   GameSetupSnapshot? initialGameSetup;
+  final moveHistory = <GameHistorySnapshot>[];
 
   ///
   /// INIT
@@ -107,6 +109,7 @@ class GameController
 
   /// Builds and deals a fresh game
   void newGame() {
+    moveHistory.clear();
     resetAndStartTimer();
 
     final deck = <SolitaireCard>[];
@@ -183,6 +186,7 @@ class GameController
       return;
     }
 
+    moveHistory.clear();
     resetAndStartTimer();
 
     updateState(
@@ -253,6 +257,8 @@ class GameController
       }
       return;
     }
+
+    saveCurrentStateToHistory();
 
     /// Work on copies to keep notifier updates atomic
     final drawingUnopened = List<SolitaireCard>.from(value.drawingUnopenedCards);
@@ -386,6 +392,7 @@ class GameController
       return;
     }
 
+    saveCurrentStateToHistory();
     top.faceUp = true;
 
     /// Update value to notify listeners
@@ -438,6 +445,8 @@ class GameController
     if (!canMoveToFinished(card, currentFinished)) {
       return;
     }
+
+    saveCurrentStateToHistory();
 
     /// Perform move on copies and commit in a single update
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
@@ -498,6 +507,8 @@ class GameController
     if (!canMoveToMain(stack.first, currentPile)) {
       return;
     }
+
+    saveCurrentStateToHistory();
 
     /// Perform move on copies and commit in a single update
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
@@ -620,6 +631,8 @@ class GameController
       return;
     }
 
+    saveCurrentStateToHistory();
+
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
     final finishedCards = List<List<SolitaireCard>>.from(value.finishedCards);
     final mainCards = List<List<SolitaireCard>>.from(value.mainCards);
@@ -679,6 +692,8 @@ class GameController
     if (cards.isEmpty) {
       return;
     }
+
+    saveCurrentStateToHistory();
 
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
     final mainCards = List<List<SolitaireCard>>.from(value.mainCards);
@@ -1092,6 +1107,77 @@ class GameController
       base.height,
     );
   }
+
+  /// Restores the latest state-changing action, if one exists
+  void undoLastMove() {
+    if (moveHistory.isEmpty) {
+      return;
+    }
+
+    final snapshot = moveHistory.removeLast();
+
+    gameTimerStartedAt = DateTime.now().subtract(
+      Duration(
+        seconds: snapshot.elapsedSeconds,
+      ),
+    );
+
+    /// Undo should restore the previous board state without replaying animations
+    updateState(
+      newDrawingUnopenedCards: cloneCards(snapshot.drawingUnopenedCards),
+      newDrawingOpenedCards: cloneCards(snapshot.drawingOpenedCards),
+      newDrawingRevealVersion: snapshot.drawingRevealVersion,
+      newDrawingRevealCardKey: snapshot.drawingRevealCardKey,
+      newElapsedSeconds: snapshot.elapsedSeconds,
+      newMoveCounter: snapshot.moveCounter,
+      newMainCards: cloneCardColumns(snapshot.mainCards),
+      newFinishedCards: cloneCardColumns(snapshot.finishedCards),
+      newMainRevealVersions: List<int>.from(snapshot.mainRevealVersions),
+      newMainRevealCardKeys: List<String?>.from(snapshot.mainRevealCardKeys),
+      newSelectedCard: snapshot.selectedCard,
+      newDraggingPayload: snapshot.draggingPayload,
+      newDropSettleVersion: snapshot.dropSettleVersion,
+      newDropSettleTarget: snapshot.dropSettleTarget,
+      newDropSettlePileIndex: snapshot.dropSettlePileIndex,
+      newDropSettleCardKeys: List<String>.from(snapshot.dropSettleCardKeys),
+      newDropSettleFromOffset: snapshot.dropSettleFromOffset,
+    );
+  }
+
+  /// Saves the current state to the history
+  void saveCurrentStateToHistory() => moveHistory.add(
+    GameHistorySnapshot(
+      drawingUnopenedCards: cloneCards(value.drawingUnopenedCards),
+      drawingOpenedCards: cloneCards(value.drawingOpenedCards),
+      drawingRevealVersion: value.drawingRevealVersion,
+      drawingRevealCardKey: value.drawingRevealCardKey,
+      elapsedSeconds: value.elapsedSeconds,
+      moveCounter: value.moveCounter,
+      mainCards: cloneCardColumns(value.mainCards),
+      finishedCards: cloneCardColumns(value.finishedCards),
+      mainRevealVersions: List<int>.from(value.mainRevealVersions),
+      mainRevealCardKeys: List<String?>.from(value.mainRevealCardKeys),
+      selectedCard: value.selectedCard == null
+          ? null
+          : SelectedCard(
+              source: value.selectedCard!.source,
+              pileIndex: value.selectedCard!.pileIndex,
+              cardIndex: value.selectedCard!.cardIndex,
+            ),
+      draggingPayload: value.draggingPayload == null
+          ? null
+          : DragPayload(
+              source: value.draggingPayload!.source,
+              pileIndex: value.draggingPayload!.pileIndex,
+              cardIndex: value.draggingPayload!.cardIndex,
+            ),
+      dropSettleVersion: value.dropSettleVersion,
+      dropSettleTarget: value.dropSettleTarget,
+      dropSettlePileIndex: value.dropSettlePileIndex,
+      dropSettleCardKeys: List<String>.from(value.dropSettleCardKeys),
+      dropSettleFromOffset: value.dropSettleFromOffset,
+    ),
+  );
 
   List<SolitaireCard> cloneCards(List<SolitaireCard> cards) => [
     for (final card in cards)

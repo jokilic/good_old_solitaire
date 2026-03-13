@@ -72,6 +72,11 @@ class _MainScreenState extends State<MainScreen> {
         onResetGame: () => resetGameWithAnimation(
           instanceId: widget.instanceId,
         ),
+        onUndo: () => getIt
+            .get<GameController>(
+              instanceName: widget.instanceId,
+            )
+            .undoLastMove(),
       ),
       instanceName: widget.instanceId,
     );
@@ -155,6 +160,7 @@ class _MainScreenState extends State<MainScreen> {
               instanceId: widget.instanceId,
               newGamePressed: () => controller.newGamePressed(context),
               resetGamePressed: () => controller.resetGamePressed(context),
+              undoPressed: controller.undoPressed,
             ),
 
             ///

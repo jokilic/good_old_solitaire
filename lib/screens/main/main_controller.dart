@@ -5,10 +5,12 @@ import '../../constants/durations.dart';
 class MainController {
   final Function() onNewGame;
   final Function() onResetGame;
+  final Function() onUndo;
 
   MainController({
     required this.onNewGame,
     required this.onResetGame,
+    required this.onUndo,
   });
 
   ///
@@ -79,5 +81,10 @@ class MainController {
     }
 
     onResetGame();
+  }
+
+  /// Triggered when the user presses `Undo` button
+  void undoPressed() {
+    onUndo();
   }
 }

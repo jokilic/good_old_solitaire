@@ -10,11 +10,13 @@ class MainBottomButtons extends StatelessWidget {
   final String instanceId;
   final Function() newGamePressed;
   final Function() resetGamePressed;
+  final Function() undoPressed;
 
   const MainBottomButtons({
     required this.instanceId,
     required this.newGamePressed,
     required this.resetGamePressed,
+    required this.undoPressed,
   });
 
   @override
@@ -74,9 +76,7 @@ class MainBottomButtons extends StatelessWidget {
                 ///
                 Expanded(
                   child: SolitaireIconButton(
-                    onPressed: () {
-                      // TODO: Undo
-                    },
+                    onPressed: undoPressed,
                     icon: SolitaireIcons.undo,
                     text: 'Undo',
                     isWideUi: isWideUi,
