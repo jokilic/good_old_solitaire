@@ -81,6 +81,25 @@ class FinishedCards extends WatchingWidget {
 
     final cardUnderTop = finishedCards.length > 1 ? finishedCards[finishedCards.length - 2] : null;
 
+    Widget buildPreviousPileChild() {
+      if (cardUnderTop != null) {
+        return CardWidget(
+          card: cardUnderTop,
+          width: cardWidth,
+          height: effectiveCardHeight,
+          isSelected: false,
+        );
+      }
+
+      return CardEmpty(
+        height: effectiveCardHeight,
+        width: cardWidth,
+        icon: PhosphorIcons.asteriskSimple(
+          PhosphorIconsStyle.thin,
+        ),
+      );
+    }
+
     return DragTarget<DragPayload>(
       onWillAcceptWithDetails: (details) => controller.canDropOnFinished(details.data, index),
       onAcceptWithDetails: (details) => controller.moveDragToFinished(
@@ -136,17 +155,25 @@ class FinishedCards extends WatchingWidget {
               return child;
             }
 
-            return Animate(
-              key: ValueKey('finished-drop-settle-$index-$dropSettleVersion'),
-              effects: [
-                MoveEffect(
-                  begin: dropDelta,
-                  end: Offset.zero,
-                  duration: SolitaireDurations.animation,
-                  curve: Curves.easeOutCubic,
+            return Stack(
+              alignment: Alignment.topCenter,
+              clipBehavior: Clip.none,
+              children: [
+                /// Keep the previous slot content visible while the new top card settles in
+                buildPreviousPileChild(),
+                Animate(
+                  key: ValueKey('finished-drop-settle-$index-$dropSettleVersion'),
+                  effects: [
+                    MoveEffect(
+                      begin: dropDelta,
+                      end: Offset.zero,
+                      duration: SolitaireDurations.animation,
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ],
+                  child: child,
                 ),
               ],
-              child: child,
             );
           }(),
         ),

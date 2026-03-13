@@ -22,13 +22,13 @@ version: 0.1.0
 #
 
 environment:
-  sdk: 3.11.0
+  sdk: 3.11.1
 
 dependencies:
   flutter:
     sdk: flutter
 
-  audioplayers: 6.5.1
+  audioplayers: 6.6.0
   bordered_text: 3.0.0
   flutter_animate: 4.5.2
   get_it: 9.2.1
@@ -41,7 +41,7 @@ dependencies:
   watch_it: 2.4.2
 
 dev_dependencies:
-  build_runner: 2.11.1
+  build_runner: 2.12.2
   flutter_launcher_icons: 0.14.4
   flutter_native_splash: 2.4.7
   hive_ce_generator: 1.11.1
