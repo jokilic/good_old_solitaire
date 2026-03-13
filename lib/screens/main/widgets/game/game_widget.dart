@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../../../constants/constants.dart';
 import '../../../../constants/durations.dart';
 import '../../../../constants/enums.dart';
+import '../../../../models/game_history_snapshot.dart';
 import '../../../../models/selected_card.dart';
 import '../../../../models/solitaire_card.dart';
 import '../../../../services/sound_service.dart';
@@ -28,10 +29,11 @@ class GameWidget extends StatefulWidget {
   });
 
   @override
-  State<GameWidget> createState() => _GameWidgetState();
+  State<GameWidget> createState() => GameWidgetState();
 }
 
-class _GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
+class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
+  final GlobalKey drawingUnopenedKey = GlobalKey();
   final GlobalKey drawingOpenedKey = GlobalKey();
 
   bool isAnimatingMove = false;
@@ -78,6 +80,34 @@ class _GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
   void dispose() {
     initialDealTimer?.cancel();
     super.dispose();
+  }
+
+  void restartInitialDealAnimation() {
+    initialDealTimer?.cancel();
+
+    setState(() {
+      isInitialDealAnimating = true;
+      initialDealAnimationVersion += 1;
+      isAnimatingMove = false;
+      tapMoveSource = null;
+    });
+
+    unawaited(
+      getIt.get<SoundService>().playShuffle(),
+    );
+
+    initialDealTimer = Timer(
+      SolitaireDurations.initialDealTotalDuration,
+      () {
+        if (!mounted) {
+          return;
+        }
+
+        setState(
+          () => isInitialDealAnimating = false,
+        );
+      },
+    );
   }
 
   Future<void> animateCardMove({
@@ -458,6 +488,178 @@ class _GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
     });
   }
 
+  Future<void> undoLastMoveWithAnimation() async {
+    if (isAnimatingMove || isInitialDealAnimating) {
+      return;
+    }
+
+    final controller = getIt.get<GameController>(
+      instanceName: widget.instanceId,
+    );
+    final snapshot = controller.lastMoveSnapshot;
+
+    if (snapshot == null) {
+      return;
+    }
+
+    final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
+    final animationPlan = buildUndoAnimationPlan(
+      snapshot: snapshot,
+      controller: controller,
+      isWideUi: isWideUi,
+    );
+
+    if (animationPlan != null && mounted) {
+      setState(() {
+        isAnimatingMove = true;
+      });
+    }
+
+    controller.undoLastMove(
+      animatedTarget: animationPlan?.target,
+      animatedPileIndex: animationPlan?.pileIndex,
+      animatedCardKeys: animationPlan?.cardKeys,
+      animatedFromOffset: animationPlan?.fromOffset,
+    );
+
+    if (animationPlan == null) {
+      return;
+    }
+
+    await Future<void>.delayed(
+      SolitaireDurations.animation,
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      isAnimatingMove = false;
+    });
+  }
+
+  ({
+    PileType target,
+    int? pileIndex,
+    List<String> cardKeys,
+    Offset fromOffset,
+  })?
+  buildUndoAnimationPlan({
+    required GameHistorySnapshot snapshot,
+    required GameController controller,
+    required bool isWideUi,
+  }) {
+    final undoTarget = snapshot.undoTarget;
+
+    if (undoTarget == null || snapshot.undoCardKeys.isEmpty) {
+      return null;
+    }
+
+    if (undoTarget == PileType.drawingUnopenedCards) {
+      return null;
+    }
+
+    final currentLocations = buildCardLocationMap(
+      drawingUnopenedCards: controller.value.drawingUnopenedCards,
+      drawingOpenedCards: controller.value.drawingOpenedCards,
+      mainCards: controller.value.mainCards,
+      finishedCards: controller.value.finishedCards,
+    );
+    final sourceLocation = currentLocations[snapshot.undoCardKeys.first];
+
+    if (sourceLocation == null) {
+      return null;
+    }
+
+    final fromRect = rectForCardLocation(
+      controller: controller,
+      isWideUi: isWideUi,
+      location: sourceLocation,
+    );
+
+    if (fromRect == null) {
+      return null;
+    }
+
+    return (
+      target: undoTarget,
+      pileIndex: snapshot.undoTargetPileIndex,
+      cardKeys: List<String>.from(snapshot.undoCardKeys),
+      fromOffset: fromRect.topLeft,
+    );
+  }
+
+  Map<String, ({PileType pileType, int pileIndex, int cardIndex})> buildCardLocationMap({
+    required List<SolitaireCard> drawingUnopenedCards,
+    required List<SolitaireCard> drawingOpenedCards,
+    required List<List<SolitaireCard>> mainCards,
+    required List<List<SolitaireCard>> finishedCards,
+  }) {
+    final locations = <String, ({PileType pileType, int pileIndex, int cardIndex})>{};
+
+    for (var i = 0; i < drawingUnopenedCards.length; i += 1) {
+      locations[drawingUnopenedCards[i].revealKey] = (
+        pileType: PileType.drawingUnopenedCards,
+        pileIndex: 0,
+        cardIndex: i,
+      );
+    }
+
+    for (var i = 0; i < drawingOpenedCards.length; i += 1) {
+      locations[drawingOpenedCards[i].revealKey] = (
+        pileType: PileType.drawingOpenedCards,
+        pileIndex: 0,
+        cardIndex: i,
+      );
+    }
+
+    for (var pileIndex = 0; pileIndex < mainCards.length; pileIndex += 1) {
+      for (var cardIndex = 0; cardIndex < mainCards[pileIndex].length; cardIndex += 1) {
+        locations[mainCards[pileIndex][cardIndex].revealKey] = (
+          pileType: PileType.mainCards,
+          pileIndex: pileIndex,
+          cardIndex: cardIndex,
+        );
+      }
+    }
+
+    for (var pileIndex = 0; pileIndex < finishedCards.length; pileIndex += 1) {
+      for (var cardIndex = 0; cardIndex < finishedCards[pileIndex].length; cardIndex += 1) {
+        locations[finishedCards[pileIndex][cardIndex].revealKey] = (
+          pileType: PileType.finishedCards,
+          pileIndex: pileIndex,
+          cardIndex: cardIndex,
+        );
+      }
+    }
+
+    return locations;
+  }
+
+  Rect? rectForCardLocation({
+    required GameController controller,
+    required bool isWideUi,
+    required ({PileType pileType, int pileIndex, int cardIndex}) location,
+  }) {
+    switch (location.pileType) {
+      case PileType.mainCards:
+        return controller.mainCardRect(
+          location.pileIndex,
+          location.cardIndex,
+          isWideUi: isWideUi,
+        );
+      case PileType.finishedCards:
+        return controller.rectFromKey(
+          controller.finishedPileKeys[location.pileIndex],
+        );
+      case PileType.drawingOpenedCards:
+        return controller.rectFromKey(drawingOpenedKey);
+      case PileType.drawingUnopenedCards:
+        return controller.rectFromKey(drawingUnopenedKey);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = getIt.get<GameController>(
@@ -510,6 +712,7 @@ class _GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                                       width: drawingSectionWidth,
                                       child: DrawingCardsRow(
                                         instanceId: widget.instanceId,
+                                        drawingUnopenedKey: drawingUnopenedKey,
                                         drawingOpenedKey: drawingOpenedKey,
                                         hideOpenedTopCard: hideOpenedTopCard,
                                       ),
@@ -615,6 +818,7 @@ class _GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                                 child: buildCardSlot(
                                   (cardWidth, cardHeight) => DrawingUnopenedCards(
                                     instanceId: widget.instanceId,
+                                    pileKey: drawingUnopenedKey,
                                     cardHeight: cardHeight,
                                     cardWidth: cardWidth,
                                   ),

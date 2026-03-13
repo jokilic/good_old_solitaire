@@ -22,7 +22,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  var gameNumber = 0;
+  final gameWidgetKey = GlobalKey<GameWidgetState>();
 
   void newGameWithAnimation({
     required String instanceId,
@@ -36,10 +36,13 @@ class _MainScreenState extends State<MainScreen> {
           instanceName: instanceId,
         )
         .newGame();
+    final gameWidgetState = gameWidgetKey.currentState;
 
-    setState(
-      () => gameNumber += 1,
-    );
+    if (gameWidgetState == null) {
+      return;
+    }
+
+    gameWidgetState.restartInitialDealAnimation();
   }
 
   void resetGameWithAnimation({
@@ -54,10 +57,25 @@ class _MainScreenState extends State<MainScreen> {
           instanceName: instanceId,
         )
         .resetGame();
+    final gameWidgetState = gameWidgetKey.currentState;
 
-    setState(
-      () => gameNumber += 1,
-    );
+    if (gameWidgetState == null) {
+      return;
+    }
+
+    gameWidgetState.restartInitialDealAnimation();
+  }
+
+  void undoLastMoveWithAnimation({
+    required String instanceId,
+  }) {
+    final gameWidgetState = gameWidgetKey.currentState;
+
+    if (gameWidgetState == null) {
+      return;
+    }
+
+    gameWidgetState.undoLastMoveWithAnimation();
   }
 
   @override
@@ -72,11 +90,9 @@ class _MainScreenState extends State<MainScreen> {
         onResetGame: () => resetGameWithAnimation(
           instanceId: widget.instanceId,
         ),
-        onUndo: () => getIt
-            .get<GameController>(
-              instanceName: widget.instanceId,
-            )
-            .undoLastMove(),
+        onUndo: () => undoLastMoveWithAnimation(
+          instanceId: widget.instanceId,
+        ),
       ),
       instanceName: widget.instanceId,
     );
@@ -142,9 +158,7 @@ class _MainScreenState extends State<MainScreen> {
             ///
             Expanded(
               child: GameWidget(
-                key: ValueKey(
-                  '${widget.instanceId}-$gameNumber',
-                ),
+                key: gameWidgetKey,
                 instanceId: widget.instanceId,
               ),
             ),

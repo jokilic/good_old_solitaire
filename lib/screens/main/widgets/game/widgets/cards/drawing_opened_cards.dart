@@ -132,6 +132,28 @@ class DrawingOpenedCards extends WatchingWidget {
       (x) => x.value.selectedCard?.source == PileType.drawingOpenedCards,
       instanceName: instanceId,
     );
+
+    final dropSettleTarget = watchPropertyValue<GameController, PileType?>(
+      (x) => x.value.dropSettleTarget,
+      instanceName: instanceId,
+    );
+    final dropSettlePileIndex = watchPropertyValue<GameController, int?>(
+      (x) => x.value.dropSettlePileIndex,
+      instanceName: instanceId,
+    );
+    final dropSettleFromOffset = watchPropertyValue<GameController, Offset?>(
+      (x) => x.value.dropSettleFromOffset,
+      instanceName: instanceId,
+    );
+    final dropSettleCardKeys = watchPropertyValue<GameController, List<String>>(
+      (x) => x.value.dropSettleCardKeys,
+      instanceName: instanceId,
+    );
+    final dropSettleVersion = watchPropertyValue<GameController, int>(
+      (x) => x.value.dropSettleVersion,
+      instanceName: instanceId,
+    );
+
     final effectiveCardHeight = cardHeight - 2;
 
     final hasCards = openedCards.isNotEmpty;
@@ -143,6 +165,12 @@ class DrawingOpenedCards extends WatchingWidget {
 
     final cardUnderTop = openedCards.length > 1 ? openedCards[openedCards.length - 2] : null;
     final shouldAnimateReveal = hasCards && revealVersion > 0 && revealCardKey == openedCards.last.revealKey;
+    final shouldApplyDropSettle =
+        hasCards &&
+        dropSettleTarget == PileType.drawingOpenedCards &&
+        dropSettlePileIndex == null &&
+        dropSettleFromOffset != null &&
+        dropSettleCardKeys.contains(openedCards.last.revealKey);
 
     return GestureDetector(
       onTap: controller.selectUnopenedSectionTop,
@@ -150,19 +178,46 @@ class DrawingOpenedCards extends WatchingWidget {
         key: pileKey,
         height: effectiveCardHeight,
         width: cardWidth,
-        child: getOpenedCardView(
-          hasCards: hasCards,
-          hideTopCard: hideTopCard,
-          cardHeight: effectiveCardHeight,
-          cardWidth: cardWidth,
-          openedCards: openedCards,
-          cardUnderTop: cardUnderTop,
-          dragPayload: dragPayload,
-          isSelected: isSelected,
-          shouldAnimateReveal: shouldAnimateReveal,
-          revealVersion: revealVersion,
-          revealShiftX: cardWidth + SolitaireConstants.padding,
-        ),
+        child: () {
+          final child = getOpenedCardView(
+            hasCards: hasCards,
+            hideTopCard: hideTopCard,
+            cardHeight: effectiveCardHeight,
+            cardWidth: cardWidth,
+            openedCards: openedCards,
+            cardUnderTop: cardUnderTop,
+            dragPayload: dragPayload,
+            isSelected: isSelected,
+            shouldAnimateReveal: shouldAnimateReveal,
+            revealVersion: revealVersion,
+            revealShiftX: cardWidth + SolitaireConstants.padding,
+          );
+
+          if (!shouldApplyDropSettle) {
+            return child;
+          }
+
+          final toRect = controller.rectFromKey(pileKey);
+          final dropDelta = toRect == null ? Offset.zero : dropSettleFromOffset - toRect.topLeft;
+          final shouldUseDropSettle = toRect != null && dropDelta.distance > 0.5;
+
+          if (!shouldUseDropSettle) {
+            return child;
+          }
+
+          return Animate(
+            key: ValueKey('drawing-drop-settle-$dropSettleVersion'),
+            effects: [
+              MoveEffect(
+                begin: dropDelta,
+                end: Offset.zero,
+                duration: SolitaireDurations.animation,
+                curve: Curves.easeOutCubic,
+              ),
+            ],
+            child: child,
+          );
+        }(),
       ),
     );
   }

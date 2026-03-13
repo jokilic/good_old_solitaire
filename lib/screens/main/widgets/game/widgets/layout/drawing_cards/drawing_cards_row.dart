@@ -6,11 +6,13 @@ import '../../cards/drawing_unopened_cards.dart';
 
 class DrawingCardsRow extends StatelessWidget {
   final String instanceId;
+  final GlobalKey drawingUnopenedKey;
   final GlobalKey drawingOpenedKey;
   final bool hideOpenedTopCard;
 
   const DrawingCardsRow({
     required this.instanceId,
+    required this.drawingUnopenedKey,
     required this.drawingOpenedKey,
     required this.hideOpenedTopCard,
   });
@@ -26,6 +28,7 @@ class DrawingCardsRow extends StatelessWidget {
           Expanded(
             child: DrawingUnopenedCards(
               instanceId: instanceId,
+              pileKey: drawingUnopenedKey,
               cardHeight: cardHeight,
               cardWidth: cardWidth,
             ),

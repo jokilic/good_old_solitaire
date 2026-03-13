@@ -13,11 +13,13 @@ import '../card/card_frame.dart';
 
 class DrawingUnopenedCards extends WatchingWidget {
   final String instanceId;
+  final GlobalKey pileKey;
   final double cardHeight;
   final double cardWidth;
 
   const DrawingUnopenedCards({
     required this.instanceId,
+    required this.pileKey,
     required this.cardHeight,
     required this.cardWidth,
   });
@@ -33,6 +35,7 @@ class DrawingUnopenedCards extends WatchingWidget {
     );
 
     return PressableUnopenedCard(
+      pileKey: pileKey,
       hasCards: hasCards,
       cardHeight: cardHeight,
       cardWidth: cardWidth,
@@ -42,12 +45,14 @@ class DrawingUnopenedCards extends WatchingWidget {
 }
 
 class PressableUnopenedCard extends StatefulWidget {
+  final GlobalKey pileKey;
   final bool hasCards;
   final double cardHeight;
   final double cardWidth;
   final VoidCallback onTap;
 
   const PressableUnopenedCard({
+    required this.pileKey,
     required this.hasCards,
     required this.cardHeight,
     required this.cardWidth,
@@ -79,6 +84,7 @@ class _PressableUnopenedCardState extends State<PressableUnopenedCard> {
     onTapCancel: () => setPressed(false),
     onTap: widget.onTap,
     child: CardFrame(
+      key: widget.pileKey,
       height: widget.cardHeight,
       width: widget.cardWidth,
       child: AnimatedContainer(

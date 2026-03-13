@@ -86,6 +86,8 @@ class GameController
   GameSetupSnapshot? initialGameSetup;
   final moveHistory = <GameHistorySnapshot>[];
 
+  GameHistorySnapshot? get lastMoveSnapshot => moveHistory.isEmpty ? null : moveHistory.last;
+
   ///
   /// INIT
   ///
@@ -446,7 +448,11 @@ class GameController
       return;
     }
 
-    saveCurrentStateToHistory();
+    saveCurrentStateToHistory(
+      undoTarget: selectedCard.source,
+      undoTargetPileIndex: selectedCard.source == PileType.drawingOpenedCards ? null : selectedCard.pileIndex,
+      undoCardKeys: [card.revealKey],
+    );
 
     /// Perform move on copies and commit in a single update
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
@@ -508,7 +514,13 @@ class GameController
       return;
     }
 
-    saveCurrentStateToHistory();
+    saveCurrentStateToHistory(
+      undoTarget: selectedCard.source,
+      undoTargetPileIndex: selectedCard.source == PileType.drawingOpenedCards ? null : selectedCard.pileIndex,
+      undoCardKeys: [
+        for (final card in stack) card.revealKey,
+      ],
+    );
 
     /// Perform move on copies and commit in a single update
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
@@ -631,7 +643,11 @@ class GameController
       return;
     }
 
-    saveCurrentStateToHistory();
+    saveCurrentStateToHistory(
+      undoTarget: payload.source,
+      undoTargetPileIndex: payload.source == PileType.drawingOpenedCards ? null : payload.pileIndex,
+      undoCardKeys: [cards.first.revealKey],
+    );
 
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
     final finishedCards = List<List<SolitaireCard>>.from(value.finishedCards);
@@ -693,7 +709,13 @@ class GameController
       return;
     }
 
-    saveCurrentStateToHistory();
+    saveCurrentStateToHistory(
+      undoTarget: payload.source,
+      undoTargetPileIndex: payload.source == PileType.drawingOpenedCards ? null : payload.pileIndex,
+      undoCardKeys: [
+        for (final card in cards) card.revealKey,
+      ],
+    );
 
     final drawingOpened = List<SolitaireCard>.from(value.drawingOpenedCards);
     final mainCards = List<List<SolitaireCard>>.from(value.mainCards);
@@ -1109,12 +1131,18 @@ class GameController
   }
 
   /// Restores the latest state-changing action, if one exists
-  void undoLastMove() {
+  void undoLastMove({
+    PileType? animatedTarget,
+    int? animatedPileIndex,
+    List<String>? animatedCardKeys,
+    Offset? animatedFromOffset,
+  }) {
     if (moveHistory.isEmpty) {
       return;
     }
 
     final snapshot = moveHistory.removeLast();
+    final shouldAnimateUndo = animatedTarget != null && animatedCardKeys != null && animatedCardKeys.isNotEmpty && animatedFromOffset != null;
 
     gameTimerStartedAt = DateTime.now().subtract(
       Duration(
@@ -1122,7 +1150,7 @@ class GameController
       ),
     );
 
-    /// Undo should restore the previous board state without replaying animations
+    /// Undo should restore the previous board state without replaying animations.
     updateState(
       newDrawingUnopenedCards: cloneCards(snapshot.drawingUnopenedCards),
       newDrawingOpenedCards: cloneCards(snapshot.drawingOpenedCards),
@@ -1134,18 +1162,22 @@ class GameController
       newFinishedCards: cloneCardColumns(snapshot.finishedCards),
       newMainRevealVersions: List<int>.from(snapshot.mainRevealVersions),
       newMainRevealCardKeys: List<String?>.from(snapshot.mainRevealCardKeys),
-      newSelectedCard: snapshot.selectedCard,
-      newDraggingPayload: snapshot.draggingPayload,
-      newDropSettleVersion: snapshot.dropSettleVersion,
-      newDropSettleTarget: snapshot.dropSettleTarget,
-      newDropSettlePileIndex: snapshot.dropSettlePileIndex,
-      newDropSettleCardKeys: List<String>.from(snapshot.dropSettleCardKeys),
-      newDropSettleFromOffset: snapshot.dropSettleFromOffset,
+      newSelectedCard: null,
+      newDraggingPayload: null,
+      newDropSettleVersion: shouldAnimateUndo ? value.dropSettleVersion + 1 : value.dropSettleVersion,
+      newDropSettleTarget: shouldAnimateUndo ? animatedTarget : null,
+      newDropSettlePileIndex: shouldAnimateUndo ? animatedPileIndex : null,
+      newDropSettleCardKeys: shouldAnimateUndo ? List<String>.from(animatedCardKeys) : const [],
+      newDropSettleFromOffset: shouldAnimateUndo ? animatedFromOffset : null,
     );
   }
 
   /// Saves the current state to the history
-  void saveCurrentStateToHistory() => moveHistory.add(
+  void saveCurrentStateToHistory({
+    PileType? undoTarget,
+    int? undoTargetPileIndex,
+    List<String> undoCardKeys = const [],
+  }) => moveHistory.add(
     GameHistorySnapshot(
       drawingUnopenedCards: cloneCards(value.drawingUnopenedCards),
       drawingOpenedCards: cloneCards(value.drawingOpenedCards),
@@ -1176,6 +1208,9 @@ class GameController
       dropSettlePileIndex: value.dropSettlePileIndex,
       dropSettleCardKeys: List<String>.from(value.dropSettleCardKeys),
       dropSettleFromOffset: value.dropSettleFromOffset,
+      undoTarget: undoTarget,
+      undoTargetPileIndex: undoTargetPileIndex,
+      undoCardKeys: List<String>.from(undoCardKeys),
     ),
   );
 

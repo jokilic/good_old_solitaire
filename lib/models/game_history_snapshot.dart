@@ -23,6 +23,9 @@ class GameHistorySnapshot {
   final int? dropSettlePileIndex;
   final List<String> dropSettleCardKeys;
   final Offset? dropSettleFromOffset;
+  final PileType? undoTarget;
+  final int? undoTargetPileIndex;
+  final List<String> undoCardKeys;
 
   const GameHistorySnapshot({
     required this.drawingUnopenedCards,
@@ -42,5 +45,8 @@ class GameHistorySnapshot {
     required this.dropSettlePileIndex,
     required this.dropSettleCardKeys,
     required this.dropSettleFromOffset,
+    required this.undoTarget,
+    required this.undoTargetPileIndex,
+    required this.undoCardKeys,
   });
 }
