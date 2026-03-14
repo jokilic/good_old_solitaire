@@ -94,4 +94,14 @@ class MainController {
   void hintPressed() {
     onHint();
   }
+
+  /// Triggered when the user presses `Theme` button
+  void themePressed() {
+    // TODO: Theme
+  }
+
+  /// Triggered when the user presses `Settings` button
+  void settingsPressed() {
+    // TODO: Settings
+  }
 }

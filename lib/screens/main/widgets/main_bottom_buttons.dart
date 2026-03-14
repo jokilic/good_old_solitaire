@@ -12,6 +12,8 @@ class MainBottomButtons extends StatelessWidget {
   final Function() resetGamePressed;
   final Function()? undoPressed;
   final Function()? hintPressed;
+  final Function()? themePressed;
+  final Function()? settingsPressed;
 
   const MainBottomButtons({
     required this.instanceId,
@@ -19,6 +21,8 @@ class MainBottomButtons extends StatelessWidget {
     required this.resetGamePressed,
     required this.undoPressed,
     required this.hintPressed,
+    required this.themePressed,
+    required this.settingsPressed,
   });
 
   @override
@@ -102,9 +106,7 @@ class MainBottomButtons extends StatelessWidget {
                 ///
                 Expanded(
                   child: SolitaireIconButton(
-                    onPressed: () {
-                      // TODO: Theme
-                    },
+                    onPressed: themePressed,
                     icon: SolitaireIcons.theme,
                     text: 'Theme',
                     isWideUi: isWideUi,
@@ -116,9 +118,7 @@ class MainBottomButtons extends StatelessWidget {
                 ///
                 Expanded(
                   child: SolitaireIconButton(
-                    onPressed: () {
-                      // TODO: Settings
-                    },
+                    onPressed: settingsPressed,
                     icon: SolitaireIcons.settings,
                     text: 'Settings',
                     isWideUi: isWideUi,

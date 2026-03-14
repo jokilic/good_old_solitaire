@@ -8,8 +8,7 @@
 
 - [ ] Think about using keyboard shortcuts for some actions
 - [ ] Icons should be WebP
-- [ ] Bigger icon
-
+- [ ] Different main icon
 - [ ] Refactor constants.dart
 - [ ] Refactor Colors.someColor & Color(0x...)
 - [ ] Refactor text styles
@@ -29,7 +28,7 @@
 - [ ] Card backs
 - [ ] Card faces
 
-### Options
+### Settings
 - [ ] Draw 1 or 3 cards at a time -> https://m3.material.io/components/segmented-buttons/overview
 - [ ] Layout direction - left / right -> https://m3.material.io/components/segmented-buttons/overview
 - [ ] Slider for sounds (50% initial) -> https://m3.material.io/components/sliders/overview

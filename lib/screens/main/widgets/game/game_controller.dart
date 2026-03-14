@@ -788,9 +788,7 @@ class GameController
     pile.addAll(stack);
     mainCards[column] = pile;
 
-    final moveScore = selectedCard.source == PileType.drawingOpenedCards
-        ? scoreForStockToTableau
-        : 0;
+    final moveScore = selectedCard.source == PileType.drawingOpenedCards ? scoreForStockToTableau : 0;
 
     updateState(
       newDrawingOpenedCards: drawingOpened,
