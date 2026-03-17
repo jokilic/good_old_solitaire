@@ -1,3 +1,4 @@
+import 'package:bordered_text/bordered_text.dart';
 import 'package:flutter/material.dart';
 
 import '../constants/durations.dart';
@@ -103,16 +104,20 @@ class _SolitaireIconButtonState extends State<SolitaireIconButton> {
                 width: constraints.maxWidth,
                 child: FittedBox(
                   fit: BoxFit.scaleDown,
-                  child: Text(
-                    widget.text,
-                    style: TextStyle(
-                      fontSize: widget.isWideUi ? 12 : 10,
-                      color: isEnabled ? Colors.white : Colors.white54,
+                  child: BorderedText(
+                    strokeColor: Colors.black54,
+                    strokeWidth: widget.isWideUi ? 4 : 2,
+                    child: Text(
+                      widget.text,
+                      style: TextStyle(
+                        fontSize: widget.isWideUi ? 12 : 10,
+                        color: isEnabled ? Colors.white : Colors.white54,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: false,
                   ),
                 ),
               ),

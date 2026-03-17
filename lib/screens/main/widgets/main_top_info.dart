@@ -70,7 +70,7 @@ class MainTopInfo extends WatchingWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       BorderedText(
-                        strokeColor: Colors.black87,
+                        strokeColor: Colors.black54,
                         strokeWidth: isWideUi ? 4 : 2,
                         child: Text(
                           'Score',
@@ -82,7 +82,7 @@ class MainTopInfo extends WatchingWidget {
                         ),
                       ),
                       BorderedText(
-                        strokeColor: Colors.black87,
+                        strokeColor: Colors.black54,
                         strokeWidth: isWideUi ? 6 : 4,
                         child: Text(
                           formattedScore,
@@ -111,7 +111,7 @@ class MainTopInfo extends WatchingWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           BorderedText(
-                            strokeColor: Colors.black87,
+                            strokeColor: Colors.black54,
                             strokeWidth: isWideUi ? 4 : 2,
                             child: Text(
                               'Time',
@@ -123,7 +123,7 @@ class MainTopInfo extends WatchingWidget {
                             ),
                           ),
                           BorderedText(
-                            strokeColor: Colors.black87,
+                            strokeColor: Colors.black54,
                             strokeWidth: isWideUi ? 6 : 4,
                             child: Text(
                               formatElapsedTime(elapsedSeconds),
@@ -146,7 +146,7 @@ class MainTopInfo extends WatchingWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           BorderedText(
-                            strokeColor: Colors.black87,
+                            strokeColor: Colors.black54,
                             strokeWidth: isWideUi ? 4 : 2,
                             child: Text(
                               'Moves',
@@ -158,7 +158,7 @@ class MainTopInfo extends WatchingWidget {
                             ),
                           ),
                           BorderedText(
-                            strokeColor: Colors.black87,
+                            strokeColor: Colors.black54,
                             strokeWidth: isWideUi ? 6 : 4,
                             child: Text(
                               formattedMoveCounter,

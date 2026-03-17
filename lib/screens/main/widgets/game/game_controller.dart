@@ -97,9 +97,10 @@ class GameController
   static const int scoreForStockToTableau = 5;
   static const int scoreForMoveToFoundation = 10;
   static const int scoreForRevealTableauCard = 5;
-  static const int scoreForFoundationToTableau = -15;
-  static const int scorePenaltyForHint = -20;
-  static const int scorePenaltyForUndo = -15;
+
+  static const int scoreForFoundationToTableau = 0;
+  static const int scorePenaltyForHint = 0;
+  static const int scorePenaltyForUndo = 0;
 
   ///
   /// INIT

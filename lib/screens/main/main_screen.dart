@@ -202,8 +202,8 @@ class _MainScreenState extends State<MainScreen> {
               resetGamePressed: () => controller.resetGamePressed(context),
               undoPressed: canUndo ? controller.undoPressed : null,
               hintPressed: canHint ? controller.hintPressed : null,
-              themePressed: controller.themePressed,
-              settingsPressed: controller.settingsPressed,
+              themePressed: () => controller.themePressed(context),
+              settingsPressed: () => controller.settingsPressed(context),
             ),
 
             ///

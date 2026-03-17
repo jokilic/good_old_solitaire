@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../constants/constants.dart';
 import '../../constants/durations.dart';
+import 'widgets/settings/settings_modal_sheet.dart';
+import 'widgets/theme/theme_modal_sheet.dart';
 
 class MainController {
   final Function() onNewGame;
@@ -96,12 +99,48 @@ class MainController {
   }
 
   /// Triggered when the user presses `Theme` button
-  void themePressed() {
-    // TODO: Theme
-  }
+  void themePressed(BuildContext context) => showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    barrierColor: Colors.black38,
+    constraints: const BoxConstraints(maxWidth: 800),
+    elevation: 0,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(24),
+      side: const BorderSide(
+        color: Colors.white12,
+        width: SolitaireConstants.borderWidth,
+      ),
+    ),
+    sheetAnimationStyle: const AnimationStyle(
+      curve: Curves.easeIn,
+      reverseCurve: Curves.easeIn,
+      duration: SolitaireDurations.animationLong,
+      reverseDuration: SolitaireDurations.animationLong,
+    ),
+    builder: (context) => ThemeModalSheet(),
+  );
 
   /// Triggered when the user presses `Settings` button
-  void settingsPressed() {
-    // TODO: Settings
-  }
+  void settingsPressed(BuildContext context) => showModalBottomSheet(
+    context: context,
+    backgroundColor: Colors.transparent,
+    barrierColor: Colors.black38,
+    constraints: const BoxConstraints(maxWidth: 800),
+    elevation: 0,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(24),
+      side: const BorderSide(
+        color: Colors.white12,
+        width: SolitaireConstants.borderWidth,
+      ),
+    ),
+    sheetAnimationStyle: const AnimationStyle(
+      curve: Curves.easeIn,
+      reverseCurve: Curves.easeIn,
+      duration: SolitaireDurations.animationLong,
+      reverseDuration: SolitaireDurations.animationLong,
+    ),
+    builder: (context) => SettingsModalSheet(),
+  );
 }
