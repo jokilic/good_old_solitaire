@@ -1,9 +1,9 @@
 import 'package:get_it/get_it.dart';
 
+import '../services/hive_service.dart';
 import '../services/sound_service.dart';
 
 final getIt = GetIt.instance;
-final getItBackground = GetIt.asNewInstance();
 
 /// Registers a class if it's not already initialized
 /// Optionally runs a function with newly registered class
@@ -38,6 +38,12 @@ void unRegisterIfNotDisposed<T extends Object>({
 }
 
 Future<void> initializeServices() async {
+  if (!getIt.isRegistered<HiveService>()) {
+    getIt.registerSingletonAsync(
+      () async => HiveService(),
+    );
+  }
+
   if (!getIt.isRegistered<SoundService>()) {
     getIt.registerSingletonAsync(
       () async => SoundService(),

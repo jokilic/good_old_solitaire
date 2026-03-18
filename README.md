@@ -31,8 +31,8 @@
 ### Settings
 - [ ] Draw 1 or 3 cards at a time -> https://m3.material.io/components/segmented-buttons/overview
 - [ ] Layout direction - left / right -> https://m3.material.io/components/segmented-buttons/overview
-- [ ] Slider for sounds (50% initial) -> https://m3.material.io/components/sliders/overview
 - [ ] Fast animations -> https://m3.material.io/components/switch/overview
+- [ ] Slider for sounds (50% initial) -> https://m3.material.io/components/sliders/overview
 
 ### Sounds
 - [ ] Sound of undoing move (when it reverses)

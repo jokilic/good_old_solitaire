@@ -94,7 +94,9 @@ class _SolitaireIconButtonState extends State<SolitaireIconButton> {
             ///
             /// SPACING
             ///
-            SizedBox(height: widget.isWideUi ? 8 : 4),
+            SizedBox(
+              height: widget.isWideUi ? 8 : 4,
+            ),
 
             ///
             /// TEXT
