@@ -1,15 +1,26 @@
 import 'package:bordered_text/bordered_text.dart';
 import 'package:flutter/material.dart';
+import 'package:watch_it/watch_it.dart';
 
 import '../../../../constants/colors.dart';
 import '../../../../constants/constants.dart';
 import '../../../../constants/icons.dart';
+import '../../../../models/settings/draw_cards_position.dart';
+import '../../../../models/settings/solitaire_settings.dart';
+import '../../../../services/hive_service.dart';
+import '../../../../util/dependencies.dart';
 import 'widgets/settings_list_tile.dart';
 import 'widgets/settings_text_button.dart';
 
-class SettingsModalSheet extends StatelessWidget {
+class SettingsModalSheet extends WatchingWidget {
   @override
   Widget build(BuildContext context) {
+    final settings = watchPropertyValue<HiveService, SolitaireSettings?>(
+      (x) => x.value.settings,
+    );
+
+    final hive = getIt.get<HiveService>();
+
     final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
     final elementSpacing = isWideUi ? 20 : 12;
 
@@ -61,20 +72,24 @@ class SettingsModalSheet extends StatelessWidget {
               /// LEFT
               ///
               SettingsTextButton(
-                onPressed: () {},
+                onPressed: () => hive.onDrawCardsPositionPressed(
+                  DrawCardsPosition.left,
+                ),
                 text: 'Left',
                 isWideUi: isWideUi,
-                isActive: true,
+                isActive: settings?.drawCardPosition == DrawCardsPosition.left,
               ),
 
               ///
               /// RIGHT
               ///
               SettingsTextButton(
-                onPressed: () {},
+                onPressed: () => hive.onDrawCardsPositionPressed(
+                  DrawCardsPosition.right,
+                ),
                 text: 'Right',
                 isWideUi: isWideUi,
-                isActive: false,
+                isActive: settings?.drawCardPosition == DrawCardsPosition.right,
               ),
             ],
           ),

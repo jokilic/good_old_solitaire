@@ -40,7 +40,11 @@ void unRegisterIfNotDisposed<T extends Object>({
 Future<void> initializeServices() async {
   if (!getIt.isRegistered<HiveService>()) {
     getIt.registerSingletonAsync(
-      () async => HiveService(),
+      () async {
+        final hive = HiveService();
+        await hive.init();
+        return hive;
+      },
     );
   }
 

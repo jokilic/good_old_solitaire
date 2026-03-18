@@ -93,6 +93,15 @@ class HiveService extends ValueNotifier<({SolitaireSettings? settings, Solitaire
     updateState();
   }
 
+  /// Called when user presses button to change `drawCardPosition`
+  void onDrawCardsPositionPressed(DrawCardsPosition newDrawCardPosition) {
+    final currentSettings = getSettings();
+    final newSettings = currentSettings.copyWith(
+      drawCardPosition: newDrawCardPosition,
+    );
+    writeSettings(newSettings);
+  }
+
   /// Updates `state`
   void updateState({
     SolitaireSettings? newSettings,

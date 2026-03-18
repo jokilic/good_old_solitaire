@@ -16,41 +16,12 @@ import 'package:good_old_solitaire/models/theme/table_theme.dart';
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
     registerAdapter(AnimationSpeedAdapter());
-    registerAdapter(AnimationSpeedAdapter());
-    registerAdapter(CardBackThemeAdapter());
     registerAdapter(CardBackThemeAdapter());
     registerAdapter(CardFrontThemeAdapter());
-    registerAdapter(CardFrontThemeAdapter());
-    registerAdapter(DrawCardsNumberAdapter());
     registerAdapter(DrawCardsNumberAdapter());
     registerAdapter(DrawCardsPositionAdapter());
-    registerAdapter(DrawCardsPositionAdapter());
-    registerAdapter(SolitaireSettingsAdapter());
     registerAdapter(SolitaireSettingsAdapter());
     registerAdapter(SolitaireThemeAdapter());
-    registerAdapter(SolitaireThemeAdapter());
-    registerAdapter(TableThemeAdapter());
-    registerAdapter(TableThemeAdapter());
-  }
-}
-
-extension IsolatedHiveRegistrar on IsolatedHiveInterface {
-  void registerAdapters() {
-    registerAdapter(AnimationSpeedAdapter());
-    registerAdapter(AnimationSpeedAdapter());
-    registerAdapter(CardBackThemeAdapter());
-    registerAdapter(CardBackThemeAdapter());
-    registerAdapter(CardFrontThemeAdapter());
-    registerAdapter(CardFrontThemeAdapter());
-    registerAdapter(DrawCardsNumberAdapter());
-    registerAdapter(DrawCardsNumberAdapter());
-    registerAdapter(DrawCardsPositionAdapter());
-    registerAdapter(DrawCardsPositionAdapter());
-    registerAdapter(SolitaireSettingsAdapter());
-    registerAdapter(SolitaireSettingsAdapter());
-    registerAdapter(SolitaireThemeAdapter());
-    registerAdapter(SolitaireThemeAdapter());
-    registerAdapter(TableThemeAdapter());
     registerAdapter(TableThemeAdapter());
   }
 }

@@ -93,7 +93,9 @@ class _SettingsTextButtonState extends State<SettingsTextButton> {
                 sigmaX: SolitaireConstants.blurRadius,
                 sigmaY: SolitaireConstants.blurRadius,
               ),
-              child: Container(
+              child: AnimatedContainer(
+                duration: SolitaireDurations.animationLong,
+                curve: Curves.easeIn,
                 padding: EdgeInsets.symmetric(
                   horizontal: isWideUi ? 24 : 12,
                   vertical: 4,

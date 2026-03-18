@@ -690,6 +690,8 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
               },
             );
 
+            // TODO: Refactor this so it takes a value from Hive.settings.drawCardPosition and uses this value to show widgets in the correct order
+
             return IgnorePointer(
               ignoring: isAnimatingMove || isInitialDealAnimating,
               child: isWideUi
