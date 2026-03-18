@@ -14,6 +14,7 @@ import '../../../../util/dependencies.dart';
 import '../../../../util/settings.dart';
 import 'widgets/settings_list_tile.dart';
 import 'widgets/settings_text_button.dart';
+import 'widgets/settings_volume_slider.dart';
 
 class SettingsModalSheet extends WatchingWidget {
   @override
@@ -122,41 +123,15 @@ class SettingsModalSheet extends WatchingWidget {
             title: 'Sound',
             subtitle: 'Volume of effects',
             buttons: [
-              SizedBox(
-                width: isWideUi ? 240 : 160,
-                child: SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                    activeTrackColor: Colors.white,
-                    inactiveTrackColor: Colors.white24,
-                    thumbColor: Colors.white,
-                    overlayColor: Colors.white24,
-                    valueIndicatorColor: Colors.black87,
-                    trackHeight: isWideUi ? 6 : 4,
-                  ),
-                  child: Slider(
-                    value: settings.soundVolume,
-                    divisions: 10,
-                    label: '${(settings.soundVolume * 100).round()}%',
-                    onChanged: (value) {
-                      final newVolume = value.clamp(0, 1).toDouble();
+              SettingsVolumeSlider(
+                onVolumeChanged: (newValue) {
+                  final newVolume = newValue.clamp(0, 1).toDouble();
 
-                      hive.onSoundVolumeChanged(newVolume);
-                      sound.setVolume(newVolume);
-                    },
-                  ),
-                ),
-              ),
-              BorderedText(
-                strokeColor: Colors.black54,
-                strokeWidth: isWideUi ? 4 : 2,
-                child: Text(
-                  '${(settings.soundVolume * 100).round()}%',
-                  style: TextStyle(
-                    fontSize: isWideUi ? 18 : 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
+                  hive.onSoundVolumeChanged(newVolume);
+                  sound.setVolume(newVolume);
+                },
+                soundVolume: settings.soundVolume,
+                isWideUi: isWideUi,
               ),
             ],
           ),
