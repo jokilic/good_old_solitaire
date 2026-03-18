@@ -130,22 +130,18 @@ class AnimationSpeedAdapter extends TypeAdapter<AnimationSpeed> {
   @override
   AnimationSpeed read(BinaryReader reader) {
     switch (reader.readByte()) {
-      case 0:
-        return AnimationSpeed.slow;
       case 1:
         return AnimationSpeed.normal;
       case 2:
         return AnimationSpeed.fast;
       default:
-        return AnimationSpeed.slow;
+        return AnimationSpeed.normal;
     }
   }
 
   @override
   void write(BinaryWriter writer, AnimationSpeed obj) {
     switch (obj) {
-      case AnimationSpeed.slow:
-        writer.writeByte(0);
       case AnimationSpeed.normal:
         writer.writeByte(1);
       case AnimationSpeed.fast:

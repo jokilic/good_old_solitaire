@@ -102,6 +102,24 @@ class HiveService extends ValueNotifier<({SolitaireSettings? settings, Solitaire
     writeSettings(newSettings);
   }
 
+  /// Called when user presses button to change `animationSpeed`
+  void onAnimationSpeedPressed(AnimationSpeed newAnimationSpeed) {
+    final currentSettings = getSettings();
+    final newSettings = currentSettings.copyWith(
+      animationSpeed: newAnimationSpeed,
+    );
+    writeSettings(newSettings);
+  }
+
+  /// Called when user changes sound effect volume
+  void onSoundVolumeChanged(double newSoundVolume) {
+    final currentSettings = getSettings();
+    final newSettings = currentSettings.copyWith(
+      soundVolume: newSoundVolume,
+    );
+    writeSettings(newSettings);
+  }
+
   /// Updates `state`
   void updateState({
     SolitaireSettings? newSettings,

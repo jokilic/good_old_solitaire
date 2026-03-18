@@ -35,8 +35,6 @@ types:
     typeId: 3
     nextIndex: 3
     fields:
-      slow:
-        index: 0
       normal:
         index: 1
       fast:

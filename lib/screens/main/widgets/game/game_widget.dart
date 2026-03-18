@@ -782,6 +782,33 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
               ],
             );
 
+            Widget buildAnimatedTopSection({
+              required Widget child,
+            }) => AnimatedSwitcher(
+              duration: SolitaireDurations.animationLong,
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (child, animation) {
+                final isDrawCardsLeft = child.key == const ValueKey(DrawCardsPosition.left);
+                final beginOffset = isDrawCardsLeft ? const Offset(-0.08, 0) : const Offset(0.08, 0);
+
+                return FadeTransition(
+                  opacity: animation,
+                  child: SlideTransition(
+                    position: Tween<Offset>(
+                      begin: beginOffset,
+                      end: Offset.zero,
+                    ).animate(animation),
+                    child: child,
+                  ),
+                );
+              },
+              child: KeyedSubtree(
+                key: ValueKey(drawCardsPosition),
+                child: child,
+              ),
+            );
+
             return IgnorePointer(
               ignoring: isAnimatingMove || isInitialDealAnimating,
               child: isWideUi
@@ -790,76 +817,78 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                         Builder(
                           builder: (context) => Padding(
                             padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
-                            child: LayoutBuilder(
-                              builder: (context, topConstraints) {
-                                final slotWidth = (topConstraints.maxWidth - SolitaireConstants.padding * 6) / 7;
-                                final clampedSlotWidth = slotWidth > 0 ? slotWidth : 0.0;
-                                final drawingSectionWidth = clampedSlotWidth * 2 + SolitaireConstants.padding;
-                                final emptySectionWidth = clampedSlotWidth;
-                                final finishedSectionWidth = clampedSlotWidth * 4 + SolitaireConstants.padding * 3;
+                            child: buildAnimatedTopSection(
+                              child: LayoutBuilder(
+                                builder: (context, topConstraints) {
+                                  final slotWidth = (topConstraints.maxWidth - SolitaireConstants.padding * 6) / 7;
+                                  final clampedSlotWidth = slotWidth > 0 ? slotWidth : 0.0;
+                                  final drawingSectionWidth = clampedSlotWidth * 2 + SolitaireConstants.padding;
+                                  final emptySectionWidth = clampedSlotWidth;
+                                  final finishedSectionWidth = clampedSlotWidth * 4 + SolitaireConstants.padding * 3;
 
-                                return Row(
-                                  children: [
-                                    if (drawCardsPosition == DrawCardsPosition.left)
+                                  return Row(
+                                    children: [
+                                      if (drawCardsPosition == DrawCardsPosition.left)
+                                        SizedBox(
+                                          width: drawingSectionWidth,
+                                          child: DrawingCardsRow(
+                                            instanceId: widget.instanceId,
+                                            drawingUnopenedKey: drawingUnopenedKey,
+                                            drawingOpenedKey: drawingOpenedKey,
+                                            hideOpenedTopCard: hideOpenedTopCard,
+                                            drawCardsPosition: drawCardsPosition,
+                                          ),
+                                        ),
+                                      if (drawCardsPosition == DrawCardsPosition.right)
+                                        SizedBox(
+                                          width: finishedSectionWidth,
+                                          child: FinishedCardsRow(
+                                            instanceId: widget.instanceId,
+                                            pileKeys: controller.finishedPileKeys,
+                                            isAnimatingMove: isAnimatingMove,
+                                            onTapMoveSelected: animateSelectedToFinished,
+                                          ),
+                                        ),
+                                      const SizedBox(
+                                        width: SolitaireConstants.padding,
+                                      ),
                                       SizedBox(
-                                        width: drawingSectionWidth,
-                                        child: DrawingCardsRow(
-                                          instanceId: widget.instanceId,
-                                          drawingUnopenedKey: drawingUnopenedKey,
-                                          drawingOpenedKey: drawingOpenedKey,
-                                          hideOpenedTopCard: hideOpenedTopCard,
-                                          drawCardsPosition: drawCardsPosition,
+                                        width: emptySectionWidth,
+                                        child: buildCardSlot(
+                                          (cardWidth, cardHeight) => SizedBox(
+                                            width: cardWidth,
+                                            height: cardHeight,
+                                          ),
                                         ),
                                       ),
-                                    if (drawCardsPosition == DrawCardsPosition.right)
-                                      SizedBox(
-                                        width: finishedSectionWidth,
-                                        child: FinishedCardsRow(
-                                          instanceId: widget.instanceId,
-                                          pileKeys: controller.finishedPileKeys,
-                                          isAnimatingMove: isAnimatingMove,
-                                          onTapMoveSelected: animateSelectedToFinished,
-                                        ),
+                                      const SizedBox(
+                                        width: SolitaireConstants.padding,
                                       ),
-                                    const SizedBox(
-                                      width: SolitaireConstants.padding,
-                                    ),
-                                    SizedBox(
-                                      width: emptySectionWidth,
-                                      child: buildCardSlot(
-                                        (cardWidth, cardHeight) => SizedBox(
-                                          width: cardWidth,
-                                          height: cardHeight,
+                                      if (drawCardsPosition == DrawCardsPosition.left)
+                                        SizedBox(
+                                          width: finishedSectionWidth,
+                                          child: FinishedCardsRow(
+                                            instanceId: widget.instanceId,
+                                            pileKeys: controller.finishedPileKeys,
+                                            isAnimatingMove: isAnimatingMove,
+                                            onTapMoveSelected: animateSelectedToFinished,
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: SolitaireConstants.padding,
-                                    ),
-                                    if (drawCardsPosition == DrawCardsPosition.left)
-                                      SizedBox(
-                                        width: finishedSectionWidth,
-                                        child: FinishedCardsRow(
-                                          instanceId: widget.instanceId,
-                                          pileKeys: controller.finishedPileKeys,
-                                          isAnimatingMove: isAnimatingMove,
-                                          onTapMoveSelected: animateSelectedToFinished,
+                                      if (drawCardsPosition == DrawCardsPosition.right)
+                                        SizedBox(
+                                          width: drawingSectionWidth,
+                                          child: DrawingCardsRow(
+                                            instanceId: widget.instanceId,
+                                            drawingUnopenedKey: drawingUnopenedKey,
+                                            drawingOpenedKey: drawingOpenedKey,
+                                            hideOpenedTopCard: hideOpenedTopCard,
+                                            drawCardsPosition: drawCardsPosition,
+                                          ),
                                         ),
-                                      ),
-                                    if (drawCardsPosition == DrawCardsPosition.right)
-                                      SizedBox(
-                                        width: drawingSectionWidth,
-                                        child: DrawingCardsRow(
-                                          instanceId: widget.instanceId,
-                                          drawingUnopenedKey: drawingUnopenedKey,
-                                          drawingOpenedKey: drawingOpenedKey,
-                                          hideOpenedTopCard: hideOpenedTopCard,
-                                          drawCardsPosition: drawCardsPosition,
-                                        ),
-                                      ),
-                                  ],
-                                );
-                              },
+                                    ],
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ),
@@ -881,31 +910,33 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                     )
                   : Column(
                       children: [
-                        Row(
-                          children: [
-                            if (drawCardsPosition == DrawCardsPosition.left) ...[
-                              Expanded(
-                                flex: 2,
-                                child: buildCompactDrawingCardsSection(),
-                              ),
-                              buildCompactSpacerSection(),
-                              Expanded(
-                                flex: 4,
-                                child: buildCompactFinishedCardsSection(),
-                              ),
+                        buildAnimatedTopSection(
+                          child: Row(
+                            children: [
+                              if (drawCardsPosition == DrawCardsPosition.left) ...[
+                                Expanded(
+                                  flex: 2,
+                                  child: buildCompactDrawingCardsSection(),
+                                ),
+                                buildCompactSpacerSection(),
+                                Expanded(
+                                  flex: 4,
+                                  child: buildCompactFinishedCardsSection(),
+                                ),
+                              ],
+                              if (drawCardsPosition == DrawCardsPosition.right) ...[
+                                Expanded(
+                                  flex: 4,
+                                  child: buildCompactFinishedCardsSection(),
+                                ),
+                                buildCompactSpacerSection(),
+                                Expanded(
+                                  flex: 2,
+                                  child: buildCompactDrawingCardsSection(),
+                                ),
+                              ],
                             ],
-                            if (drawCardsPosition == DrawCardsPosition.right) ...[
-                              Expanded(
-                                flex: 4,
-                                child: buildCompactFinishedCardsSection(),
-                              ),
-                              buildCompactSpacerSection(),
-                              Expanded(
-                                flex: 2,
-                                child: buildCompactDrawingCardsSection(),
-                              ),
-                            ],
-                          ],
+                          ),
                         ),
 
                         const SizedBox(

@@ -50,7 +50,14 @@ Future<void> initializeServices() async {
 
   if (!getIt.isRegistered<SoundService>()) {
     getIt.registerSingletonAsync(
-      () async => SoundService(),
+      () async {
+        final sound = SoundService();
+        await sound.setVolume(
+          getIt.get<HiveService>().getSettings().soundVolume,
+        );
+        return sound;
+      },
+      dependsOn: [HiveService],
     );
   }
 

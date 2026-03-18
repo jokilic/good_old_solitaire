@@ -35,6 +35,7 @@
 - [ ] Slider for sounds (50% initial) -> https://m3.material.io/components/sliders/overview
 
 ### Sounds
+- [ ] Sound of changing draw cards position
 - [ ] Sound of undoing move (when it reverses)
 - [ ] Sound of hint (when it highlights a move)
 - [ ] Sound of completing game (when all cards are in foundation)

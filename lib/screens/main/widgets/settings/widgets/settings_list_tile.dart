@@ -4,7 +4,6 @@ import 'package:bordered_text/bordered_text.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../../constants/constants.dart';
-import 'settings_text_button.dart';
 
 class SettingsListTile extends StatelessWidget {
   final bool isWideUi;
@@ -13,7 +12,7 @@ class SettingsListTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final String icon;
-  final List<SettingsTextButton> buttons;
+  final List<Widget> buttons;
 
   const SettingsListTile({
     required this.isWideUi,
@@ -39,7 +38,7 @@ class SettingsListTile extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 800),
           padding: EdgeInsets.symmetric(
             horizontal: isWideUi ? 24 : 16,
-            vertical: 8,
+            vertical: 12,
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),

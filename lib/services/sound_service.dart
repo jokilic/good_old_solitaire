@@ -3,7 +3,16 @@ import 'package:audioplayers/audioplayers.dart';
 import '../constants/enums.dart';
 
 class SoundService {
-  final Map<GameSound, Future<AudioPlayer>> players = {};
+  ///
+  /// VARIABLES
+  ///
+
+  final players = <GameSound, Future<AudioPlayer>>{};
+  var volume = 0.5;
+
+  ///
+  /// METHODS
+  ///
 
   Future<void> playCardLift() => play(
     sound: GameSound.cardLift,
@@ -52,6 +61,18 @@ class SoundService {
     }
   }
 
+  Future<void> setVolume(double newVolume) async {
+    volume = newVolume.clamp(0, 1);
+
+    for (final player in players.values) {
+      try {
+        await (await player).setVolume(volume);
+      } catch (_) {
+        continue;
+      }
+    }
+  }
+
   Future<AudioPlayer> playerFor(GameSound sound) => players.putIfAbsent(
     sound,
     () async {
@@ -59,7 +80,7 @@ class SoundService {
 
       await player.setPlayerMode(PlayerMode.lowLatency);
       await player.setReleaseMode(ReleaseMode.stop);
-      await player.setVolume(0.5);
+      await player.setVolume(volume);
 
       return player;
     },

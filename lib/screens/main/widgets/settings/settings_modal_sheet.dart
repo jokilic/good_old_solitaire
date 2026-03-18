@@ -5,10 +5,13 @@ import 'package:watch_it/watch_it.dart';
 import '../../../../constants/colors.dart';
 import '../../../../constants/constants.dart';
 import '../../../../constants/icons.dart';
+import '../../../../models/settings/animation_speed.dart';
 import '../../../../models/settings/draw_cards_position.dart';
 import '../../../../models/settings/solitaire_settings.dart';
 import '../../../../services/hive_service.dart';
+import '../../../../services/sound_service.dart';
 import '../../../../util/dependencies.dart';
+import '../../../../util/settings.dart';
 import 'widgets/settings_list_tile.dart';
 import 'widgets/settings_text_button.dart';
 
@@ -16,10 +19,13 @@ class SettingsModalSheet extends WatchingWidget {
   @override
   Widget build(BuildContext context) {
     final hive = getIt.get<HiveService>();
+    final sound = getIt.get<SoundService>();
 
-    final settings = watchPropertyValue<HiveService, SolitaireSettings?>(
-      (x) => x.value.settings,
-    );
+    final settings =
+        watchPropertyValue<HiveService, SolitaireSettings?>(
+          (x) => x.value.settings,
+        ) ??
+        hive.defaultSettings;
 
     final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
     final elementSpacing = isWideUi ? 20 : 12;
@@ -65,31 +71,92 @@ class SettingsModalSheet extends WatchingWidget {
             elementSpacing: elementSpacing,
             buttonSpacing: elementSpacing,
             icon: SolitaireIcons.cardsPosition,
-            title: 'Draw cards position',
-            subtitle: 'Location of draw cards on the table',
-            buttons: [
-              ///
-              /// LEFT
-              ///
-              SettingsTextButton(
-                onPressed: () => hive.onDrawCardsPositionPressed(
-                  DrawCardsPosition.left,
-                ),
-                text: 'Left',
-                isWideUi: isWideUi,
-                isActive: settings?.drawCardPosition == DrawCardsPosition.left,
-              ),
+            title: 'Draw cards',
+            subtitle: 'Position on the table',
+            buttons: DrawCardsPosition.values
+                .map(
+                  (position) => SettingsTextButton(
+                    onPressed: () => hive.onDrawCardsPositionPressed(position),
+                    text: getDrawCardsPositionText(position),
+                    isWideUi: isWideUi,
+                    isActive: settings.drawCardPosition == position,
+                  ),
+                )
+                .toList(),
+          ),
 
-              ///
-              /// RIGHT
-              ///
-              SettingsTextButton(
-                onPressed: () => hive.onDrawCardsPositionPressed(
-                  DrawCardsPosition.right,
+          const SizedBox(height: 16),
+
+          ///
+          /// ANIMATION SPEED
+          ///
+          SettingsListTile(
+            isWideUi: isWideUi,
+            elementSpacing: elementSpacing,
+            buttonSpacing: elementSpacing,
+            icon: SolitaireIcons.hint,
+            title: 'Animation',
+            subtitle: 'Speed of cards',
+            buttons: AnimationSpeed.values
+                .map(
+                  (speed) => SettingsTextButton(
+                    onPressed: () => hive.onAnimationSpeedPressed(speed),
+                    text: getAnimationSpeedText(speed),
+                    isWideUi: isWideUi,
+                    isActive: settings.animationSpeed == speed,
+                  ),
+                )
+                .toList(),
+          ),
+
+          const SizedBox(height: 16),
+
+          ///
+          /// SOUND VOLUME
+          ///
+          SettingsListTile(
+            isWideUi: isWideUi,
+            elementSpacing: elementSpacing,
+            buttonSpacing: elementSpacing,
+            icon: SolitaireIcons.hint,
+            title: 'Sound',
+            subtitle: 'Volume of effects',
+            buttons: [
+              SizedBox(
+                width: isWideUi ? 240 : 160,
+                child: SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: Colors.white,
+                    inactiveTrackColor: Colors.white24,
+                    thumbColor: Colors.white,
+                    overlayColor: Colors.white24,
+                    valueIndicatorColor: Colors.black87,
+                    trackHeight: isWideUi ? 6 : 4,
+                  ),
+                  child: Slider(
+                    value: settings.soundVolume,
+                    divisions: 10,
+                    label: '${(settings.soundVolume * 100).round()}%',
+                    onChanged: (value) {
+                      final newVolume = value.clamp(0, 1).toDouble();
+
+                      hive.onSoundVolumeChanged(newVolume);
+                      sound.setVolume(newVolume);
+                    },
+                  ),
                 ),
-                text: 'Right',
-                isWideUi: isWideUi,
-                isActive: settings?.drawCardPosition == DrawCardsPosition.right,
+              ),
+              BorderedText(
+                strokeColor: Colors.black54,
+                strokeWidth: isWideUi ? 4 : 2,
+                child: Text(
+                  '${(settings.soundVolume * 100).round()}%',
+                  style: TextStyle(
+                    fontSize: isWideUi ? 18 : 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ],
           ),
