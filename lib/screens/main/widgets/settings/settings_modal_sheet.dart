@@ -15,11 +15,11 @@ import 'widgets/settings_text_button.dart';
 class SettingsModalSheet extends WatchingWidget {
   @override
   Widget build(BuildContext context) {
+    final hive = getIt.get<HiveService>();
+
     final settings = watchPropertyValue<HiveService, SolitaireSettings?>(
       (x) => x.value.settings,
     );
-
-    final hive = getIt.get<HiveService>();
 
     final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
     final elementSpacing = isWideUi ? 20 : 12;

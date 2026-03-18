@@ -1,13 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:watch_it/watch_it.dart';
 
 import '../../../../constants/constants.dart';
 import '../../../../constants/durations.dart';
 import '../../../../constants/enums.dart';
 import '../../../../models/game_history_snapshot.dart';
 import '../../../../models/selected_card.dart';
+import '../../../../models/settings/draw_cards_position.dart';
 import '../../../../models/solitaire_card.dart';
+import '../../../../services/hive_service.dart';
 import '../../../../services/sound_service.dart';
 import '../../../../util/dependencies.dart';
 import '../../../../util/main_stack_layout.dart';
@@ -20,7 +23,7 @@ import 'widgets/layout/drawing_cards/drawing_cards_row.dart';
 import 'widgets/layout/finished_cards/finished_cards_row.dart';
 import 'widgets/layout/main_cards/main_cards_row.dart';
 
-class GameWidget extends StatefulWidget {
+class GameWidget extends WatchingStatefulWidget {
   final String instanceId;
 
   const GameWidget({
@@ -666,6 +669,10 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
       instanceName: widget.instanceId,
     );
 
+    final drawCardsPosition = watchPropertyValue<HiveService, DrawCardsPosition>(
+      (x) => x.value.settings?.drawCardPosition ?? DrawCardsPosition.left,
+    );
+
     final isWideUi = MediaQuery.sizeOf(context).width > SolitaireConstants.compactLayoutMaxWidth;
 
     return Center(
@@ -690,7 +697,90 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
               },
             );
 
-            // TODO: Refactor this so it takes a value from Hive.settings.drawCardPosition and uses this value to show widgets in the correct order
+            final showOpenedCardsFirst = drawCardsPosition == DrawCardsPosition.right;
+
+            Widget buildCompactUnopenedCards() => Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SolitaireConstants.padding / 2,
+                ),
+                child: buildCardSlot(
+                  (cardWidth, cardHeight) => DrawingUnopenedCards(
+                    instanceId: widget.instanceId,
+                    pileKey: drawingUnopenedKey,
+                    cardHeight: cardHeight,
+                    cardWidth: cardWidth,
+                  ),
+                ),
+              ),
+            );
+
+            Widget buildCompactOpenedCards() => Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SolitaireConstants.padding / 2,
+                ),
+                child: buildCardSlot(
+                  (cardWidth, cardHeight) => DrawingOpenedCards(
+                    instanceId: widget.instanceId,
+                    cardHeight: cardHeight,
+                    cardWidth: cardWidth,
+                    pileKey: drawingOpenedKey,
+                    hideTopCard: hideOpenedTopCard,
+                    revealFromRight: showOpenedCardsFirst,
+                  ),
+                ),
+              ),
+            );
+
+            Widget buildCompactFinishedCardsSection() => Row(
+              children: [
+                ...List.generate(
+                  controller.finishedPileKeys.length,
+                  (index) => Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: SolitaireConstants.padding / 2,
+                      ),
+                      child: buildCardSlot(
+                        (cardWidth, cardHeight) => FinishedCards(
+                          instanceId: widget.instanceId,
+                          index: index,
+                          cardHeight: cardHeight,
+                          cardWidth: cardWidth,
+                          pileKey: controller.finishedPileKeys[index],
+                          isAnimatingMove: isAnimatingMove,
+                          onTapMoveSelected: animateSelectedToFinished,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+
+            Widget buildCompactSpacerSection() => Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: SolitaireConstants.padding / 2,
+                ),
+                child: buildCardSlot(
+                  (cardWidth, cardHeight) => SizedBox(
+                    width: cardWidth,
+                    height: cardHeight,
+                  ),
+                ),
+              ),
+            );
+
+            Widget buildCompactDrawingCardsSection() => Row(
+              children: [
+                if (showOpenedCardsFirst) buildCompactOpenedCards(),
+                if (showOpenedCardsFirst) buildCompactUnopenedCards(),
+                if (!showOpenedCardsFirst) buildCompactUnopenedCards(),
+                if (!showOpenedCardsFirst) buildCompactOpenedCards(),
+              ],
+            );
 
             return IgnorePointer(
               ignoring: isAnimatingMove || isInitialDealAnimating,
@@ -710,15 +800,27 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
 
                                 return Row(
                                   children: [
-                                    SizedBox(
-                                      width: drawingSectionWidth,
-                                      child: DrawingCardsRow(
-                                        instanceId: widget.instanceId,
-                                        drawingUnopenedKey: drawingUnopenedKey,
-                                        drawingOpenedKey: drawingOpenedKey,
-                                        hideOpenedTopCard: hideOpenedTopCard,
+                                    if (drawCardsPosition == DrawCardsPosition.left)
+                                      SizedBox(
+                                        width: drawingSectionWidth,
+                                        child: DrawingCardsRow(
+                                          instanceId: widget.instanceId,
+                                          drawingUnopenedKey: drawingUnopenedKey,
+                                          drawingOpenedKey: drawingOpenedKey,
+                                          hideOpenedTopCard: hideOpenedTopCard,
+                                          drawCardsPosition: drawCardsPosition,
+                                        ),
                                       ),
-                                    ),
+                                    if (drawCardsPosition == DrawCardsPosition.right)
+                                      SizedBox(
+                                        width: finishedSectionWidth,
+                                        child: FinishedCardsRow(
+                                          instanceId: widget.instanceId,
+                                          pileKeys: controller.finishedPileKeys,
+                                          isAnimatingMove: isAnimatingMove,
+                                          onTapMoveSelected: animateSelectedToFinished,
+                                        ),
+                                      ),
                                     const SizedBox(
                                       width: SolitaireConstants.padding,
                                     ),
@@ -734,15 +836,27 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                                     const SizedBox(
                                       width: SolitaireConstants.padding,
                                     ),
-                                    SizedBox(
-                                      width: finishedSectionWidth,
-                                      child: FinishedCardsRow(
-                                        instanceId: widget.instanceId,
-                                        pileKeys: controller.finishedPileKeys,
-                                        isAnimatingMove: isAnimatingMove,
-                                        onTapMoveSelected: animateSelectedToFinished,
+                                    if (drawCardsPosition == DrawCardsPosition.left)
+                                      SizedBox(
+                                        width: finishedSectionWidth,
+                                        child: FinishedCardsRow(
+                                          instanceId: widget.instanceId,
+                                          pileKeys: controller.finishedPileKeys,
+                                          isAnimatingMove: isAnimatingMove,
+                                          onTapMoveSelected: animateSelectedToFinished,
+                                        ),
                                       ),
-                                    ),
+                                    if (drawCardsPosition == DrawCardsPosition.right)
+                                      SizedBox(
+                                        width: drawingSectionWidth,
+                                        child: DrawingCardsRow(
+                                          instanceId: widget.instanceId,
+                                          drawingUnopenedKey: drawingUnopenedKey,
+                                          drawingOpenedKey: drawingOpenedKey,
+                                          hideOpenedTopCard: hideOpenedTopCard,
+                                          drawCardsPosition: drawCardsPosition,
+                                        ),
+                                      ),
                                   ],
                                 );
                               },
@@ -769,64 +883,28 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                       children: [
                         Row(
                           children: [
-                            ...List.generate(
-                              controller.finishedPileKeys.length,
-                              (index) => Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
-                                  child: buildCardSlot(
-                                    (cardWidth, cardHeight) => FinishedCards(
-                                      instanceId: widget.instanceId,
-                                      index: index,
-                                      cardHeight: cardHeight,
-                                      cardWidth: cardWidth,
-                                      pileKey: controller.finishedPileKeys[index],
-                                      isAnimatingMove: isAnimatingMove,
-                                      onTapMoveSelected: animateSelectedToFinished,
-                                    ),
-                                  ),
-                                ),
+                            if (drawCardsPosition == DrawCardsPosition.left) ...[
+                              Expanded(
+                                flex: 2,
+                                child: buildCompactDrawingCardsSection(),
                               ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
-                                child: buildCardSlot(
-                                  (cardWidth, cardHeight) => SizedBox(
-                                    width: cardWidth,
-                                    height: cardHeight,
-                                  ),
-                                ),
+                              buildCompactSpacerSection(),
+                              Expanded(
+                                flex: 4,
+                                child: buildCompactFinishedCardsSection(),
                               ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
-                                child: buildCardSlot(
-                                  (cardWidth, cardHeight) => DrawingOpenedCards(
-                                    instanceId: widget.instanceId,
-                                    cardHeight: cardHeight,
-                                    cardWidth: cardWidth,
-                                    pileKey: drawingOpenedKey,
-                                    hideTopCard: hideOpenedTopCard,
-                                    revealFromRight: true,
-                                  ),
-                                ),
+                            ],
+                            if (drawCardsPosition == DrawCardsPosition.right) ...[
+                              Expanded(
+                                flex: 4,
+                                child: buildCompactFinishedCardsSection(),
                               ),
-                            ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: SolitaireConstants.padding / 2),
-                                child: buildCardSlot(
-                                  (cardWidth, cardHeight) => DrawingUnopenedCards(
-                                    instanceId: widget.instanceId,
-                                    pileKey: drawingUnopenedKey,
-                                    cardHeight: cardHeight,
-                                    cardWidth: cardWidth,
-                                  ),
-                                ),
+                              buildCompactSpacerSection(),
+                              Expanded(
+                                flex: 2,
+                                child: buildCompactDrawingCardsSection(),
                               ),
-                            ),
+                            ],
                           ],
                         ),
 
