@@ -94,13 +94,13 @@ class DrawingOpenedCards extends WatchingWidget {
           duration: SolitaireDurations.animation,
           curve: Curves.easeIn,
         ),
-        const ScaleEffect(
-          begin: Offset(0.92, 0.92),
-          end: Offset(1, 1),
+        ScaleEffect(
+          begin: const Offset(0.92, 0.92),
+          end: const Offset(1, 1),
           duration: SolitaireDurations.animation,
           curve: Curves.easeIn,
         ),
-        const FadeEffect(
+        FadeEffect(
           begin: 0.2,
           end: 1,
           duration: SolitaireDurations.animation,

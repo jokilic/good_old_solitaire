@@ -228,7 +228,7 @@ class MainCardsColumn extends WatchingWidget {
                       if (shouldAnimateReveal) {
                         child = Animate(
                           key: ValueKey('main-reveal-$column-$revealVersion'),
-                          effects: const [
+                          effects: [
                             FlipEffect(
                               duration: SolitaireDurations.animation,
                               curve: Curves.easeIn,

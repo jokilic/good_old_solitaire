@@ -27,7 +27,7 @@ class MainController {
     final shouldStartNewGame =
         await showDialog<bool>(
           context: context,
-          animationStyle: const AnimationStyle(
+          animationStyle: AnimationStyle(
             duration: SolitaireDurations.animation,
             curve: Curves.easeIn,
           ),
@@ -60,7 +60,7 @@ class MainController {
     final shouldResetGame =
         await showDialog<bool>(
           context: context,
-          animationStyle: const AnimationStyle(
+          animationStyle: AnimationStyle(
             duration: SolitaireDurations.animation,
             curve: Curves.easeIn,
           ),
@@ -112,7 +112,7 @@ class MainController {
         width: SolitaireConstants.borderWidth,
       ),
     ),
-    sheetAnimationStyle: const AnimationStyle(
+    sheetAnimationStyle: AnimationStyle(
       curve: Curves.easeIn,
       reverseCurve: Curves.easeIn,
       duration: SolitaireDurations.animationLong,
@@ -135,7 +135,7 @@ class MainController {
         width: SolitaireConstants.borderWidth,
       ),
     ),
-    sheetAnimationStyle: const AnimationStyle(
+    sheetAnimationStyle: AnimationStyle(
       curve: Curves.easeIn,
       reverseCurve: Curves.easeIn,
       duration: SolitaireDurations.animationLong,
