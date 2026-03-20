@@ -29,7 +29,7 @@ class HiveService extends ValueNotifier<({SolitaireSettings? settings, Solitaire
 
   late final Box<SolitaireSettings> settings;
   late final Box<SolitaireTheme> theme;
-  late final Box<Map> gameState;
+  late final Box<GamePersistenceSnapshot> gameState;
 
   static const String currentGameKey = 'currentGame';
 
@@ -59,7 +59,7 @@ class HiveService extends ValueNotifier<({SolitaireSettings? settings, Solitaire
 
     settings = await Hive.openBox<SolitaireSettings>('settingsBox');
     theme = await Hive.openBox<SolitaireTheme>('themeBox');
-    gameState = await Hive.openBox<Map>('gameStateBox');
+    gameState = await Hive.openBox<GamePersistenceSnapshot>('gameStateBox');
 
     updateState();
   }

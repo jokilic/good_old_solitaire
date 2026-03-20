@@ -1,5 +1,8 @@
 import 'package:hive_ce/hive.dart';
 
+import 'cards/solitaire_card.dart';
+import 'cards/suit.dart';
+import 'game/game_persistence_snapshot.dart';
 import 'settings/animation_speed.dart';
 import 'settings/draw_cards_number.dart';
 import 'settings/draw_cards_position.dart';
@@ -18,5 +21,8 @@ import 'theme/table_theme.dart';
   AdapterSpec<TableTheme>(),
   AdapterSpec<CardBackTheme>(),
   AdapterSpec<CardFrontTheme>(),
+  AdapterSpec<Suit>(),
+  AdapterSpec<SolitaireCard>(),
+  AdapterSpec<GamePersistenceSnapshot>(),
 ])
 part 'hive_adapters.g.dart';

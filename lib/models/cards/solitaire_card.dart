@@ -1,10 +1,15 @@
+import 'package:hive_ce/hive_ce.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import 'suit.dart';
 
+@HiveType(typeId: 9)
 class SolitaireCard {
+  @HiveField(1)
   final Suit suit;
+  @HiveField(2)
   final int rank; // Between 1 and 13
+  @HiveField(3)
   bool faceUp;
 
   SolitaireCard({

@@ -1,6 +1,6 @@
 import 'package:hive_ce/hive_ce.dart';
 
-@HiveType(typeId: 3)
+@HiveType(typeId: 8)
 enum Suit {
   @HiveField(1)
   clubs,
