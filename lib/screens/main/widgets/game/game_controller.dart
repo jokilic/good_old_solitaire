@@ -1429,17 +1429,29 @@ class GameController
 
     /// Undo should restore the previous board state without replaying animations.
     updateState(
-      newDrawingUnopenedCards: cloneCards(snapshot.drawingUnopenedCards),
-      newDrawingOpenedCards: cloneCards(snapshot.drawingOpenedCards),
+      newDrawingUnopenedCards: cloneCards(
+        snapshot.drawingUnopenedCards,
+      ),
+      newDrawingOpenedCards: cloneCards(
+        snapshot.drawingOpenedCards,
+      ),
       newDrawingRevealVersion: snapshot.drawingRevealVersion,
       newDrawingRevealCardKey: snapshot.drawingRevealCardKey,
       newElapsedSeconds: snapshot.elapsedSeconds,
       newMoveCounter: snapshot.moveCounter,
       newScore: snapshot.score + SolitaireConstants.scorePenaltyForUndo,
-      newMainCards: cloneCardColumns(snapshot.mainCards),
-      newFinishedCards: cloneCardColumns(snapshot.finishedCards),
-      newMainRevealVersions: List<int>.from(snapshot.mainRevealVersions),
-      newMainRevealCardKeys: List<String?>.from(snapshot.mainRevealCardKeys),
+      newMainCards: cloneCardColumns(
+        snapshot.mainCards,
+      ),
+      newFinishedCards: cloneCardColumns(
+        snapshot.finishedCards,
+      ),
+      newMainRevealVersions: List<int>.from(
+        snapshot.mainRevealVersions,
+      ),
+      newMainRevealCardKeys: List<String?>.from(
+        snapshot.mainRevealCardKeys,
+      ),
       newSelectedCard: null,
       newDraggingPayload: null,
       newDropSettleVersion: shouldAnimateUndo ? value.dropSettleVersion + 1 : value.dropSettleVersion,

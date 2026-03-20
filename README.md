@@ -17,6 +17,7 @@
 - [ ] Refactor Colors.someColor & Color(0x...)
 - [ ] Refactor text styles
 - [ ] Play with different `curve`
+- [ ] Implement [InfoScreen]
 
 ### Backend (Supabase database)
 - [ ] Username (random username if not provided)
@@ -41,3 +42,8 @@
 - [ ] Sound of quitting game (when it exits)
 - [ ] Sound of pausing game (when it pauses)
 - [ ] Sound of resuming game (when it resumes)
+
+### Info
+- [ ] Mention rules of the game
+- [ ] Mention controls (tap, drag, etc.)
+- [ ] Mention how score is calculated

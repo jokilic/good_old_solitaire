@@ -159,7 +159,7 @@ class _MainScreenState extends State<MainScreen> {
           vertical: SolitaireConstants.padding * 2,
         ),
         decoration: const BoxDecoration(
-          gradient: SolitaireGradients.greenGradient,
+          gradient: SolitaireGradients.blueGradient,
         ),
         child: Column(
           children: [
