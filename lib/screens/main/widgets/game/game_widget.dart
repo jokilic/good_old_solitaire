@@ -49,6 +49,15 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
+    final controller = getIt.get<GameController>(
+      instanceName: widget.instanceId,
+    );
+
+    if (controller.didResumeStoredGame) {
+      isInitialDealAnimating = false;
+      return;
+    }
+
     WidgetsBinding.instance.addPostFrameCallback(
       (_) {
         if (!mounted) {

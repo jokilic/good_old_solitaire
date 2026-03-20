@@ -6,9 +6,11 @@ import 'package:get_it/get_it.dart';
 import '../../../../constants/enums.dart';
 import '../../../../models/drag_payload.dart';
 import '../../../../models/game_history_snapshot.dart';
+import '../../../../models/game_persistence_snapshot.dart';
 import '../../../../models/game_setup_snapshot.dart';
 import '../../../../models/selected_card.dart';
 import '../../../../models/solitaire_card.dart';
+import '../../../../services/hive_service.dart';
 import '../../../../services/sound_service.dart';
 import '../../../../util/main_stack_layout.dart';
 import '../../../../util/nullable_objects.dart';
@@ -44,9 +46,11 @@ class GameController
   /// CONSTRUCTOR
   ///
 
+  final HiveService hive;
   final SoundService sound;
 
   GameController({
+    required this.hive,
     required this.sound,
   }) : super(
          (
@@ -89,6 +93,8 @@ class GameController
   Timer? gameTimer;
   DateTime? gameTimerStartedAt;
 
+  var didResumeStoredGame = false;
+
   GameSetupSnapshot? initialGameSetup;
   final moveHistory = <GameHistorySnapshot>[];
 
@@ -107,7 +113,14 @@ class GameController
   ///
 
   void init() {
-    newGame();
+    final storedGame = hive.getCurrentGame();
+
+    if (storedGame == null) {
+      newGame();
+      return;
+    }
+
+    restoreStoredGame(storedGame);
   }
 
   ///
@@ -125,6 +138,8 @@ class GameController
 
   /// Builds and deals a fresh game
   void newGame() {
+    didResumeStoredGame = false;
+
     moveHistory.clear();
     resetAndStartTimer();
 
@@ -192,6 +207,8 @@ class GameController
       newDropSettleCardKeys: const [],
       newDropSettleFromOffset: null,
     );
+
+    persistCurrentGameState();
   }
 
   /// Restores the current game to its original dealt layout
@@ -202,6 +219,8 @@ class GameController
       newGame();
       return;
     }
+
+    didResumeStoredGame = false;
 
     moveHistory.clear();
     resetAndStartTimer();
@@ -232,6 +251,8 @@ class GameController
       newDropSettleCardKeys: const [],
       newDropSettleFromOffset: null,
     );
+
+    persistCurrentGameState();
   }
 
   void resetAndStartTimer() {
@@ -313,6 +334,8 @@ class GameController
       newDrawingRevealCardKey: drawingRevealCardKey,
       newSelectedCard: null,
     );
+
+    persistCurrentGameState();
 
     if (didDrawCard) {
       unawaited(sound.playCardDraw());
@@ -421,6 +444,8 @@ class GameController
       ),
       newScore: value.score + scoreForRevealTableauCard,
     );
+
+    persistCurrentGameState();
 
     unawaited(sound.playCardFlip());
   }
@@ -539,6 +564,8 @@ class GameController
       newScore: value.score + scoreForMoveToFoundation + scoreDelta,
       newSelectedCard: null,
     );
+
+    persistCurrentGameState();
 
     unawaited(sound.playCardPlace());
   }
@@ -801,6 +828,8 @@ class GameController
       newSelectedCard: null,
     );
 
+    persistCurrentGameState();
+
     unawaited(sound.playCardPlace());
   }
 
@@ -918,6 +947,8 @@ class GameController
       newDropSettleFromOffset: dropOffset ?? noDropSettleFromOffset,
     );
 
+    persistCurrentGameState();
+
     unawaited(sound.playCardPlace());
   }
 
@@ -989,6 +1020,8 @@ class GameController
       newDropSettleCardKeys: dropOffset == null ? null : cards.map((card) => card.revealKey).toList(),
       newDropSettleFromOffset: dropOffset ?? noDropSettleFromOffset,
     );
+
+    persistCurrentGameState();
 
     unawaited(sound.playCardPlace());
   }
@@ -1417,6 +1450,8 @@ class GameController
       newDropSettleCardKeys: shouldAnimateUndo ? List<String>.from(animatedCardKeys) : const [],
       newDropSettleFromOffset: shouldAnimateUndo ? animatedFromOffset : null,
     );
+
+    persistCurrentGameState();
   }
 
   /// Saves the current state to the history
@@ -1474,6 +1509,126 @@ class GameController
   List<List<SolitaireCard>> cloneCardColumns(List<List<SolitaireCard>> columns) => [
     for (final column in columns) cloneCards(column),
   ];
+
+  void restoreStoredGame(GamePersistenceSnapshot snapshot) {
+    didResumeStoredGame = true;
+
+    moveHistory.clear();
+
+    initialGameSetup = GameSetupSnapshot(
+      drawingUnopenedCards: cloneCards(
+        snapshot.initialDrawingUnopenedCards,
+      ),
+      mainCards: cloneCardColumns(
+        snapshot.initialMainCards,
+      ),
+    );
+
+    gameTimer?.cancel();
+    gameTimerStartedAt = DateTime.now().subtract(
+      Duration(
+        seconds: snapshot.elapsedSeconds,
+      ),
+    );
+
+    updateState(
+      newDrawingUnopenedCards: cloneCards(
+        snapshot.drawingUnopenedCards,
+      ),
+      newDrawingOpenedCards: cloneCards(
+        snapshot.drawingOpenedCards,
+      ),
+      newDrawingRevealVersion: snapshot.drawingRevealVersion,
+      newDrawingRevealCardKey: snapshot.drawingRevealCardKey,
+      newElapsedSeconds: snapshot.elapsedSeconds,
+      newMoveCounter: snapshot.moveCounter,
+      newScore: snapshot.score,
+      newMainCards: cloneCardColumns(
+        snapshot.mainCards,
+      ),
+      newFinishedCards: cloneCardColumns(
+        snapshot.finishedCards,
+      ),
+      newMainRevealVersions: List<int>.from(
+        snapshot.mainRevealVersions,
+      ),
+      newMainRevealCardKeys: List<String?>.from(
+        snapshot.mainRevealCardKeys,
+      ),
+      newSelectedCard: null,
+      newDraggingPayload: null,
+      newDropSettleVersion: 0,
+      newDropSettleTarget: null,
+      newDropSettlePileIndex: null,
+      newDropSettleCardKeys: const [],
+      newDropSettleFromOffset: null,
+    );
+
+    gameTimer = Timer.periodic(
+      const Duration(seconds: 1),
+      (_) {
+        final startedAt = gameTimerStartedAt;
+
+        if (startedAt == null) {
+          return;
+        }
+
+        final nextSeconds = DateTime.now().difference(startedAt).inSeconds;
+
+        if (value.elapsedSeconds == nextSeconds) {
+          return;
+        }
+
+        updateState(
+          newElapsedSeconds: nextSeconds,
+        );
+      },
+    );
+  }
+
+  void persistCurrentGameState() {
+    final setup = initialGameSetup;
+
+    if (setup == null) {
+      return;
+    }
+
+    unawaited(
+      hive.writeCurrentGame(
+        GamePersistenceSnapshot(
+          drawingUnopenedCards: cloneCards(
+            value.drawingUnopenedCards,
+          ),
+          drawingOpenedCards: cloneCards(
+            value.drawingOpenedCards,
+          ),
+          drawingRevealVersion: value.drawingRevealVersion,
+          drawingRevealCardKey: value.drawingRevealCardKey,
+          elapsedSeconds: value.elapsedSeconds,
+          moveCounter: value.moveCounter,
+          score: value.score,
+          mainCards: cloneCardColumns(
+            value.mainCards,
+          ),
+          finishedCards: cloneCardColumns(
+            value.finishedCards,
+          ),
+          mainRevealVersions: List<int>.from(
+            value.mainRevealVersions,
+          ),
+          mainRevealCardKeys: List<String?>.from(
+            value.mainRevealCardKeys,
+          ),
+          initialDrawingUnopenedCards: cloneCards(
+            setup.drawingUnopenedCards,
+          ),
+          initialMainCards: cloneCardColumns(
+            setup.mainCards,
+          ),
+        ),
+      ),
+    );
+  }
 
   bool canHintFromState({
     required List<SolitaireCard> drawingUnopenedCards,

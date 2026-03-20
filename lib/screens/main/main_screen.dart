@@ -3,6 +3,7 @@ import 'package:watch_it/watch_it.dart';
 
 import '../../constants/colors.dart';
 import '../../constants/constants.dart';
+import '../../services/hive_service.dart';
 import '../../services/sound_service.dart';
 import '../../util/dependencies.dart';
 import 'main_controller.dart';
@@ -115,6 +116,7 @@ class _MainScreenState extends State<MainScreen> {
 
     registerIfNotInitialized<GameController>(
       () => GameController(
+        hive: getIt.get<HiveService>(),
         sound: getIt.get<SoundService>(),
       ),
       afterRegister: (controller) => controller.init(),

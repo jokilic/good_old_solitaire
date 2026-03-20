@@ -6,6 +6,7 @@
 
 ### To-Do
 
+- [ ] Store game state in Hive, which will allow resuming the game after closing the app
 - [ ] Think about using keyboard shortcuts for some actions
 - [ ] Icons should be WebP
 - [ ] Different main icon
