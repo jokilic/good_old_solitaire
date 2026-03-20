@@ -121,6 +121,15 @@ class HiveService extends ValueNotifier<({SolitaireSettings? settings, Solitaire
     writeSettings(newSettings);
   }
 
+  /// Called when user presses button to change `drawCardsNumber`
+  void onDrawCardsNumberPressed(DrawCardsNumber newDrawCardsNumber) {
+    final currentSettings = getSettings();
+    final newSettings = currentSettings.copyWith(
+      drawCardsNumber: newDrawCardsNumber,
+    );
+    writeSettings(newSettings);
+  }
+
   /// Called when user presses button to change `animationSpeed`
   void onAnimationSpeedPressed(AnimationSpeed newAnimationSpeed) {
     final currentSettings = getSettings();

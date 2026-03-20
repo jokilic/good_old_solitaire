@@ -6,6 +6,7 @@ import '../../../../constants/colors.dart';
 import '../../../../constants/constants.dart';
 import '../../../../constants/icons.dart';
 import '../../../../models/settings/animation_speed.dart';
+import '../../../../models/settings/draw_cards_number.dart';
 import '../../../../models/settings/draw_cards_position.dart';
 import '../../../../models/settings/solitaire_settings.dart';
 import '../../../../services/hive_service.dart';
@@ -72,8 +73,8 @@ class SettingsModalSheet extends WatchingWidget {
             elementSpacing: elementSpacing,
             buttonSpacing: elementSpacing,
             icon: SolitaireIcons.cardsPosition,
-            title: 'Draw cards',
-            subtitle: 'Position on the table',
+            title: 'Cards position',
+            subtitle: 'Position of drawn cards on the table',
             buttons: DrawCardsPosition.values
                 .map(
                   (position) => SettingsTextButton(
@@ -81,6 +82,30 @@ class SettingsModalSheet extends WatchingWidget {
                     text: getDrawCardsPositionText(position),
                     isWideUi: isWideUi,
                     isActive: settings.drawCardPosition == position,
+                  ),
+                )
+                .toList(),
+          ),
+
+          const SizedBox(height: 16),
+
+          ///
+          /// DRAW CARDS NUMBER
+          ///
+          SettingsListTile(
+            isWideUi: isWideUi,
+            elementSpacing: elementSpacing,
+            buttonSpacing: elementSpacing,
+            icon: SolitaireIcons.cardsPosition,
+            title: 'Cards number',
+            subtitle: 'Number of cards drawn at a time',
+            buttons: DrawCardsNumber.values
+                .map(
+                  (number) => SettingsTextButton(
+                    onPressed: () => hive.onDrawCardsNumberPressed(number),
+                    text: getDrawCardsNumberText(number),
+                    isWideUi: isWideUi,
+                    isActive: settings.drawCardsNumber == number,
                   ),
                 )
                 .toList(),
