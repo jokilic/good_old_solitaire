@@ -6,7 +6,10 @@
 
 ### To-Do
 
-- [ ] Store game state in Hive, which will allow resuming the game after closing the app
+- [ ] Test sound slider from `Settings`
+- [ ] Fully implement animations
+- [ ] Implement draw 1 or 3 cards at a time in `Settings`
+- [ ] Tweak UI so that `Hint` shows card properly
 - [ ] Think about using keyboard shortcuts for some actions
 - [ ] Icons should be WebP
 - [ ] Different main icon
@@ -25,15 +28,9 @@
     - [ ] Score
 
 ### Themes
-- [ ] Backgrounds
-- [ ] Card backs
-- [ ] Card faces
-
-### Settings
-- [ ] Draw 1 or 3 cards at a time -> https://m3.material.io/components/segmented-buttons/overview
-- [ ] Layout direction - left / right -> https://m3.material.io/components/segmented-buttons/overview
-- [ ] Fast animations -> https://m3.material.io/components/switch/overview
-- [ ] Slider for sounds (50% initial) -> https://m3.material.io/components/sliders/overview
+- [ ] Table theme (background)
+- [ ] Card back
+- [ ] Card front
 
 ### Sounds
 - [ ] Sound of changing draw cards position
