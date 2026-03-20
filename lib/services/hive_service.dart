@@ -29,8 +29,6 @@ class HiveService extends ValueNotifier<({SolitaireSettings? settings, Solitaire
   late final Box<SolitaireTheme> theme;
   late final Box<GamePersistenceSnapshot> gameState;
 
-  static const String currentGameKey = 'currentGame';
-
   final defaultSettings = SolitaireSettings(
     drawCardPosition: DrawCardsPosition.left,
     drawCardsNumber: DrawCardsNumber.one,
@@ -101,15 +99,15 @@ class HiveService extends ValueNotifier<({SolitaireSettings? settings, Solitaire
 
   /// Stores the current in-progress game so it can be resumed after app restart.
   Future<void> writeCurrentGame(GamePersistenceSnapshot snapshot) async => gameState.put(
-    currentGameKey,
+    'currentGame',
     snapshot,
   );
 
   /// Returns the last stored in-progress game, if any.
-  GamePersistenceSnapshot? getCurrentGame() => gameState.get(currentGameKey);
+  GamePersistenceSnapshot? getCurrentGame() => gameState.get('currentGame');
 
   Future<void> clearCurrentGame() async {
-    await gameState.delete(currentGameKey);
+    await gameState.delete('currentGame');
   }
 
   /// Called when user presses button to change `drawCardPosition`

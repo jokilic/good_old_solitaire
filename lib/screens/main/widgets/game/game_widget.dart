@@ -16,8 +16,6 @@ import '../../../../util/dependencies.dart';
 import '../../../../util/main_stack_layout.dart';
 import 'game_controller.dart';
 import 'widgets/card/card_widget.dart';
-import 'widgets/cards/drawing_opened_cards.dart';
-import 'widgets/cards/drawing_unopened_cards.dart';
 import 'widgets/cards/finished_cards.dart';
 import 'widgets/layout/drawing_cards/drawing_cards_row.dart';
 import 'widgets/layout/finished_cards/finished_cards_row.dart';
@@ -706,42 +704,6 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
               },
             );
 
-            final showOpenedCardsFirst = drawCardsPosition == DrawCardsPosition.right;
-
-            Widget buildCompactUnopenedCards() => Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: SolitaireConstants.padding / 2,
-                ),
-                child: buildCardSlot(
-                  (cardWidth, cardHeight) => DrawingUnopenedCards(
-                    instanceId: widget.instanceId,
-                    pileKey: drawingUnopenedKey,
-                    cardHeight: cardHeight,
-                    cardWidth: cardWidth,
-                  ),
-                ),
-              ),
-            );
-
-            Widget buildCompactOpenedCards() => Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: SolitaireConstants.padding / 2,
-                ),
-                child: buildCardSlot(
-                  (cardWidth, cardHeight) => DrawingOpenedCards(
-                    instanceId: widget.instanceId,
-                    cardHeight: cardHeight,
-                    cardWidth: cardWidth,
-                    pileKey: drawingOpenedKey,
-                    hideTopCard: hideOpenedTopCard,
-                    revealFromRight: showOpenedCardsFirst,
-                  ),
-                ),
-              ),
-            );
-
             Widget buildCompactFinishedCardsSection() => Row(
               children: [
                 ...List.generate(
@@ -768,27 +730,17 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
               ],
             );
 
-            Widget buildCompactSpacerSection() => Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: SolitaireConstants.padding / 2,
-                ),
-                child: buildCardSlot(
-                  (cardWidth, cardHeight) => SizedBox(
-                    width: cardWidth,
-                    height: cardHeight,
-                  ),
-                ),
+            Widget buildCompactDrawingCardsSection() => Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: SolitaireConstants.padding / 2,
               ),
-            );
-
-            Widget buildCompactDrawingCardsSection() => Row(
-              children: [
-                if (showOpenedCardsFirst) buildCompactOpenedCards(),
-                if (showOpenedCardsFirst) buildCompactUnopenedCards(),
-                if (!showOpenedCardsFirst) buildCompactUnopenedCards(),
-                if (!showOpenedCardsFirst) buildCompactOpenedCards(),
-              ],
+              child: DrawingCardsRow(
+                instanceId: widget.instanceId,
+                drawingUnopenedKey: drawingUnopenedKey,
+                drawingOpenedKey: drawingOpenedKey,
+                hideOpenedTopCard: hideOpenedTopCard,
+                drawCardsPosition: drawCardsPosition,
+              ),
             );
 
             Widget buildAnimatedTopSection({
@@ -832,8 +784,7 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                                 builder: (context, topConstraints) {
                                   final slotWidth = (topConstraints.maxWidth - SolitaireConstants.padding * 6) / 7;
                                   final clampedSlotWidth = slotWidth > 0 ? slotWidth : 0.0;
-                                  final drawingSectionWidth = clampedSlotWidth * 2 + SolitaireConstants.padding;
-                                  final emptySectionWidth = clampedSlotWidth;
+                                  final drawingSectionWidth = clampedSlotWidth * 3 + SolitaireConstants.padding * 2;
                                   final finishedSectionWidth = clampedSlotWidth * 4 + SolitaireConstants.padding * 3;
 
                                   return Row(
@@ -859,18 +810,6 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                                             onTapMoveSelected: animateSelectedToFinished,
                                           ),
                                         ),
-                                      const SizedBox(
-                                        width: SolitaireConstants.padding,
-                                      ),
-                                      SizedBox(
-                                        width: emptySectionWidth,
-                                        child: buildCardSlot(
-                                          (cardWidth, cardHeight) => SizedBox(
-                                            width: cardWidth,
-                                            height: cardHeight,
-                                          ),
-                                        ),
-                                      ),
                                       const SizedBox(
                                         width: SolitaireConstants.padding,
                                       ),
@@ -925,10 +864,9 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                             children: [
                               if (drawCardsPosition == DrawCardsPosition.left) ...[
                                 Expanded(
-                                  flex: 2,
+                                  flex: 3,
                                   child: buildCompactDrawingCardsSection(),
                                 ),
-                                buildCompactSpacerSection(),
                                 Expanded(
                                   flex: 4,
                                   child: buildCompactFinishedCardsSection(),
@@ -939,9 +877,8 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
                                   flex: 4,
                                   child: buildCompactFinishedCardsSection(),
                                 ),
-                                buildCompactSpacerSection(),
                                 Expanded(
-                                  flex: 2,
+                                  flex: 3,
                                   child: buildCompactDrawingCardsSection(),
                                 ),
                               ],

@@ -23,7 +23,8 @@ class DrawingCardsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
-      final cardWidth = (constraints.maxWidth - SolitaireConstants.padding) / 2;
+      final cardWidth = (constraints.maxWidth - SolitaireConstants.padding * 2) / 3;
+      final openedCardsWidth = cardWidth * 2 + SolitaireConstants.padding;
       final cardHeight = cardWidth * SolitaireConstants.cardAspectRatio;
       final showOpenedCardsFirst = drawCardsPosition == DrawCardsPosition.right;
 
@@ -39,17 +40,21 @@ class DrawingCardsRow extends StatelessWidget {
         cardHeight: cardHeight,
         cardWidth: cardWidth,
         pileKey: drawingOpenedKey,
+        availableWidth: openedCardsWidth,
         hideTopCard: hideOpenedTopCard,
         revealFromRight: showOpenedCardsFirst,
+        expandToRight: !showOpenedCardsFirst,
       );
 
       return Row(
         children: [
-          Expanded(
+          SizedBox(
+            width: showOpenedCardsFirst ? openedCardsWidth : cardWidth,
             child: showOpenedCardsFirst ? openedCards() : unopenedCards(),
           ),
           const SizedBox(width: SolitaireConstants.padding),
-          Expanded(
+          SizedBox(
+            width: showOpenedCardsFirst ? cardWidth : openedCardsWidth,
             child: showOpenedCardsFirst ? unopenedCards() : openedCards(),
           ),
         ],

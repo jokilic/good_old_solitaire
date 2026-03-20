@@ -20,22 +20,23 @@ import '../card/card_widget.dart';
 import '../drag_feedback.dart';
 
 class DrawingOpenedCards extends WatchingWidget {
-  static const maxVisibleCardsForDrawThree = 3;
-  static const visibleCardOffsetFactor = 0.16;
-
   final String instanceId;
   final double cardHeight;
   final double cardWidth;
+  final double availableWidth;
   final GlobalKey pileKey;
   final bool hideTopCard;
   final bool revealFromRight;
+  final bool expandToRight;
 
   const DrawingOpenedCards({
     required this.instanceId,
     required this.cardHeight,
     required this.cardWidth,
+    required this.availableWidth,
     required this.pileKey,
     required this.hideTopCard,
+    required this.expandToRight,
     this.revealFromRight = false,
   });
 
@@ -51,6 +52,8 @@ class DrawingOpenedCards extends WatchingWidget {
     required int revealVersion,
     required double revealShiftX,
     required double visibleCardOffset,
+    required bool expandToRight,
+    required double availableWidth,
   }) {
     Widget empty() => const SizedBox.shrink();
 
@@ -58,70 +61,107 @@ class DrawingOpenedCards extends WatchingWidget {
       return empty();
     }
 
+    final orderedVisibleCards = expandToRight ? visibleCards : visibleCards.reversed.toList();
     final topCard = visibleCards.last;
-    final underTopCards = visibleCards.take(visibleCards.length - 1).toList();
+    final displayedCards = hideTopCard ? orderedVisibleCards.where((card) => card.revealKey != topCard.revealKey).toList() : orderedVisibleCards;
 
-    Widget topCardView() => DraggableOpenedCard(
-      topCard: topCard,
+    Widget topCardView(SolitaireCard card) => DraggableOpenedCard(
+      topCard: card,
       dragPayload: dragPayload,
       cardHeight: cardHeight,
       cardWidth: cardWidth,
       isSelected: isSelected,
     );
 
+    final positionedCards = List.generate(
+      displayedCards.length,
+      (index) => (
+        card: displayedCards[index],
+        left: visibleCardOffset * index,
+      ),
+    );
+
+    Widget positionedCardView({
+      required SolitaireCard card,
+      required double left,
+    }) => AnimatedPositioned(
+      key: ValueKey('drawing-opened-${card.revealKey}'),
+      duration: SolitaireDurations.animation,
+      curve: Curves.easeOutCubic,
+      left: left,
+      top: 0,
+      child: card.revealKey == topCard.revealKey
+          ? shouldAnimateReveal
+                ? Animate(
+                    key: ValueKey('drawing-reveal-$revealVersion'),
+                    effects: [
+                      MoveEffect(
+                        begin: Offset(
+                          revealFromRight ? revealShiftX : -revealShiftX,
+                          0,
+                        ),
+                        end: Offset.zero,
+                        duration: SolitaireDurations.animation,
+                        curve: Curves.easeIn,
+                      ),
+                      ScaleEffect(
+                        begin: const Offset(0.92, 0.92),
+                        end: const Offset(1, 1),
+                        duration: SolitaireDurations.animation,
+                        curve: Curves.easeIn,
+                      ),
+                      FadeEffect(
+                        begin: 0.2,
+                        end: 1,
+                        duration: SolitaireDurations.animation,
+                        curve: Curves.easeIn,
+                      ),
+                    ],
+                    child: topCardView(card),
+                  )
+                : topCardView(card)
+          : CardWidget(
+              card: card,
+              width: cardWidth,
+              height: cardHeight,
+              isSelected: false,
+            ),
+    );
+
     final stackedCards = <Widget>[
-      for (var index = 0; index < underTopCards.length; index += 1)
-        Positioned(
-          top: visibleCardOffset * (underTopCards.length - index),
-          child: CardWidget(
-            card: underTopCards[index],
-            width: cardWidth,
-            height: cardHeight,
-            isSelected: false,
+      for (final positionedCard in positionedCards)
+        if (positionedCard.card.revealKey != topCard.revealKey)
+          positionedCardView(
+            card: positionedCard.card,
+            left: positionedCard.left,
           ),
-        ),
-      if (!hideTopCard)
-        Positioned(
-          top: 0,
-          child: shouldAnimateReveal
-              ? Animate(
-                  key: ValueKey('drawing-reveal-$revealVersion'),
-                  effects: [
-                    MoveEffect(
-                      begin: Offset(revealFromRight ? revealShiftX : -revealShiftX, 0),
-                      end: Offset.zero,
-                      duration: SolitaireDurations.animation,
-                      curve: Curves.easeIn,
-                    ),
-                    ScaleEffect(
-                      begin: const Offset(0.92, 0.92),
-                      end: const Offset(1, 1),
-                      duration: SolitaireDurations.animation,
-                      curve: Curves.easeIn,
-                    ),
-                    FadeEffect(
-                      begin: 0.2,
-                      end: 1,
-                      duration: SolitaireDurations.animation,
-                      curve: Curves.easeIn,
-                    ),
-                  ],
-                  child: topCardView(),
-                )
-              : topCardView(),
-        ),
+      for (final positionedCard in positionedCards)
+        if (positionedCard.card.revealKey == topCard.revealKey)
+          positionedCardView(
+            card: positionedCard.card,
+            left: positionedCard.left,
+          ),
     ];
 
     if (stackedCards.isEmpty) {
       return empty();
     }
 
+    final stackWidth = cardWidth + visibleCardOffset * (displayedCards.length - 1);
+
     return SizedBox(
-      width: cardWidth,
-      height: cardHeight + visibleCardOffset * (visibleCards.length - 1),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: stackedCards,
+      width: availableWidth,
+      height: cardHeight,
+      child: Align(
+        alignment: expandToRight ? Alignment.topLeft : Alignment.topRight,
+        child: SizedBox(
+          width: stackWidth,
+          height: cardHeight,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: stackedCards,
+          ),
+        ),
       ),
     );
   }
@@ -173,8 +213,8 @@ class DrawingOpenedCards extends WatchingWidget {
     );
 
     final effectiveCardHeight = cardHeight - 2;
-    final visibleCardOffset = effectiveCardHeight * visibleCardOffsetFactor;
-    final maxVisibleCards = drawCardsNumber == DrawCardsNumber.three ? maxVisibleCardsForDrawThree : 1;
+    final visibleCardOffset = cardWidth * SolitaireConstants.visibleCardOffsetFactor;
+    final maxVisibleCards = drawCardsNumber == DrawCardsNumber.three ? SolitaireConstants.maxVisibleCardsForDrawThree : 1;
 
     final hasCards = openedCards.isNotEmpty;
     final visibleCards = openedCards.skip(openedCards.length > maxVisibleCards ? openedCards.length - maxVisibleCards : 0).toList();
@@ -191,15 +231,13 @@ class DrawingOpenedCards extends WatchingWidget {
         dropSettlePileIndex == null &&
         dropSettleFromOffset != null &&
         dropSettleCardKeys.contains(openedCards.last.revealKey);
-    final heightMultiplier = hasCards ? 1 + (visibleCards.length - 1) * visibleCardOffsetFactor : 1.0;
 
     return GestureDetector(
       onTap: controller.selectUnopenedSectionTop,
       child: CardFrame(
         key: pileKey,
         height: effectiveCardHeight,
-        width: cardWidth,
-        heightMultiplier: heightMultiplier,
+        width: availableWidth,
         child: () {
           final child = getOpenedCardView(
             hasCards: hasCards,
@@ -213,6 +251,8 @@ class DrawingOpenedCards extends WatchingWidget {
             revealVersion: revealVersion,
             revealShiftX: cardWidth + SolitaireConstants.padding,
             visibleCardOffset: visibleCardOffset,
+            expandToRight: expandToRight,
+            availableWidth: availableWidth,
           );
 
           if (!shouldApplyDropSettle) {
