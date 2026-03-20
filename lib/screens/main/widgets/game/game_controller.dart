@@ -12,6 +12,7 @@ import '../../../../models/drag_payload.dart';
 import '../../../../models/game/game_history_snapshot.dart';
 import '../../../../models/game/game_persistence_snapshot.dart';
 import '../../../../models/game/game_setup_snapshot.dart';
+import '../../../../models/settings/draw_cards_number.dart';
 import '../../../../services/hive_service.dart';
 import '../../../../services/sound_service.dart';
 import '../../../../util/main_stack_layout.dart';
@@ -305,14 +306,28 @@ class GameController
     var drawingRevealCardKey = value.drawingRevealCardKey;
     var didDrawCard = false;
     var didResetDrawPile = false;
+    final drawCardsNumber = hive.getSettings().drawCardsNumber;
 
-    /// Move one card from drawing unopened to drawing opened
+    /// Move one or three cards from drawing unopened to drawing opened,
+    /// depending on the current settings.
     if (drawingUnopened.isNotEmpty) {
-      final card = drawingUnopened.removeLast()..faceUp = true;
-      drawingOpened.add(card);
-      drawingRevealVersion += 1;
-      drawingRevealCardKey = card.revealKey;
-      didDrawCard = true;
+      final cardsToDraw = switch (drawCardsNumber) {
+        DrawCardsNumber.one => 1,
+        DrawCardsNumber.three => 3,
+      };
+      SolitaireCard? revealedCard;
+
+      for (var index = 0; index < cardsToDraw && drawingUnopened.isNotEmpty; index += 1) {
+        final card = drawingUnopened.removeLast()..faceUp = true;
+        drawingOpened.add(card);
+        revealedCard = card;
+      }
+
+      if (revealedCard != null) {
+        drawingRevealVersion += 1;
+        drawingRevealCardKey = revealedCard.revealKey;
+        didDrawCard = true;
+      }
     }
     /// Recycle drawing opened back to drawing unopened, flipping face-down
     else if (drawingOpened.isNotEmpty) {

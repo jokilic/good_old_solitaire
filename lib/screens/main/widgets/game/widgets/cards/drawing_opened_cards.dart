@@ -9,6 +9,8 @@ import '../../../../../../constants/durations.dart';
 import '../../../../../../constants/enums.dart';
 import '../../../../../../models/cards/solitaire_card.dart';
 import '../../../../../../models/drag_payload.dart';
+import '../../../../../../models/settings/draw_cards_number.dart';
+import '../../../../../../services/hive_service.dart';
 import '../../../../../../services/sound_service.dart';
 import '../../../../../../util/dependencies.dart';
 import '../../game_controller.dart';
@@ -18,6 +20,9 @@ import '../card/card_widget.dart';
 import '../drag_feedback.dart';
 
 class DrawingOpenedCards extends WatchingWidget {
+  static const maxVisibleCardsForDrawThree = 3;
+  static const visibleCardOffsetFactor = 0.16;
+
   final String instanceId;
   final double cardHeight;
   final double cardWidth;
@@ -39,75 +44,85 @@ class DrawingOpenedCards extends WatchingWidget {
     required bool hideTopCard,
     required double cardHeight,
     required double cardWidth,
-    required List<SolitaireCard> openedCards,
-    required SolitaireCard? cardUnderTop,
+    required List<SolitaireCard> visibleCards,
     required DragPayload dragPayload,
     required bool isSelected,
     required bool shouldAnimateReveal,
     required int revealVersion,
     required double revealShiftX,
+    required double visibleCardOffset,
   }) {
     Widget empty() => const SizedBox.shrink();
-
-    Widget underTopOrEmpty() {
-      final card = cardUnderTop;
-
-      if (card == null) {
-        return empty();
-      }
-
-      return CardWidget(
-        card: card,
-        width: cardWidth,
-        height: cardHeight,
-        isSelected: false,
-      );
-    }
 
     if (!hasCards) {
       return empty();
     }
 
-    if (hideTopCard) {
-      return underTopOrEmpty();
-    }
+    final topCard = visibleCards.last;
+    final underTopCards = visibleCards.take(visibleCards.length - 1).toList();
 
-    final topCard = DraggableOpenedCard(
-      topCard: openedCards.last,
-      cardUnderTop: cardUnderTop,
+    Widget topCardView() => DraggableOpenedCard(
+      topCard: topCard,
       dragPayload: dragPayload,
       cardHeight: cardHeight,
       cardWidth: cardWidth,
       isSelected: isSelected,
     );
 
-    if (!shouldAnimateReveal) {
-      return topCard;
+    final stackedCards = <Widget>[
+      for (var index = 0; index < underTopCards.length; index += 1)
+        Positioned(
+          top: visibleCardOffset * (underTopCards.length - index),
+          child: CardWidget(
+            card: underTopCards[index],
+            width: cardWidth,
+            height: cardHeight,
+            isSelected: false,
+          ),
+        ),
+      if (!hideTopCard)
+        Positioned(
+          top: 0,
+          child: shouldAnimateReveal
+              ? Animate(
+                  key: ValueKey('drawing-reveal-$revealVersion'),
+                  effects: [
+                    MoveEffect(
+                      begin: Offset(revealFromRight ? revealShiftX : -revealShiftX, 0),
+                      end: Offset.zero,
+                      duration: SolitaireDurations.animation,
+                      curve: Curves.easeIn,
+                    ),
+                    ScaleEffect(
+                      begin: const Offset(0.92, 0.92),
+                      end: const Offset(1, 1),
+                      duration: SolitaireDurations.animation,
+                      curve: Curves.easeIn,
+                    ),
+                    FadeEffect(
+                      begin: 0.2,
+                      end: 1,
+                      duration: SolitaireDurations.animation,
+                      curve: Curves.easeIn,
+                    ),
+                  ],
+                  child: topCardView(),
+                )
+              : topCardView(),
+        ),
+    ];
+
+    if (stackedCards.isEmpty) {
+      return empty();
     }
 
-    return Animate(
-      key: ValueKey('drawing-reveal-$revealVersion'),
-      effects: [
-        MoveEffect(
-          begin: Offset(revealFromRight ? revealShiftX : -revealShiftX, 0),
-          end: Offset.zero,
-          duration: SolitaireDurations.animation,
-          curve: Curves.easeIn,
-        ),
-        ScaleEffect(
-          begin: const Offset(0.92, 0.92),
-          end: const Offset(1, 1),
-          duration: SolitaireDurations.animation,
-          curve: Curves.easeIn,
-        ),
-        FadeEffect(
-          begin: 0.2,
-          end: 1,
-          duration: SolitaireDurations.animation,
-          curve: Curves.easeIn,
-        ),
-      ],
-      child: topCard,
+    return SizedBox(
+      width: cardWidth,
+      height: cardHeight + visibleCardOffset * (visibleCards.length - 1),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: stackedCards,
+      ),
     );
   }
 
@@ -119,6 +134,9 @@ class DrawingOpenedCards extends WatchingWidget {
     final openedCards = watchPropertyValue<GameController, List<SolitaireCard>>(
       (x) => x.value.drawingOpenedCards,
       instanceName: instanceId,
+    );
+    final drawCardsNumber = watchPropertyValue<HiveService, DrawCardsNumber>(
+      (x) => x.value.settings?.drawCardsNumber ?? DrawCardsNumber.one,
     );
     final revealVersion = watchPropertyValue<GameController, int>(
       (x) => x.value.drawingRevealVersion,
@@ -155,15 +173,17 @@ class DrawingOpenedCards extends WatchingWidget {
     );
 
     final effectiveCardHeight = cardHeight - 2;
+    final visibleCardOffset = effectiveCardHeight * visibleCardOffsetFactor;
+    final maxVisibleCards = drawCardsNumber == DrawCardsNumber.three ? maxVisibleCardsForDrawThree : 1;
 
     final hasCards = openedCards.isNotEmpty;
+    final visibleCards = openedCards.skip(openedCards.length > maxVisibleCards ? openedCards.length - maxVisibleCards : 0).toList();
 
     const dragPayload = DragPayload(
       source: PileType.drawingOpenedCards,
       pileIndex: 0,
     );
 
-    final cardUnderTop = openedCards.length > 1 ? openedCards[openedCards.length - 2] : null;
     final shouldAnimateReveal = hasCards && revealVersion > 0 && revealCardKey == openedCards.last.revealKey;
     final shouldApplyDropSettle =
         hasCards &&
@@ -171,6 +191,7 @@ class DrawingOpenedCards extends WatchingWidget {
         dropSettlePileIndex == null &&
         dropSettleFromOffset != null &&
         dropSettleCardKeys.contains(openedCards.last.revealKey);
+    final heightMultiplier = hasCards ? 1 + (visibleCards.length - 1) * visibleCardOffsetFactor : 1.0;
 
     return GestureDetector(
       onTap: controller.selectUnopenedSectionTop,
@@ -178,19 +199,20 @@ class DrawingOpenedCards extends WatchingWidget {
         key: pileKey,
         height: effectiveCardHeight,
         width: cardWidth,
+        heightMultiplier: heightMultiplier,
         child: () {
           final child = getOpenedCardView(
             hasCards: hasCards,
             hideTopCard: hideTopCard,
             cardHeight: effectiveCardHeight,
             cardWidth: cardWidth,
-            openedCards: openedCards,
-            cardUnderTop: cardUnderTop,
+            visibleCards: visibleCards,
             dragPayload: dragPayload,
             isSelected: isSelected,
             shouldAnimateReveal: shouldAnimateReveal,
             revealVersion: revealVersion,
             revealShiftX: cardWidth + SolitaireConstants.padding,
+            visibleCardOffset: visibleCardOffset,
           );
 
           if (!shouldApplyDropSettle) {
@@ -225,7 +247,6 @@ class DrawingOpenedCards extends WatchingWidget {
 
 class DraggableOpenedCard extends StatefulWidget {
   final SolitaireCard topCard;
-  final SolitaireCard? cardUnderTop;
   final DragPayload dragPayload;
   final double cardHeight;
   final double cardWidth;
@@ -233,7 +254,6 @@ class DraggableOpenedCard extends StatefulWidget {
 
   const DraggableOpenedCard({
     required this.topCard,
-    required this.cardUnderTop,
     required this.dragPayload,
     required this.cardHeight,
     required this.cardWidth,
@@ -275,14 +295,7 @@ class _DraggableOpenedCardState extends State<DraggableOpenedCard> {
       setPressed(false);
       unawaited(getIt.get<SoundService>().playCardPlace());
     },
-    childWhenDragging: widget.cardUnderTop != null
-        ? CardWidget(
-            card: widget.cardUnderTop!,
-            width: widget.cardWidth,
-            height: widget.cardHeight,
-            isSelected: false,
-          )
-        : const SizedBox.shrink(),
+    childWhenDragging: const SizedBox.shrink(),
     child: Listener(
       onPointerDown: (_) => setPressed(true),
       onPointerUp: (_) => setPressed(false),
