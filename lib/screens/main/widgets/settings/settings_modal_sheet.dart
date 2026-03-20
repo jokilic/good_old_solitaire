@@ -38,7 +38,7 @@ class SettingsModalSheet extends WatchingWidget {
       ),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
-        gradient: SolitaireGradients.greenGradient,
+        gradient: SolitaireGradients.blueGradient,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

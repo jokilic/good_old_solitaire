@@ -3,7 +3,6 @@ import 'package:watch_it/watch_it.dart';
 
 import '../../constants/colors.dart';
 import '../../constants/constants.dart';
-import '../../models/settings/animation_speed.dart';
 import '../../services/hive_service.dart';
 import '../../services/sound_service.dart';
 import '../../util/dependencies.dart';
@@ -151,9 +150,6 @@ class _MainScreenState extends State<MainScreen> {
     final canHint = watchPropertyValue<GameController, bool>(
       (x) => x.value.canHint,
       instanceName: widget.instanceId,
-    );
-    watchPropertyValue<HiveService, AnimationSpeed>(
-      (x) => x.value.settings?.animationSpeed ?? x.defaultSettings.animationSpeed,
     );
 
     return Scaffold(

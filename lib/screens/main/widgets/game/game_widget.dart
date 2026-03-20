@@ -797,6 +797,7 @@ class GameWidgetState extends State<GameWidget> with TickerProviderStateMixin {
               duration: SolitaireDurations.animationLong,
               switchInCurve: Curves.easeOutCubic,
               switchOutCurve: Curves.easeInCubic,
+              layoutBuilder: (currentChild, previousChildren) => currentChild ?? const SizedBox.shrink(),
               transitionBuilder: (child, animation) {
                 final isDrawCardsLeft = child.key == const ValueKey(DrawCardsPosition.left);
                 final beginOffset = isDrawCardsLeft ? const Offset(-0.08, 0) : const Offset(0.08, 0);
