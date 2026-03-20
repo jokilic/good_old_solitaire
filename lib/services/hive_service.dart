@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive_ce.dart';
 
-import '../constants/enums.dart';
-import '../models/game_persistence_snapshot.dart';
+import '../models/cards/solitaire_card.dart';
+import '../models/cards/suit.dart';
+import '../models/game/game_persistence_snapshot.dart';
 import '../models/hive_registrar.g.dart';
 import '../models/settings/animation_speed.dart';
 import '../models/settings/draw_cards_number.dart';
 import '../models/settings/draw_cards_position.dart';
 import '../models/settings/solitaire_settings.dart';
-import '../models/solitaire_card.dart';
 import '../models/theme/card_back_theme.dart';
 import '../models/theme/card_front_theme.dart';
 import '../models/theme/solitaire_theme.dart';

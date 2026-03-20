@@ -1,9 +1,9 @@
 import 'dart:ui';
 
-import '../constants/enums.dart';
-import 'drag_payload.dart';
-import 'selected_card.dart';
-import 'solitaire_card.dart';
+import '../../constants/enums.dart';
+import '../cards/selected_card.dart';
+import '../cards/solitaire_card.dart';
+import '../drag_payload.dart';
 
 class GameHistorySnapshot {
   final List<SolitaireCard> drawingUnopenedCards;

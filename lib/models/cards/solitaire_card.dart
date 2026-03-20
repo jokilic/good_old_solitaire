@@ -1,6 +1,6 @@
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-import '../constants/enums.dart';
+import 'suit.dart';
 
 class SolitaireCard {
   final Suit suit;

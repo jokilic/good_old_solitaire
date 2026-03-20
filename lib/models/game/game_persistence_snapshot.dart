@@ -1,4 +1,4 @@
-import 'solitaire_card.dart';
+import '../cards/solitaire_card.dart';
 
 class GamePersistenceSnapshot {
   final List<SolitaireCard> drawingUnopenedCards;

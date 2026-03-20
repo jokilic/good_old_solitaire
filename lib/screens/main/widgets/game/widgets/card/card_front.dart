@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../../../../constants/constants.dart';
-import '../../../../../../models/solitaire_card.dart';
+import '../../../../../../models/cards/solitaire_card.dart';
 import 'card_label.dart';
 
 class CardFront extends StatelessWidget {

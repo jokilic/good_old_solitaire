@@ -4,12 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../../../constants/enums.dart';
+import '../../../../models/cards/selected_card.dart';
+import '../../../../models/cards/solitaire_card.dart';
+import '../../../../models/cards/suit.dart';
 import '../../../../models/drag_payload.dart';
-import '../../../../models/game_history_snapshot.dart';
-import '../../../../models/game_persistence_snapshot.dart';
-import '../../../../models/game_setup_snapshot.dart';
-import '../../../../models/selected_card.dart';
-import '../../../../models/solitaire_card.dart';
+import '../../../../models/game/game_history_snapshot.dart';
+import '../../../../models/game/game_persistence_snapshot.dart';
+import '../../../../models/game/game_setup_snapshot.dart';
 import '../../../../services/hive_service.dart';
 import '../../../../services/sound_service.dart';
 import '../../../../util/main_stack_layout.dart';

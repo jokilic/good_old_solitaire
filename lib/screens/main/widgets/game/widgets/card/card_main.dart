@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 
 import '../../../../../../constants/enums.dart';
+import '../../../../../../models/cards/solitaire_card.dart';
 import '../../../../../../models/drag_payload.dart';
-import '../../../../../../models/solitaire_card.dart';
 import '../../../../../../services/sound_service.dart';
 import '../../../../../../util/dependencies.dart';
 import '../../game_controller.dart';

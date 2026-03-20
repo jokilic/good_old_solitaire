@@ -1,10 +1,3 @@
-enum Suit {
-  clubs,
-  diamonds,
-  hearts,
-  spades,
-}
-
 enum PileType {
   /// Main cards section
   mainCards,

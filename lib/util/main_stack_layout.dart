@@ -1,17 +1,16 @@
-import '../models/solitaire_card.dart';
+import '../models/cards/solitaire_card.dart';
 import 'card_size.dart';
 
 double mainStackOffsetForCard(
   SolitaireCard card, {
   required double cardWidth,
   required bool isWideUi,
-}) =>
-    card.faceUp
-        ? mainStackOffsetFromCardWidth(
-            cardWidth,
-            isWideUi: isWideUi,
-          )
-        : mainStackFaceDownOffsetFromCardWidth(cardWidth);
+}) => card.faceUp
+    ? mainStackOffsetFromCardWidth(
+        cardWidth,
+        isWideUi: isWideUi,
+      )
+    : mainStackFaceDownOffsetFromCardWidth(cardWidth);
 
 double mainStackTopOffset(
   List<SolitaireCard> cards,

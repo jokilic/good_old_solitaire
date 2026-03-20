@@ -5,9 +5,9 @@ import 'package:watch_it/watch_it.dart';
 
 import '../../../../../../../constants/durations.dart';
 import '../../../../../../../constants/enums.dart';
+import '../../../../../../../models/cards/selected_card.dart';
+import '../../../../../../../models/cards/solitaire_card.dart';
 import '../../../../../../../models/drag_payload.dart';
-import '../../../../../../../models/selected_card.dart';
-import '../../../../../../../models/solitaire_card.dart';
 import '../../../../../../../util/card_size.dart';
 import '../../../../../../../util/dependencies.dart';
 import '../../../../../../../util/main_stack_layout.dart';
