@@ -7,7 +7,6 @@
 ### To-Do
 
 - [ ] Test sound slider from `Settings`
-- [ ] Implement draw 1 or 3 cards at a time in `Settings`
 - [ ] Tweak UI so that `Hint` shows card properly
 - [ ] Think about using keyboard shortcuts for some actions
 - [ ] Icons should be WebP

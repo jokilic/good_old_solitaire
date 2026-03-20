@@ -80,6 +80,8 @@ class DrawingOpenedCards extends WatchingWidget {
         left: visibleCardOffset * index,
       ),
     );
+    final nonTopPositionedCards = positionedCards.where((card) => card.card.revealKey != topCard.revealKey).toList();
+    final paintedNonTopCards = expandToRight ? nonTopPositionedCards : nonTopPositionedCards.reversed.toList();
 
     Widget positionedCardView({
       required SolitaireCard card,
@@ -129,12 +131,11 @@ class DrawingOpenedCards extends WatchingWidget {
     );
 
     final stackedCards = <Widget>[
-      for (final positionedCard in positionedCards)
-        if (positionedCard.card.revealKey != topCard.revealKey)
-          positionedCardView(
-            card: positionedCard.card,
-            left: positionedCard.left,
-          ),
+      for (final positionedCard in paintedNonTopCards)
+        positionedCardView(
+          card: positionedCard.card,
+          left: positionedCard.left,
+        ),
       for (final positionedCard in positionedCards)
         if (positionedCard.card.revealKey == topCard.revealKey)
           positionedCardView(

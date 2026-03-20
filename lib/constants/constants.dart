@@ -26,7 +26,7 @@ class SolitaireConstants {
   ///
 
   static const maxVisibleCardsForDrawThree = 3;
-  static const visibleCardOffsetFactor = 0.32;
+  static const visibleCardOffsetFactor = 0.35;
 
   static const mainStackOffsetFactorPortrait = 0.45;
   static const mainStackOffsetFactorLandscape = 0.35;
