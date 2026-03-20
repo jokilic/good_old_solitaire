@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../../constants/constants.dart';
 import '../../../../constants/enums.dart';
 import '../../../../models/cards/selected_card.dart';
 import '../../../../models/cards/solitaire_card.dart';
@@ -99,15 +100,11 @@ class GameController
   GameSetupSnapshot? initialGameSetup;
   final moveHistory = <GameHistorySnapshot>[];
 
+  ///
+  /// GETTERS
+  ///
+
   GameHistorySnapshot? get lastMoveSnapshot => moveHistory.isEmpty ? null : moveHistory.last;
-
-  static const int scoreForStockToTableau = 5;
-  static const int scoreForMoveToFoundation = 10;
-  static const int scoreForRevealTableauCard = 5;
-
-  static const int scoreForFoundationToTableau = 0;
-  static const int scorePenaltyForHint = 0;
-  static const int scorePenaltyForUndo = 0;
 
   ///
   /// INIT
@@ -443,7 +440,7 @@ class GameController
       newMainCards: List<List<SolitaireCard>>.from(
         value.mainCards,
       ),
-      newScore: value.score + scoreForRevealTableauCard,
+      newScore: value.score + SolitaireConstants.scoreForRevealTableauCard,
     );
 
     persistCurrentGameState();
@@ -462,7 +459,7 @@ class GameController
     if (hintSelection != null) {
       updateState(
         newSelectedCard: hintSelection,
-        newScore: value.score + scorePenaltyForHint,
+        newScore: value.score + SolitaireConstants.scorePenaltyForHint,
       );
       return;
     }
@@ -472,7 +469,7 @@ class GameController
         source: PileType.drawingUnopenedCards,
         pileIndex: 0,
       ),
-      newScore: value.score + scorePenaltyForHint,
+      newScore: value.score + SolitaireConstants.scorePenaltyForHint,
     );
 
     if (value.drawingUnopenedCards.isNotEmpty) {
@@ -562,7 +559,7 @@ class GameController
       newMainRevealVersions: mainRevealVersions,
       newMainRevealCardKeys: mainRevealCardKeys,
       newMoveCounter: value.moveCounter + 1,
-      newScore: value.score + scoreForMoveToFoundation + scoreDelta,
+      newScore: value.score + SolitaireConstants.scoreForMoveToFoundation + scoreDelta,
       newSelectedCard: null,
     );
 
@@ -817,7 +814,7 @@ class GameController
     pile.addAll(stack);
     mainCards[column] = pile;
 
-    final moveScore = selectedCard.source == PileType.drawingOpenedCards ? scoreForStockToTableau : 0;
+    final moveScore = selectedCard.source == PileType.drawingOpenedCards ? SolitaireConstants.scoreForStockToTableau : 0;
 
     updateState(
       newDrawingOpenedCards: drawingOpened,
@@ -939,7 +936,7 @@ class GameController
       newMainRevealVersions: mainRevealVersions,
       newMainRevealCardKeys: mainRevealCardKeys,
       newMoveCounter: value.moveCounter + 1,
-      newScore: value.score + scoreForMoveToFoundation + scoreDelta,
+      newScore: value.score + SolitaireConstants.scoreForMoveToFoundation + scoreDelta,
       newSelectedCard: null,
       newDropSettleVersion: dropOffset == null ? null : value.dropSettleVersion + 1,
       newDropSettleTarget: dropOffset == null ? noDropSettleTarget : PileType.finishedCards,
@@ -1001,8 +998,8 @@ class GameController
     mainCards[column] = pile;
 
     final moveScore = switch (payload.source) {
-      PileType.drawingOpenedCards => scoreForStockToTableau,
-      PileType.finishedCards => scoreForFoundationToTableau,
+      PileType.drawingOpenedCards => SolitaireConstants.scoreForStockToTableau,
+      PileType.finishedCards => SolitaireConstants.scoreForFoundationToTableau,
       _ => 0,
     };
 
@@ -1124,7 +1121,7 @@ class GameController
           pile.last.faceUp = true;
           mainRevealVersions[pileIndex] += 1;
           mainRevealCardKeys[pileIndex] = pile.last.revealKey;
-          scoreDelta += scoreForRevealTableauCard;
+          scoreDelta += SolitaireConstants.scoreForRevealTableauCard;
           unawaited(sound.playCardFlip());
         }
 
@@ -1246,7 +1243,7 @@ class GameController
           pile.last.faceUp = true;
           mainRevealVersions[pileIndex] += 1;
           mainRevealCardKeys[pileIndex] = pile.last.revealKey;
-          scoreDelta += scoreForRevealTableauCard;
+          scoreDelta += SolitaireConstants.scoreForRevealTableauCard;
           unawaited(sound.playCardFlip());
         }
 
@@ -1438,7 +1435,7 @@ class GameController
       newDrawingRevealCardKey: snapshot.drawingRevealCardKey,
       newElapsedSeconds: snapshot.elapsedSeconds,
       newMoveCounter: snapshot.moveCounter,
-      newScore: snapshot.score + scorePenaltyForUndo,
+      newScore: snapshot.score + SolitaireConstants.scorePenaltyForUndo,
       newMainCards: cloneCardColumns(snapshot.mainCards),
       newFinishedCards: cloneCardColumns(snapshot.finishedCards),
       newMainRevealVersions: List<int>.from(snapshot.mainRevealVersions),

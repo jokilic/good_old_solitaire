@@ -310,3 +310,165 @@ class CardFrontThemeAdapter extends TypeAdapter<CardFrontTheme> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+class SuitAdapter extends TypeAdapter<Suit> {
+  @override
+  final typeId = 8;
+
+  @override
+  Suit read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return Suit.clubs;
+      case 1:
+        return Suit.diamonds;
+      case 2:
+        return Suit.hearts;
+      case 3:
+        return Suit.spades;
+      default:
+        return Suit.clubs;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, Suit obj) {
+    switch (obj) {
+      case Suit.clubs:
+        writer.writeByte(0);
+      case Suit.diamonds:
+        writer.writeByte(1);
+      case Suit.hearts:
+        writer.writeByte(2);
+      case Suit.spades:
+        writer.writeByte(3);
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SuitAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class SolitaireCardAdapter extends TypeAdapter<SolitaireCard> {
+  @override
+  final typeId = 9;
+
+  @override
+  SolitaireCard read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return SolitaireCard(
+      suit: fields[0] as Suit,
+      rank: (fields[1] as num).toInt(),
+      faceUp: fields[2] as bool,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, SolitaireCard obj) {
+    writer
+      ..writeByte(3)
+      ..writeByte(0)
+      ..write(obj.suit)
+      ..writeByte(1)
+      ..write(obj.rank)
+      ..writeByte(2)
+      ..write(obj.faceUp);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SolitaireCardAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+class GamePersistenceSnapshotAdapter
+    extends TypeAdapter<GamePersistenceSnapshot> {
+  @override
+  final typeId = 10;
+
+  @override
+  GamePersistenceSnapshot read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return GamePersistenceSnapshot(
+      drawingUnopenedCards: (fields[0] as List).cast<SolitaireCard>(),
+      drawingOpenedCards: (fields[1] as List).cast<SolitaireCard>(),
+      drawingRevealVersion: (fields[2] as num).toInt(),
+      drawingRevealCardKey: fields[3] as String?,
+      elapsedSeconds: (fields[4] as num).toInt(),
+      moveCounter: (fields[5] as num).toInt(),
+      score: (fields[6] as num).toInt(),
+      mainCards: (fields[7] as List)
+          .map((e) => (e as List).cast<SolitaireCard>())
+          .toList(),
+      finishedCards: (fields[8] as List)
+          .map((e) => (e as List).cast<SolitaireCard>())
+          .toList(),
+      mainRevealVersions: (fields[9] as List).cast<int>(),
+      mainRevealCardKeys: (fields[10] as List).cast<String?>(),
+      initialDrawingUnopenedCards: (fields[11] as List).cast<SolitaireCard>(),
+      initialMainCards: (fields[12] as List)
+          .map((e) => (e as List).cast<SolitaireCard>())
+          .toList(),
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, GamePersistenceSnapshot obj) {
+    writer
+      ..writeByte(13)
+      ..writeByte(0)
+      ..write(obj.drawingUnopenedCards)
+      ..writeByte(1)
+      ..write(obj.drawingOpenedCards)
+      ..writeByte(2)
+      ..write(obj.drawingRevealVersion)
+      ..writeByte(3)
+      ..write(obj.drawingRevealCardKey)
+      ..writeByte(4)
+      ..write(obj.elapsedSeconds)
+      ..writeByte(5)
+      ..write(obj.moveCounter)
+      ..writeByte(6)
+      ..write(obj.score)
+      ..writeByte(7)
+      ..write(obj.mainCards)
+      ..writeByte(8)
+      ..write(obj.finishedCards)
+      ..writeByte(9)
+      ..write(obj.mainRevealVersions)
+      ..writeByte(10)
+      ..write(obj.mainRevealCardKeys)
+      ..writeByte(11)
+      ..write(obj.initialDrawingUnopenedCards)
+      ..writeByte(12)
+      ..write(obj.initialMainCards);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GamePersistenceSnapshotAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}

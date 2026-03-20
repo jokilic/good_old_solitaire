@@ -9,6 +9,14 @@ class SolitaireConstants {
 
   static const blurRadius = 24.0;
 
+  static const scoreForStockToTableau = 5;
+  static const scoreForMoveToFoundation = 10;
+  static const scoreForRevealTableauCard = 5;
+
+  static const scoreForFoundationToTableau = 0;
+  static const scorePenaltyForHint = 0;
+  static const scorePenaltyForUndo = 0;
+
   static const mainStackOffsetFactorPortrait = 0.45;
   static const mainStackOffsetFactorLandscape = 0.35;
 

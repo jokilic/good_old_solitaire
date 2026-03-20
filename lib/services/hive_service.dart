@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive_ce.dart';
 
-import '../models/cards/solitaire_card.dart';
-import '../models/cards/suit.dart';
 import '../models/game/game_persistence_snapshot.dart';
 import '../models/hive_registrar.g.dart';
 import '../models/settings/animation_speed.dart';
@@ -102,53 +100,13 @@ class HiveService extends ValueNotifier<({SolitaireSettings? settings, Solitaire
   }
 
   /// Stores the current in-progress game so it can be resumed after app restart.
-  Future<void> writeCurrentGame(GamePersistenceSnapshot snapshot) async {
-    await gameState.put(
-      currentGameKey,
-      {
-        'drawingUnopenedCards': encodeCards(snapshot.drawingUnopenedCards),
-        'drawingOpenedCards': encodeCards(snapshot.drawingOpenedCards),
-        'drawingRevealVersion': snapshot.drawingRevealVersion,
-        'drawingRevealCardKey': snapshot.drawingRevealCardKey,
-        'elapsedSeconds': snapshot.elapsedSeconds,
-        'moveCounter': snapshot.moveCounter,
-        'score': snapshot.score,
-        'mainCards': encodeCardColumns(snapshot.mainCards),
-        'finishedCards': encodeCardColumns(snapshot.finishedCards),
-        'mainRevealVersions': List<int>.from(snapshot.mainRevealVersions),
-        'mainRevealCardKeys': List<String?>.from(snapshot.mainRevealCardKeys),
-        'initialDrawingUnopenedCards': encodeCards(snapshot.initialDrawingUnopenedCards),
-        'initialMainCards': encodeCardColumns(snapshot.initialMainCards),
-      },
-    );
-  }
+  Future<void> writeCurrentGame(GamePersistenceSnapshot snapshot) async => gameState.put(
+    currentGameKey,
+    snapshot,
+  );
 
   /// Returns the last stored in-progress game, if any.
-  GamePersistenceSnapshot? getCurrentGame() {
-    final rawSnapshot = gameState.get(currentGameKey);
-
-    if (rawSnapshot == null) {
-      return null;
-    }
-
-    final snapshot = Map<String, dynamic>.from(rawSnapshot.cast<dynamic, dynamic>());
-
-    return GamePersistenceSnapshot(
-      drawingUnopenedCards: decodeCards(snapshot['drawingUnopenedCards']),
-      drawingOpenedCards: decodeCards(snapshot['drawingOpenedCards']),
-      drawingRevealVersion: snapshot['drawingRevealVersion'] as int? ?? 0,
-      drawingRevealCardKey: snapshot['drawingRevealCardKey'] as String?,
-      elapsedSeconds: snapshot['elapsedSeconds'] as int? ?? 0,
-      moveCounter: snapshot['moveCounter'] as int? ?? 0,
-      score: snapshot['score'] as int? ?? 0,
-      mainCards: decodeCardColumns(snapshot['mainCards']),
-      finishedCards: decodeCardColumns(snapshot['finishedCards']),
-      mainRevealVersions: decodeIntList(snapshot['mainRevealVersions']),
-      mainRevealCardKeys: decodeNullableStringList(snapshot['mainRevealCardKeys']),
-      initialDrawingUnopenedCards: decodeCards(snapshot['initialDrawingUnopenedCards']),
-      initialMainCards: decodeCardColumns(snapshot['initialMainCards']),
-    );
-  }
+  GamePersistenceSnapshot? getCurrentGame() => gameState.get(currentGameKey);
 
   Future<void> clearCurrentGame() async {
     await gameState.delete(currentGameKey);
@@ -189,64 +147,4 @@ class HiveService extends ValueNotifier<({SolitaireSettings? settings, Solitaire
     settings: newSettings ?? getSettings(),
     theme: newTheme ?? getTheme(),
   );
-
-  List<Map<String, dynamic>> encodeCards(List<SolitaireCard> cards) => [
-    for (final card in cards)
-      {
-        'suit': card.suit.name,
-        'rank': card.rank,
-        'faceUp': card.faceUp,
-      },
-  ];
-
-  List<List<Map<String, dynamic>>> encodeCardColumns(List<List<SolitaireCard>> columns) => [
-    for (final column in columns) encodeCards(column),
-  ];
-
-  List<SolitaireCard> decodeCards(dynamic rawCards) {
-    if (rawCards is! List) {
-      return [];
-    }
-
-    return [
-      for (final rawCard in rawCards)
-        if (rawCard is Map)
-          SolitaireCard(
-            suit: Suit.values.byName(rawCard['suit'] as String),
-            rank: rawCard['rank'] as int,
-            faceUp: rawCard['faceUp'] as bool,
-          ),
-    ];
-  }
-
-  List<List<SolitaireCard>> decodeCardColumns(dynamic rawColumns) {
-    if (rawColumns is! List) {
-      return [];
-    }
-
-    return [
-      for (final rawColumn in rawColumns) decodeCards(rawColumn),
-    ];
-  }
-
-  List<int> decodeIntList(dynamic rawValues) {
-    if (rawValues is! List) {
-      return [];
-    }
-
-    return [
-      for (final value in rawValues)
-        if (value is int) value,
-    ];
-  }
-
-  List<String?> decodeNullableStringList(dynamic rawValues) {
-    if (rawValues is! List) {
-      return [];
-    }
-
-    return [
-      for (final value in rawValues) value as String?,
-    ];
-  }
 }

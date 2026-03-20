@@ -3,6 +3,9 @@
 // Check in to version control
 
 import 'package:hive_ce/hive_ce.dart';
+import 'package:good_old_solitaire/models/cards/solitaire_card.dart';
+import 'package:good_old_solitaire/models/cards/suit.dart';
+import 'package:good_old_solitaire/models/game/game_persistence_snapshot.dart';
 import 'package:good_old_solitaire/models/hive_adapters.dart';
 import 'package:good_old_solitaire/models/settings/animation_speed.dart';
 import 'package:good_old_solitaire/models/settings/draw_cards_number.dart';
@@ -20,8 +23,11 @@ extension HiveRegistrar on HiveInterface {
     registerAdapter(CardFrontThemeAdapter());
     registerAdapter(DrawCardsNumberAdapter());
     registerAdapter(DrawCardsPositionAdapter());
+    registerAdapter(GamePersistenceSnapshotAdapter());
+    registerAdapter(SolitaireCardAdapter());
     registerAdapter(SolitaireSettingsAdapter());
     registerAdapter(SolitaireThemeAdapter());
+    registerAdapter(SuitAdapter());
     registerAdapter(TableThemeAdapter());
   }
 }
